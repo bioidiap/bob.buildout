@@ -6,10 +6,10 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='bob.buildout.recipes',
+    name='xbob.buildout',
     version='0.1.0',
     description="zc.buildout recipes to perform a variety of tasks required by Bob satellite packages",
-    keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs'],
+    keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs', 'bob'],
     url='http://github.com/bioidiap/bob.buildout.recipes',
     license='GPLv3',
     author='Andre Anjos',
@@ -22,15 +22,20 @@ setup(
     include_package_data=True,
     zip_safe=False,
 
+    namespace_packages = [
+      'xbob',
+    ],
+
     entry_points = {
       'zc.buildout': [
-        'external = bob_buildout.external:Recipe',
-        'sphinx = bob_buildout.sphx:Recipe',
-        'nose = bob_buildout.nose:Recipe',
+        'external = xbob.buildout.external:Recipe',
+        'sphinx = xbob.buildout.sphx:Recipe',
+        'nose = xbob.buildout.nose:Recipe',
         ],
       },
 
     install_requires=[
+      'setuptools',
       'Sphinx >= 1.0',
       'nose',
       'zc.recipe.egg',

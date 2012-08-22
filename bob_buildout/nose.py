@@ -8,9 +8,22 @@
 
 import os
 import sys
+import logging
 import pkg_resources
 import zc.buildout.easy_install
 import zc.recipe.egg
+
+from .tools import *
+
+INITIALIZATION_TEMPLATE = """\
+import os
+
+sys.argv[0] = os.path.abspath(sys.argv[0])
+os.chdir(%r)
+"""
+
+ENV_TEMPLATE = """os.environ['%s'] = %r
+"""
 
 class Recipe(object):
 
@@ -22,7 +35,7 @@ class Recipe(object):
     
     self.logger = logging.getLogger(self.name)
     
-    self.logger.warn("Initializing '%s'" % self.name)
+    self.logger.debug("Initializing '%s'" % self.name)
 
     options['script'] = os.path.join(buildout['buildout']['bin-directory'],
                      options.get('script', self.name),
@@ -33,79 +46,58 @@ class Recipe(object):
       options['location'] = os.path.join(
         buildout['buildout']['parts-directory'], name)
 
-    eggs = options.get('eggs', '')
-    eggs = [egg.strip() for egg in eggs.split('\n') if egg.strip() != '']
+    self.eggs = parse_list(options.get('eggs', ''))
 
-    if 'nose' not in eggs:
-      eggs.append('nose')
+    if 'nose' not in self.eggs: self.eggs.append('nose')
 
-    options['eggs'] = '\n'.join(eggs)
+    options['eggs'] = '\n'.join(self.eggs)
     self.egg = zc.recipe.egg.Egg(buildout, name, options)
 
   def install(self):
     '''Installation routine'''
 
-    options = self.options
-    dest = []
-    import ipdb; ipdb.set_trace()
-    eggs, ws = self.egg.working_set([self.egg.name.split(':')[0]] + self.eggs)
+    eggs, ws = self.egg.working_set()
 
-    test_paths = [ws.find(pkg_resources.Requirement.parse(spec)).location
-            for spec in eggs]
-
-    defaults = options.get('defaults', '').strip()
+    defaults = self.options.get('defaults', '').strip()
     if defaults:
       defaults = ['nose'] + defaults.split()
       defaults = "argv=%s+sys.argv[1:]" % defaults
     else:
       defaults = "argv=['nose']+sys.argv[1:]"
 
-    wd = options.get('working-directory', '').strip()
+    wd = self.options.get('working-directory', '').strip()
     if wd != '':
       if os.path.exists(wd):
         assert os.path.isdir(wd)
       else:
         os.mkdir(wd)
-      dest.append(wd)
-      initialization = initialization_template % wd
+      initialization = INITIALIZATION_TEMPLATE % wd
     else:
       initialization = ''
 
-    env_section = options.get('environment', '').strip()
+    env_section = self.options.get('environment', '').strip()
     if env_section:
       env = self.buildout[env_section]
       for key, value in env.items():
-        initialization += env_template % (key, value)
+        initialization += ENV_TEMPLATE % (key, value)
       initialization = 'import os\n%s' % initialization
 
-    initialization_section = options.get('initialization', '').strip()
+    initialization_section = self.options.get('initialization', '').strip()
     if initialization_section:
       initialization += initialization_section
 
-    dest.extend(zc.buildout.easy_install.scripts(
-      [(options['script'], 'nose', 'main')],
-      ws, options['executable'],
-      self.buildout['buildout']['bin-directory'],
-      extra_paths=self.egg.extra_paths,
-      arguments = defaults,
-      initialization = initialization,
-      ))
+    script = zc.buildout.easy_install.scripts(
+        reqs=[(self.options['script'], 'nose', 'main')],
+        working_set=ws,
+        executable=self.options['executable'],
+        dest=self.buildout['buildout']['bin-directory'],
+        extra_paths=self.egg.extra_paths,
+        arguments = defaults,
+        initialization = initialization,
+        )
 
-    return (os.path.join(self.buildout['buildout']['bin-directory'],
-        options['script']),)
+    for k in script: self.options.created(k)
 
+    return self.options.created()
+    
   update = install
-
-arg_template = """[
-  '--test-path', %(TESTPATH)s,
-  ]"""
-
-initialization_template = """\
-import os
-
-sys.argv[0] = os.path.abspath(sys.argv[0])
-os.chdir(%r)
-"""
-
-env_template = """os.environ['%s'] = %r
-"""

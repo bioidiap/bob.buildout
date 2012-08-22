@@ -16,21 +16,30 @@ import zc.recipe.egg
 from datetime import datetime
 from fnmatch import fnmatch
 
+from .tools import *
+
 class Recipe(object):
   """zc.buildout recipe"""
 
   def __init__(self, buildout, name, options):
 
-    self.buildout, self.name, self.options = buildout, name, options
-    self.egg = zc.recipe.egg.Egg(buildout, options['recipe'], options)
+    self.buildout = buildout
+    self.name = name
+    self.options = options
+    self.logger = logging.getLogger(self.name)
+
     self.buildout_dir = self.buildout['buildout']['directory']
     self.bin_dir = self.buildout['buildout']['bin-directory']
     self.parts_dir = self.buildout['buildout']['parts-directory']
-    self.logger = logging.getLogger(self.name)
 
     self.interpreter = options.get('interpreter')
     self.outputs = options.get('outputs', 'html')
-    self.eggs = [d for d in options.get('eggs', '').split() if d]
+    
+    self.eggs = parse_list(options.get('eggs', ''))
+
+    if 'Sphinx' not in self.eggs: self.eggs.append('Sphinx')
+    options['eggs'] = '\n'.join(self.eggs)
+    self.egg = zc.recipe.egg.Egg(buildout, name, options)
 
     self.build_dir = os.path.join(self.buildout_dir, 
         options.get('build', 'sphinx'))
@@ -124,9 +133,7 @@ class Recipe(object):
     # :write gives error
     #       -> ValueError: ('Expected version spec in',
     #               'collective.recipe.sphinxbuilder:write', 'at', ':write')
-    self.egg.name = self.options['recipe']
-    requirements, ws = self.egg.working_set([self.egg.name.split(':')[0]] + \
-        self.eggs)
+    requirements, ws = self.egg.working_set()
     zc.buildout.easy_install.scripts(
         [('sphinx-quickstart', 'sphinx.quickstart', 'main'),
           ('sphinx-build', 'sphinx', 'main')], ws,

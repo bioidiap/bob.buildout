@@ -25,7 +25,7 @@ setup(
     entry_points = {
       'zc.buildout': [
         'external = bob_buildout.external:Recipe',
-        'sphinx = bob_buildout.sphinx:Recipe',
+        'sphinx = bob_buildout.sphx:Recipe',
         'nose = bob_buildout.nose:Recipe',
         ],
       },

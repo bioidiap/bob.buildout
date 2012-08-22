@@ -11,6 +11,8 @@ import fnmatch
 import logging
 import zc.buildout
 
+from .tools import *
+
 class Recipe(object):
   """Sets up links to egg installations depending on user configuration
   """
@@ -23,9 +25,7 @@ class Recipe(object):
     
     self.logger.debug("Initializing '%s'" % self.name)
 
-    self.eggdirs = options.get('egg-directories', [])
-    if isinstance(self.eggdirs, (str, unicode)):
-      self.eggdirs = [self.eggdirs]
+    self.eggdirs = parse_list(options.get('egg-directories', ''))
 
     remove = []
     for k in self.eggdirs:
@@ -40,26 +40,9 @@ class Recipe(object):
 
     self.only_glob = options.get('include-glob', '*.egg')
       
-    self.buildout_eggdir = \
-        buildout['buildout'].get('eggs-directory', '').split()
+    self.buildout_eggdir = buildout['buildout'].get('eggs-directory')
 
     self.recurse = buildout['buildout'].get('recurse', '1') in ('1', 'true')
-
-    self.eggs = []
-    if self.recurse:
-      for path in self.eggdirs:
-        for (dirpath, dirnames, filenames) in os.walk(path):
-          names = fnmatch.filter(dirnames, self.only_glob) + \
-              fnmatch.filter(filenames, self.only_glob)
-          self.eggs += [os.path.join(dirpath, k) for k in names]
-    else:
-      for path in self.eggdirs:
-        names = fnmatch.filter(os.listdir(path), self.only_glob)
-        self.eggs += [os.path.join(path, k) for k in names]
-
-    self.logger.debug("Found %d valid egg(s)" % len(self.eggs))
-
-    for k in self.eggs: self.logger.info("Found external egg %s" % k)
 
   def install(self):
 
@@ -73,9 +56,23 @@ class Recipe(object):
       f.close()
       self.options.created(link)
 
-    self.logger.debug("Installing '%s'..." % self.name)
-    
-    for k in self.eggs: create_egg_link(k)
+    eggs = []
+    if self.recurse:
+      for path in self.eggdirs:
+        for (dirpath, dirnames, filenames) in os.walk(path):
+          names = fnmatch.filter(dirnames, self.only_glob) + \
+              fnmatch.filter(filenames, self.only_glob)
+          eggs += [os.path.join(dirpath, k) for k in names]
+    else:
+      for path in self.eggdirs:
+        names = fnmatch.filter(os.listdir(path), self.only_glob)
+        eggs += [os.path.join(path, k) for k in names]
+
+    self.logger.debug("Found %d valid egg(s)" % len(eggs))
+
+    for k in eggs: 
+      self.logger.info("Linking external egg %s" % k)
+      create_egg_link(k)
 
     return self.options.created()
 

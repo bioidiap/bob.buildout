@@ -99,6 +99,11 @@ The recipe supports the following options::
     behavior). Else, if set to ``0`` or ``false``, does not, just looks what is
     available in the given directories.
 
+  strict-version
+    If set to ``1`` or ``true``, only consider packages with strictly valid
+    version numbers in the sense of ``distutils.version.StrictVersion``. This
+    parameter is set to ``true`` by default.
+
 Nose Test Generator Recipe
 --------------------------
 

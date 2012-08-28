@@ -39,7 +39,7 @@ class Recipe(object):
 
     self.logger.debug("Found %d valid egg directory(ies)" % len(self.eggdirs))
 
-    self.only_glob = options.get('include-glob', '*.egg')
+    self.only_glob = parse_list(options.get('include-globs', 'bob*.egg-info'))
       
     self.buildout_eggdir = buildout['buildout'].get('eggs-directory')
 
@@ -52,10 +52,20 @@ class Recipe(object):
     def create_egg_link(distro):
       '''Generates the egg-link file'''
 
-      basename = os.path.splitext(os.path.basename(distro.location))[0]
+      basename, ext = os.path.splitext(os.path.basename(distro))
       link = os.path.join(self.buildout_eggdir, basename) + '.egg-link'
       f = open(link, 'wt')
-      f.write(distro.location + '\n')
+      
+      if ext.lower() == '.egg':
+        f.write(distro + '\n')
+      elif ext.lower() == '.egg-info':
+        f.write(os.path.dirname(distro) + '\n')
+      else:
+        f.close()
+        message = "Can't deal with extension %s (%s)" % (ext, distro)
+        self.logger.error(message)
+        raise RuntimeError, message
+
       f.close()
       self.options.created(link)
 
@@ -63,26 +73,17 @@ class Recipe(object):
     if self.recurse:
       for path in self.eggdirs:
         for (dirpath, dirnames, filenames) in os.walk(path):
-          names = fnmatch.filter(dirnames, self.only_glob) + \
-              fnmatch.filter(filenames, self.only_glob)
-          eggs += [os.path.join(dirpath, k) for k in names]
+          for glob in self.only_glob:
+            names = fnmatch.filter(dirnames, glob) + \
+                fnmatch.filter(filenames, glob)
+            eggs += [os.path.join(dirpath, k) for k in names]
     else:
       for path in self.eggdirs:
         names = fnmatch.filter(os.listdir(path), self.only_glob)
         eggs += [os.path.join(path, k) for k in names]
 
-    # resolve versions and package names (only consider strict versions)
-    from pkg_resources import find_distributions
-    from distutils.version import StrictVersion
-    distros = [d[0] for d in [list(find_distributions(k)) for k in eggs]]
-    if self.strict_version:
-      distros = [d for d in distros if StrictVersion.version_re.match(d.version)]
-      self.logger.info("Found %d version-strict egg(s)" % len(distros))
-    else:
-      self.logger.debug("Found %d non-version-strict egg(s)" % len(distros))
-
-    for k in distros:
-      self.logger.info("Linking external egg %s" % k.location)
+    for k in eggs:
+      self.logger.info("Linking external egg %s" % k)
       create_egg_link(k)
 
     return self.options.created()

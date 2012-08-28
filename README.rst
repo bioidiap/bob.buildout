@@ -90,9 +90,10 @@ The recipe supports the following options::
   egg-directories
     A list of directories that we will scan for eggs
 
-  include-glob
-    A globbing expression (``*.egg`` or ``bla-*.egg``, for example) for path
-    names that will be considered for inclusion. Defaults to ``*.egg``.
+  include-globs
+    A list of globbing expression (``*.egg`` or ``bla-*.egg-info``, for
+    example) for path names that will be considered for inclusion. Defaults to
+    ``bob*.egg-info``.
 
   recurse
     If set to ``1`` or ``true``, recurses into all subdirectories (the default

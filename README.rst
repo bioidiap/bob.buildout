@@ -23,7 +23,7 @@ Recipe for sphinx/buildout integration. To
 use it, add something like the following to your buildout configuration::
 
   [sphinx]
-  recipe = bob.buildout.recipes:sphinx
+  recipe = xbob.buildout:sphinx
   eggs = ${buildout:eggs}
   source = ${buildout:directory}/docs ; where documentation is
   build = ${buildout:directory}/sphinx ; where results will be put at
@@ -79,7 +79,7 @@ To use this recipe, add something like the following to your buildout
 configuration::
 
   [external]
-  recipe = bob.buildout.recipes:external
+  recipe = xbob.buildout:external
   egg-directories = ../bob/build/lib
 
 Supported Options
@@ -113,7 +113,7 @@ would like to test them). To use this recipe,
 just create a section on your ``buildout.cfg`` file like the following::
 
   [tests]
-  recipe = bob.buildout.recipes:nose
+  recipe = xbob.buildout:nose
   eggs = ${buildout:eggs}
   ;script = runtests.py
 

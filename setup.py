@@ -10,7 +10,7 @@ setup(
     version='0.1.2',
     description="zc.buildout recipes to perform a variety of tasks required by Bob satellite packages",
     keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs', 'bob'],
-    url='http://github.com/bioidiap/bob.buildout.recipes',
+    url='http://github.com/bioidiap/xbob.buildout',
     license='GPLv3',
     author='Andre Anjos',
     author_email='andre.anjos@idiap.ch',

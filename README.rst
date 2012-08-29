@@ -2,8 +2,7 @@
  Buildout Recipes for Bob
 ==========================
 
-This package contains a number of recipes to be used to build `Satellite
-Packages
+This package contains a number of recipes to be used to build `Satellite Packages
 <https://github.com/idiap/bob/wiki/Virtual-Work-Environments-with-Buildout>`_
 for `Bob <http://idiap.github.com/bob/>`_, a signal-processing and machine
 learning toolbox originally developed by the Biometrics Group at Idiap, in
@@ -14,7 +13,7 @@ Switzerland.
   You normally don't need to download this package directly. It will be done by
   Buildout automatically, if you followed our recipe to build `Satellite
   Packages
-  <https://github.com/idiap/bob/wiki/Virtual-Work-Environments-with-Buildout>`.
+  <https://github.com/idiap/bob/wiki/Virtual-Work-Environments-with-Buildout>`_.
 
 Sphinx Recipe
 -------------

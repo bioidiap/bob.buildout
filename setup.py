@@ -36,7 +36,7 @@ setup(
 
     install_requires=[
       'setuptools',
-      'Sphinx >= 1.0',
+      'Sphinx',
       'nose',
       'zc.recipe.egg',
       ],

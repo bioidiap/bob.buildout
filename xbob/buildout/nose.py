@@ -46,7 +46,7 @@ class Recipe(object):
       options['location'] = os.path.join(
         buildout['buildout']['parts-directory'], name)
 
-    self.eggs = parse_list(options.get('eggs', ''))
+    self.eggs = parse_list(options.get('eggs', buildout['buildout'].get('eggs', '')))
 
     if 'nose' not in self.eggs: self.eggs.append('nose')
 

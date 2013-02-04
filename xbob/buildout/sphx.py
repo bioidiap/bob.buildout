@@ -35,7 +35,7 @@ class Recipe(object):
     self.interpreter = options.get('interpreter')
     self.outputs = options.get('outputs', 'html')
     
-    self.eggs = parse_list(options.get('eggs', ''))
+    self.eggs = parse_list(options.get('eggs', buildout['buildout'].get('eggs', '')))
 
     if 'Sphinx' not in self.eggs: self.eggs.append('Sphinx')
     options['eggs'] = '\n'.join(self.eggs)

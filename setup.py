@@ -31,6 +31,8 @@ setup(
         'external = xbob.buildout.external:Recipe',
         'sphinx = xbob.buildout.sphx:Recipe',
         'nose = xbob.buildout.nose:Recipe',
+        'develop = xbob.buildout.develop:Recipe',
+        'interpreter = xbob.buildout.interpreter:Recipe',
         ],
       },
 
@@ -39,6 +41,7 @@ setup(
       'Sphinx',
       'nose',
       'zc.recipe.egg',
+      'xbob.extension',
       ],
 
     classifiers=[

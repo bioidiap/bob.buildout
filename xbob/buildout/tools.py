@@ -5,6 +5,9 @@
 
 """Generic tools for Bob buildout recipes
 """
+  
+import os
+import fnmatch
 
 def uniq(seq, idfun=None):
   """Order preserving, fast de-duplication for lists"""
@@ -57,3 +60,29 @@ def deep_working_set(egg, depth, logger):
   deps = uniq(_recurse(egg, ws, deps, depth))
   logger.warn("returning: %s" % (deps,))
   return egg.working_set(deps)
+
+def find_eggs(eggdirs, glob, recurse):
+  """Find egg directories with a certain glob filename under eggdirs"""
+
+  eggs = []
+
+  if recurse:
+    for path in eggdirs:
+      for (dirpath, dirnames, filenames) in os.walk(path):
+        for g in glob:
+          names = fnmatch.filter(dirnames, g) + fnmatch.filter(filenames, g)
+          eggs += [os.path.join(dirpath, k) for k in names]
+  else:
+    for path in eggdirs:
+      names = fnmatch.filter(os.listdir(path), glob)
+      eggs += [os.path.join(path, k) for k in names]
+
+  return eggs
+
+def prepend_env_paths(name, values):
+  """Prepends a value to an environment variable in the "right" way"""
+
+  if os.environ.has_key(name) and os.environ[name]:
+    os.environ[name] = os.pathsep.join(values + [os.environ[name]])
+  else:
+    os.environ[name] = os.pathsep.join(values)

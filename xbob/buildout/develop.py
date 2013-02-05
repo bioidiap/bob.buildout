@@ -10,8 +10,7 @@ import os
 import logging
 import zc.buildout.easy_install
 from zc.recipe.egg.egg import Scripts
-
-from .tools import *
+from . import tools
 
 class Recipe(Scripts):
   """Compiles a Python/C++ egg extension for Bob
@@ -27,7 +26,7 @@ class Recipe(Scripts):
     options['interpreter'] = 'xbob.builder.py'
     options['setup'] = options.get('setup', '.')
 
-    eggs = parse_list(options.get('eggs', ''))
+    eggs = tools.parse_list(options.get('eggs', ''))
     if 'xbob.extension' not in eggs: eggs.append('xbob.extension')
     options['eggs'] = '\n'.join(eggs)
 
@@ -37,10 +36,12 @@ class Recipe(Scripts):
     options['setup'] = os.path.join(buildout['buildout']['directory'],
                                     options['setup'])
 
-    # configures the prefixes that will be used for PKG_CONFIG_PATH
-    self.prefixes = parse_list(buildout['buildout'].get('prefixes', ''))
-    self.prefixes = [os.path.abspath(k) for k in self.prefixes if os.path.exists(k)]
-   
+    # Gets a personalized prefixes list or the one from buildout
+    local_prefixes = tools.parse_list(options.get('prefixes', ''))
+    global_prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
+    prefixes = local_prefixes + global_prefixes
+    self.prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
+
     # where to put the compiled egg
     self.buildout_eggdir = buildout['buildout'].get('develop-eggs-directory')
 
@@ -58,10 +59,10 @@ class Recipe(Scripts):
 
       self._saved_environment['PKG_CONFIG_PATH'] = os.environ.get('PKG_CONFIG_PATH', None)
 
-      prepend_env_paths('PKG_CONFIG_PATH', pkgcfg)
+      tools.prepend_env_paths('PKG_CONFIG_PATH', pkgcfg)
       self.logger.debug('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
       for k in reversed(pkgcfg):
-        self.logger.debug("Prepending pkg-config path %s" % k)
+        self.logger.info("Adding pkg-config path '%s'" % k)
 
   def _restore_environment(self):
     """Resets the environment back to its previous state"""

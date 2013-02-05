@@ -39,11 +39,13 @@ class Recipe(Scripts):
     self.logger = logging.getLogger(self.name)
 
     # Some sensible defaults used by zc.buildout infrastructure
-    options.setdefault('include-site-packages', 'true')
     options.setdefault('executable', buildout['buildout']['executable'])
 
     # Preprocess some variables
-    self.include_site_packages = options.query_bool('include-site-packages', 'true')
+    self.include_site_packages = options.query_bool('include-site-packages',
+        buildout['buildout'].get('include-site-packages', 'true'))
+    self.allowed_eggs = options.get('allowed-eggs-from-site-packages',
+        buildout['buildout']['allowed-eggs-from-site-packages'])
     self.newest = buildout['buildout'].get_bool('newest')
     self.offline = buildout['buildout'].get_bool('offline')
 

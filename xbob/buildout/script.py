@@ -37,13 +37,6 @@ class Recipe(Scripts):
     self.options = options
 
     self.logger = logging.getLogger(self.name)
-    self.logger.warn("""********************** DEPRECATION WARNING **********************
-  This recipe has been deprecated in favor of a simpler setup infrastructure
-  for Bob-based satellite packages, using the recipe 'xbob.buildout:scripts'.
-  To read more about this new recipe, go the xbob.buildout webpage at
-  http://pypi.python.org/pypi/xbob.buildout or to Bob's Satellite Package
-  user guide: http://www.idiap.ch/software/bob/docs/nightlies/last/bob/sphinx/html/OrganizeYourCode.html
-********************** DEPRECATION WARNING **********************""")
 
     # Some sensible defaults used by zc.buildout infrastructure
     options.setdefault('include-site-packages', 'true')

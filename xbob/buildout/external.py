@@ -26,6 +26,16 @@ class Recipe(object):
     
     self.logger.debug("Initializing '%s'" % self.name)
 
+    self.logger.warn("""\
+******************* DEPRECATION WARNING *********************
+ This recipe has been deprecated in favor of a simpler setup
+ infrastructure for Bob-based satellite packages, using the
+ recipe 'xbob.buildout:scripts'. To read more about this new
+ recipe, go the xbob.buildout webpage at PyPI or or to Bob's
+ Satellite Package user guide (part of Bob's User Guide).
+******************** DEPRECATION WARNING ********************\
+""")
+
     self.eggdirs = parse_list(options.get('egg-directories', ''))
     self.eggdirs = [os.path.abspath(k) for k in self.eggdirs if os.path.exists(k)]
 

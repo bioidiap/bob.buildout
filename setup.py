@@ -36,7 +36,6 @@ setup(
         # New recipes
         'develop = xbob.buildout.develop:Recipe',
         'scripts = xbob.buildout.scripts:Recipe',
-        'script = xbob.buildout.script:Recipe',
         ],
       },
 

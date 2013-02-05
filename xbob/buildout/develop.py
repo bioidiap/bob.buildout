@@ -37,9 +37,9 @@ class Recipe(Scripts):
                                     options['setup'])
 
     # Gets a personalized prefixes list or the one from buildout
-    local_prefixes = tools.parse_list(options.get('prefixes', ''))
-    global_prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
-    prefixes = local_prefixes + global_prefixes
+    prefixes = tools.parse_list(options.get('prefixes', ''))
+    if not prefixes: 
+      prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
     self.prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
 
     # where to put the compiled egg

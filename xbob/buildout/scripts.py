@@ -32,9 +32,8 @@ class Recipe(object):
       raise MissingOption("Referenced option does not exist for section nor it could be found on the global 'buildout' section:", name, 'eggs')
     
     # Gets a personalized prefixes list or the one from buildout
-    local_prefixes = tools.parse_list(options.get('prefixes', ''))
-    global_prefixes = tools.parse_list(bopts.get('prefixes', ''))
-    prefixes = local_prefixes + global_prefixes
+    prefixes = tools.parse_list(options.get('prefixes', ''))
+    if not prefixes: prefixes = tools.parse_list(bopts.get('prefixes', ''))
     prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
 
     # Computes the final user paths that need consideration, set that back on
@@ -52,7 +51,7 @@ class Recipe(object):
     # Initializes interpreter
     python_options = zc.buildout.buildout.Options(buildout, name + '+python',
         options.copy())
-    interpreter = python_options.setdefault('interpreter', name)
+    interpreter = python_options.setdefault('interpreter', 'python')
     python_options['scripts'] = '' #set this to disable script gen.
     python_options['dependent-scripts'] = 'false'
     python_options['eggs'] = '\n'.join(self.eggs)
@@ -77,6 +76,7 @@ class Recipe(object):
     if 'ipython' not in self.eggs: self.eggs.append('ipython')
     ipy_options['eggs'] = '\n'.join(self.eggs)
     ipy_options['user-paths'] = user_paths
+    ipy_options['dependent-scripts'] = 'false'
     ipy_options.setdefault('panic', 'false')
     self.ipython = Script(buildout, name + '+ipython', ipy_options)
 
@@ -89,6 +89,7 @@ class Recipe(object):
     if 'nose' not in self.eggs: self.eggs.append('nose')
     nose_options['eggs'] = '\n'.join(self.eggs)
     nose_options['user-paths'] = user_paths
+    nose_options['dependent-scripts'] = 'false'
     nose_options.setdefault('panic', 'false')
     self.nose = Script(buildout, name + '+nosetests', nose_options)
 
@@ -108,6 +109,7 @@ class Recipe(object):
     sphinx_options['eggs'] = '\n'.join(self.eggs)
     sphinx_options['user-paths'] = user_paths
     sphinx_options.setdefault('panic', 'false')
+    sphinx_options['dependent-scripts'] = 'false'
     self.sphinx = Script(buildout, name + '+sphinx', sphinx_options)
 
   def install(self):

@@ -8,9 +8,11 @@ installed on different prefixes.
 """
 
 import os
+import sys
 import logging
 from . import tools
 
+from zc.buildout.buildout import bool_option
 import zc.buildout.easy_install
 from zc.recipe.egg import Scripts
 #from z3c.recipe.scripts import Scripts #does not work as expected...
@@ -38,16 +40,10 @@ class Recipe(Scripts):
 
     self.logger = logging.getLogger(self.name)
 
-    # Some sensible defaults used by zc.buildout infrastructure
-    options.setdefault('executable', buildout['buildout']['executable'])
-
     # Preprocess some variables
-    self.include_site_packages = options.query_bool('include-site-packages',
-        buildout['buildout'].get('include-site-packages', 'true'))
-    self.allowed_eggs = options.get('allowed-eggs-from-site-packages',
-        buildout['buildout']['allowed-eggs-from-site-packages'])
-    self.newest = buildout['buildout'].get_bool('newest')
-    self.offline = buildout['buildout'].get_bool('offline')
+    self.newest = bool_option(buildout['buildout'], 'newest')
+    self.offline = bool_option(buildout['buildout'], 'offline')
+    self.options['bin-directory'] = buildout['buildout']['bin-directory']
 
     # This defines which paths should be prepended to the path search. The
     # order is always respected
@@ -62,7 +58,7 @@ class Recipe(Scripts):
     self.panic = options.get('error-on-failure', 'true').lower() == 'true'
 
     # initializes the script infrastructure
-    super(Scripts, self).__init__(buildout, name, options)
+    super(Recipe, self).__init__(buildout, name, options)
 
   def working_set(self, extra=()):
     """Separate method to just get the working set - overriding zc.recipe.egg
@@ -74,6 +70,9 @@ class Recipe(Scripts):
     b_options = self.buildout['buildout']
 
     distributions = self.eggs + list(extra)
+
+    # Backward compat. :(
+    options['executable'] = sys.executable
 
     try:
 
@@ -94,11 +93,7 @@ class Recipe(Scripts):
 
         ws = None
         for d in distributions:
-          tws = zc.buildout.easy_install.working_set(
-              [d], options['executable'], paths,
-              include_site_packages=self.include_site_packages,
-              allowed_eggs_from_site_packages=self.allowed_eggs,
-              )
+          tws = zc.buildout.easy_install.working_set([d], paths)
           if ws is None: 
             ws = tws
           else: 
@@ -111,10 +106,6 @@ class Recipe(Scripts):
         # downloaded. If not, required distributions are updated respecting the
         # flag 'prefer-final', naturally.
 
-        kw = {}
-        if 'unzip' in options:
-            kw['always_unzip'] = options.query_bool('unzip', None)
-
         paths = self.user_paths + [
             options['develop-eggs-directory'],
             ]
@@ -126,17 +117,9 @@ class Recipe(Scripts):
 
         ws = None
         for d in distributions:
-          tws = zc.buildout.easy_install.install(
-              [d,], options['eggs-directory'],
-              links=self.links,
-              index=self.index,
-              executable=options['executable'],
-              path=paths,
-              newest=b_options.get('newest') == 'true',
-              include_site_packages=self.include_site_packages,
-              allowed_eggs_from_site_packages=self.allowed_eggs,
-              allow_hosts=self.allow_hosts,
-              **kw)
+          tws = zc.buildout.easy_install.install([d,], 
+              options['eggs-directory'], links=self.links, index=self.index,
+              path=paths, newest=self.newest, allow_hosts=self.allow_hosts)
 
           if ws is None: 
             ws = tws
@@ -153,6 +136,6 @@ class Recipe(Scripts):
     return self.eggs, ws
 
   def install(self):
-    return tuple(super(Scripts, self).install())
+    return tuple(super(Recipe, self).install())
 
   update = install

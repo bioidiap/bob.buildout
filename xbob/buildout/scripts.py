@@ -83,8 +83,9 @@ class Recipe(object):
     nose_options = zc.buildout.buildout.Options(buildout, name + '+nosetests', 
         options.copy())
     if nose_options.has_key('interpreter'): del nose_options['interpreter']
-    if nose_options.has_key('nose-flags'):
-      flags = tools.parse_list(nose_options['nose-flags'])
+    if options.has_key('nose-flags'):
+      # use 'options' instead of 'nose_options' to force use
+      flags = tools.parse_list(options['nose-flags'])
       init_code = ['sys.argv.append(%r)' % k for k in flags]
       nose_options['initialization'] = '\n'.join(init_code)
     nose_options['entry-points'] = 'nosetests=nose:run_exit'

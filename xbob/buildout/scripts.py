@@ -52,8 +52,7 @@ class Recipe(object):
     python_options = zc.buildout.buildout.Options(buildout, name + '+python',
         options.copy())
     interpreter = python_options.setdefault('interpreter', 'python')
-    python_options['scripts'] = '' #set this to disable script gen.
-    python_options['dependent-scripts'] = 'false'
+    if python_options.has_key('scripts'): del python_options['scripts']
     python_options['eggs'] = '\n'.join(self.eggs)
     python_options['user-paths'] = user_paths
     self.python = Script(buildout, name, python_options)

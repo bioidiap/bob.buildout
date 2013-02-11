@@ -80,10 +80,9 @@ class Recipe(Scripts):
 
         # In this case, we just check if the distributions that are required,
         # are available locally
-
         paths = self.user_paths + [
-            b_options['egg-directory'],
-            b_options['develop-egg-directory'],
+            b_options['eggs-directory'],
+            b_options['develop-eggs-directory'],
             ]
 
         # Checks each distribution individually, to avoid that easy_install

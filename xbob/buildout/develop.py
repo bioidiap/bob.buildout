@@ -8,6 +8,7 @@
 
 import os
 import sys
+import stat
 import shutil
 import tempfile
 import logging
@@ -15,23 +16,7 @@ from . import tools
 from .script import Recipe as Script
 import zc.buildout.easy_install
 
-runsetup_template = """
-import os
-import sys
-for k in reversed([e.strip() for e in %(entries)r.split(os.pathsep)]):
-  sys.path.insert(0, k)
-
-import setuptools
-
-__file__ = %(__file__)r
-
-os.chdir(%(setupdir)r)
-sys.argv[0] = %(setup)r
-
-exec(compile(open(%(setup)r).read(), %(setup)r, 'exec'))
-"""
-
-class Recipe(Script):
+class Recipe(object):
   """Compiles a Python/C++ egg extension for Bob
   """
 
@@ -41,22 +26,30 @@ class Recipe(Script):
     self.logger = logging.getLogger(self.name)
     self.buildout = buildout
 
-    # calculates required eggs
-    eggs = tools.parse_list(options.get('eggs', ''))
-    if 'xbob.extension' not in eggs: eggs.append('xbob.extension')
-    options['eggs'] = '\n'.join(eggs)
-
-    super(Recipe, self).__init__(buildout, name + 'builder', options)
-
     # finds the setup script or use the default
     options['setup'] = os.path.join(buildout['buildout']['directory'],
         options.get('setup', '.'))
+
+    # calculates required eggs - parse setup file?
+    eggs = tools.parse_list(options.get('eggs', ''))
+    if 'xbob.extension' not in eggs: eggs.append('xbob.extension')
+
+    # Initializes interpreter
+    builder_options = zc.buildout.buildout.Options(buildout, name + '+xbuilder',
+        options.copy())
+    builder_options['interpreter'] = 'xbuilder'
+    builder_options['dependent-scripts'] = 'false'
+    builder_options['eggs'] = '\n'.join(eggs)
+    self.xbuilder = Script(buildout, name+'xbuilder', builder_options)
 
     # gets a personalized prefixes list or the one from buildout
     prefixes = tools.parse_list(options.get('prefixes', ''))
     if not prefixes:
       prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
-    self.prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
+
+    # set the pkg-config paths to look at
+    pkgcfg = [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
+    self.pkgcfg = [os.path.abspath(k) for k in pkgcfg if os.path.exists(k)]
 
     # where to put the compiled egg
     self.buildout_eggdir = buildout['buildout'].get('develop-eggs-directory')
@@ -67,17 +60,13 @@ class Recipe(Script):
 
     self._saved_environment = {}
 
-    if self.prefixes:
-
-      # Allows compilation of Boost.Python bindings
-      pkgcfg = [os.path.join(k, 'lib', 'pkgconfig') for k in self.prefixes]
-      pkgcfg = [k for k in pkgcfg if os.path.exists(k)]
+    if self.pkgcfg:
 
       self._saved_environment['PKG_CONFIG_PATH'] = os.environ.get('PKG_CONFIG_PATH', None)
 
-      tools.prepend_env_paths('PKG_CONFIG_PATH', pkgcfg)
+      tools.prepend_env_paths('PKG_CONFIG_PATH', self.pkgcfg)
       self.logger.debug('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
-      for k in reversed(pkgcfg):
+      for k in reversed(self.pkgcfg):
         self.logger.info("Adding pkg-config path '%s'" % k)
 
   def _restore_environment(self):
@@ -107,30 +96,25 @@ class Recipe(Script):
 
     undo = []
     try:
+
+      # creates the script that is able to install the package
+      xbuilder = self.xbuilder.install()
+
       fd, tsetup = tempfile.mkstemp()
       undo.append(lambda: os.remove(tsetup))
       undo.append(lambda: os.close(fd))
 
-      # calculate the eggs to use
-      eggs, ws = self.working_set()
-
-      # calculate the paths required for the eggs
-      entries = list(ws.entries)
-
-      # paths to add obligatorily
-      entries[0:0] = [directory, zc.buildout.easy_install.distribute_loc]
-
-      os.write(fd, (runsetup_template % dict(
-        entries=os.pathsep.join(entries),
-        setupdir=directory,
-        setup=setup,
-        __file__ = setup,
-        )).encode())
+      os.write(fd, (zc.buildout.easy_install.runsetup_template % dict(
+          distribute=zc.buildout.easy_install.distribute_loc,
+          setupdir=directory,
+          setup=setup,
+          __file__ = setup,
+          )).encode())
 
       tmp3 = tempfile.mkdtemp('build', dir=dest)
       undo.append(lambda : shutil.rmtree(tmp3))
 
-      args = [sys.executable,  tsetup, '-q', 'develop', '-mxN', '-d', tmp3]
+      args = [xbuilder[0],  tsetup, '-q', 'develop', '-mxN', '-d', tmp3]
 
       log_level = self.logger.getEffectiveLevel()
       if log_level <= 0:
@@ -145,7 +129,7 @@ class Recipe(Script):
       zc.buildout.easy_install.call_subprocess(args)
       self._restore_environment()
 
-      return zc.buildout.easy_install._copyeggs(tmp3, dest, '.egg-link', undo)
+      return xbuilder + (zc.buildout.easy_install._copyeggs(tmp3, dest, '.egg-link', undo),)
 
     finally:
       undo.reverse()

@@ -41,10 +41,7 @@ setup(
 
     install_requires=[
       'setuptools',
-      'Sphinx',
-      'nose',
       'zc.recipe.egg',
-      'xbob.extension',
       ],
 
     classifiers=[

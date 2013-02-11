@@ -28,6 +28,9 @@ zc.buildout.easy_install.py_script_template = \
     __import__('code').interact(banner=('Python ' + sys.version + ' on ' + sys.platform + '\\nType "help", "copyright", "credits" or "license" for more information.'), local=globals())
   """)
 
+# Fixes buildout search path for external packages
+zc.buildout.easy_install.buildout_and_distribute_path += sys.path
+
 class Recipe(Scripts):
   """Just creates a given script with the "correct" paths
   """
@@ -104,9 +107,8 @@ class Recipe(Scripts):
         # locally and are up-to-date (newest is 'true'), then nothing is
         # downloaded. If not, required distributions are updated respecting the
         # flag 'prefer-final', naturally.
-
         paths = self.user_paths + [
-            options['develop-eggs-directory'],
+            b_options['develop-eggs-directory'],
             ]
 
         # Checks each distribution individually, to avoid that easy_install
@@ -117,7 +119,7 @@ class Recipe(Scripts):
         ws = None
         for d in distributions:
           tws = zc.buildout.easy_install.install([d,], 
-              options['eggs-directory'], links=self.links, index=self.index,
+              b_options['eggs-directory'], links=self.links, index=self.index,
               path=paths, newest=self.newest, allow_hosts=self.allow_hosts)
 
           if ws is None: 

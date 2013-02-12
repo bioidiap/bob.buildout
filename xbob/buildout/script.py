@@ -134,6 +134,12 @@ class Recipe(Scripts):
         self.logger.info('Discarding entry-points for section "%s": %s' % \
             (self.name, e))
 
+    # Sanitize ws.entries so our prefixes come first
+    for entry in ws.entries:
+      if entry in self.user_paths: # remove and move to front
+        ws.entries.remove(entry)
+        ws.entries.insert(0, entry)
+
     return self.eggs, ws
 
   def install(self):

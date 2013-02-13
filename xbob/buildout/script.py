@@ -135,10 +135,8 @@ class Recipe(Scripts):
             (self.name, e))
 
     # Sanitize ws.entries so our prefixes come first
-    for entry in ws.entries:
-      if entry in self.user_paths: # remove and move to front
-        ws.entries.remove(entry)
-        ws.entries.insert(0, entry)
+    ws.entries = [k for k in ws.entries if k in self.user_paths] + \
+        [k for k in ws.entries if k not in self.user_paths]
 
     return self.eggs, ws
 

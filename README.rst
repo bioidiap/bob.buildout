@@ -22,11 +22,6 @@ the default ``pkg-config`` environment::
   [mycxx]
   recipe = xbob.buildout:develop
 
-Unfortunately, ``zc.buildout`` will not consider ``setup_requires`` entries on
-your package's ``setup.py``. You will have to repeat those eggs on the entry
-``eggs`` for this recipe. You can ignore the special entry ``xbob.extension``,
-which is included by default.
-
 Supported Options
 =================
 
@@ -34,8 +29,11 @@ The recipe supports the following options:
 
 eggs
   The eggs option specifies a list of eggs to use for **building** this
-  package. Each string must be given on a separate line. The entry
-  ``xbob.extension`` is included by default.
+  package. Each string must be given on a separate line.
+
+debug
+  If set, the module will be compiled with debugging symbols and with
+  optimization turned off.
 
 buildout.eggs
   The eggs option specifies a list of eggs to use for **building** this

@@ -50,9 +50,10 @@ class Recipe(Develop):
       self._saved_environment['PKG_CONFIG_PATH'] = os.environ.get('PKG_CONFIG_PATH', None)
 
       tools.prepend_env_paths('PKG_CONFIG_PATH', self.pkgcfg)
-      self.logger.info('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
       for k in reversed(self.pkgcfg):
         self.logger.info("Adding pkg-config path '%s'" % k)
+      
+      self.logger.debug('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
 
     if self.debug:
 
@@ -63,7 +64,8 @@ class Recipe(Develop):
 
       # Disables optimization options for setuptools/distribute
       os.environ['CFLAGS'] = '-O0'
-      self.logger.info('CFLAGS=%s' % os.environ['CFLAGS'])
+      self.logger.info("Setting debug build options")
+      self.logger.debug('CFLAGS=%s' % os.environ['CFLAGS'])
 
   def _restore_environment(self):
     """Resets the environment back to its previous state"""

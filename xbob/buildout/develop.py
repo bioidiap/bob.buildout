@@ -10,6 +10,7 @@ import os
 import logging
 from . import tools
 from zc.recipe.egg.custom import Develop
+from zc.buildout.buildout import bool_option
 
 class Recipe(Develop):
   """Compiles a Python/C++ egg extension for Bob
@@ -24,6 +25,8 @@ class Recipe(Develop):
     # finds the setup script or use the default
     options['setup'] = os.path.join(buildout['buildout']['directory'],
         options.get('setup', '.'))
+
+    self.debug = bool_option(options, 'debug', 'true')
 
     # gets a personalized prefixes list or the one from buildout
     prefixes = tools.parse_list(options.get('prefixes', ''))
@@ -47,9 +50,20 @@ class Recipe(Develop):
       self._saved_environment['PKG_CONFIG_PATH'] = os.environ.get('PKG_CONFIG_PATH', None)
 
       tools.prepend_env_paths('PKG_CONFIG_PATH', self.pkgcfg)
-      self.logger.debug('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
+      self.logger.info('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
       for k in reversed(self.pkgcfg):
         self.logger.info("Adding pkg-config path '%s'" % k)
+
+    if self.debug:
+
+      if os.environ.has_key('CFLAGS'): 
+        self._saved_environment['CFLAGS'] = os.environ['CFLAGS']
+      else:
+        self._saved_environment['CFLAGS'] = None
+
+      # Disables optimization options for setuptools/distribute
+      os.environ['CFLAGS'] = '-O0'
+      self.logger.info('CFLAGS=%s' % os.environ['CFLAGS'])
 
   def _restore_environment(self):
     """Resets the environment back to its previous state"""
@@ -67,6 +81,9 @@ class Recipe(Develop):
   # a modified copy of zc.buildout.easy_install.develop
   def install(self):
 
-    return Develop.install(self)
+    self._set_environment()
+    retval = Develop.install(self)
+    self._restore_environment()
+    return retval
 
   update = install

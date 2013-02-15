@@ -25,12 +25,6 @@ the default ``pkg-config`` environment::
 Supported Options
 =================
 
-The recipe supports the following options:
-
-eggs
-  The eggs option specifies a list of eggs to use for **building** this
-  package. Each string must be given on a separate line.
-
 debug
   If set, the module will be compiled with debugging symbols and with
   optimization turned off.

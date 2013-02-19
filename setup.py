@@ -28,7 +28,6 @@ setup(
 
     entry_points = {
       'zc.buildout': [
-        # New recipes
         'develop = xbob.buildout.develop:Recipe',
         'scripts = xbob.buildout.scripts:Recipe',
         'python = xbob.buildout.scripts:PythonInterpreter',

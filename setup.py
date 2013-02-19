@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='xbob.buildout',
-    version='0.2.8',
+    version='0.2.9',
     description="zc.buildout recipes to perform a variety of tasks required by Bob satellite packages",
     keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs', 'bob'],
     url='http://github.com/bioidiap/xbob.buildout',
@@ -28,14 +28,14 @@ setup(
 
     entry_points = {
       'zc.buildout': [
-        # old recipes: deprecated!
-        'external = xbob.buildout.external:Recipe',
-        'sphinx = xbob.buildout.sphx:Recipe',
-        'nose = xbob.buildout.nose:Recipe',
-
         # New recipes
         'develop = xbob.buildout.develop:Recipe',
         'scripts = xbob.buildout.scripts:Recipe',
+        'python = xbob.buildout.scripts:PythonInterpreter',
+        'ipython = xbob.buildout.scripts:IPythonInterpreter',
+        'nose = xbob.buildout.scripts:NoseTests',
+        'sphinx = xbob.buildout.scripts:Sphinx',
+        'egg.scripts = xbob.buildout.scripts:UserScripts',
         ],
       },
 

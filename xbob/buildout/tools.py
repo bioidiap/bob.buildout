@@ -86,3 +86,10 @@ def prepend_env_paths(name, values):
     os.environ[name] = os.pathsep.join(values + [os.environ[name]])
   else:
     os.environ[name] = os.pathsep.join(values)
+
+def add_eggs(eggs, l):
+  """Adds eggs from a list into the buildout option"""
+
+  egglist = parse_list(eggs)
+  egglist = uniq(egglist + l)
+  return '\n'.join(egglist)

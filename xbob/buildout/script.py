@@ -17,6 +17,8 @@ import zc.buildout.easy_install
 from zc.recipe.egg import Scripts
 #from z3c.recipe.scripts import Scripts #does not work as expected...
 
+from distutils.sysconfig import get_python_lib
+
 # Fixes python script template
 zc.buildout.easy_install.py_script_template = \
     zc.buildout.easy_install.py_script_template.replace(
@@ -48,14 +50,29 @@ class Recipe(Scripts):
     self.offline = bool_option(buildout['buildout'], 'offline')
     self.options['bin-directory'] = buildout['buildout']['bin-directory']
 
-    # This defines which paths should be prepended to the path search. The
-    # order is always respected
-    self.user_paths = tools.parse_list(options.get('user-paths', ''))
-
-    # Tries to get personalized eggs list or use the one from the buildout
+    # Gets a personalized eggs list or the one from buildout
     self.eggs = tools.parse_list(options.get('eggs', ''))
-    if not self.eggs:
+    if not self.eggs: 
       self.eggs = tools.parse_list(buildout['buildout'].get('eggs', ''))
+
+    if not self.eggs: # Cannot proceed without eggs...
+      raise MissingOption("Referenced option does not exist for section nor it could be found on the global 'buildout' section:", name, 'eggs')
+    
+    # Gets a personalized prefixes list or the one from buildout
+    prefixes = tools.parse_list(options.get('prefixes', ''))
+    if not prefixes: 
+      prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
+    prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
+
+    # Computes the final user paths that need consideration, set that back on
+    # the buildout section
+    self.user_paths = []
+    if prefixes:
+      for k in prefixes:
+        candidate = os.path.realpath(get_python_lib(prefix=k))
+        if os.path.exists(candidate) and candidate not in self.user_paths: 
+          self.logger.info("Adding prefix '%s'" % candidate)
+          self.user_paths.append(candidate)
 
     # Shall we panic or ignore if we cannot find all eggs?
     self.panic = options.get('error-on-failure', 'true').lower() == 'true'

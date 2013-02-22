@@ -129,6 +129,9 @@ class Recipe(object):
     self.envwrapper = EnvironmentWrapper(self.logger,
           zc.buildout.buildout.bool_option(options, 'debug', 'false'), prefixes)
 
+    # Touch the options
+    self.dependent_scripts = options.get('dependent-scripts')
+
     self.python = PythonInterpreter(buildout, 'Python', options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.ipython = IPythonInterpreter(buildout, 'IPython', options.copy())

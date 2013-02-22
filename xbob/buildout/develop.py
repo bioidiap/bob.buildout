@@ -41,10 +41,18 @@ class Recipe(object):
     # where to place the egg
     self.dest = self.buildout['buildout']['develop-eggs-directory']
 
+    # the eggs we need to **build** this package
+    eggs = tools.parse_list(options.get('eggs', ''))
+    required_eggs = [
+        'xbob.extension', # basic extension building using pkg-config + Bob
+        ]
+    eggs += required_eggs
+    eggs = tools.uniq(eggs)
+
     # generates the script that will work as the "builder"
     builder_options = self.options.copy()
-    builder_options['eggs'] = 'xbob.extension' # we like having this one
-    name = 'xpython'
+    builder_options['eggs'] = '\n'.join(eggs)
+    name = self.options.get('interpreter', 'xpython.builder')
     builder_options['interpreter'] = name
     self.builder = PythonInterpreter(buildout, name, builder_options)
 

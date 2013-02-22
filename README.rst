@@ -22,6 +22,13 @@ the default ``pkg-config`` environment::
   [mycxx]
   recipe = xbob.buildout:develop
 
+This recipe also, indirectly, generates a python interpreter named (by default)
+``xpython.builder``. This program allows you to build the package using
+installed or development eggs. Our build therefore by-passes the normal package
+building via setuptools/distribute and use buildout for finding the eggs which
+are required for the build. Note this has *nothing* to do with package
+use, for which you can use the recipes below.
+
 Supported Options
 =================
 
@@ -29,10 +36,15 @@ debug
   If set, the module will be compiled with debugging symbols and with
   optimization turned off.
 
-buildout.eggs
+eggs
   The eggs option specifies a list of eggs to use for **building** this
-  package. Each string must be given on a separate line. This value is
-  overriden by a local section ``eggs`` entry.
+  package. Each string must be given on a separate line. If you don't specify
+  anything, at least ``xbob.extension`` is included. Otherwise, we will add
+  that one to your list, if not yet available.
+
+interpreter
+  The name of the interpreter that is generated for **building** this package.
+  If you don't set it, it is by default called ``xpython.builder``.
 
 buildout.prefixes
   A list of directories where this recipe will look for subdirectories with

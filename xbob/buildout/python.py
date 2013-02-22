@@ -79,7 +79,6 @@ class Recipe(Scripts):
       for k in prefixes:
         candidate = os.path.realpath(get_python_lib(prefix=k))
         if os.path.exists(candidate) and candidate not in self.user_paths: 
-          self.logger.info("Adding prefix '%s'" % candidate)
           self.user_paths.append(candidate)
 
     # Shall we panic or ignore if we cannot find all eggs?
@@ -162,6 +161,10 @@ class Recipe(Scripts):
     # Sanitize ws.entries so our prefixes come first
     ws.entries = [k for k in ws.entries if k in self.user_paths] + \
         [k for k in ws.entries if k not in self.user_paths]
+    
+    # Print some logging information for this run
+    for path in [k for k in ws.entries if k in self.user_paths]:
+      self.logger.info("Adding prefix '%s'" % path)
 
     return self.eggs, ws
 

@@ -12,6 +12,7 @@ import zc.buildout
 from . import tools
 from .script import Recipe as Script
 from .python import Recipe as PythonInterpreter
+from .envwrapper import EnvironmentWrapper
 
 class UserScripts(Script):
   """Installs all user scripts from the eggs"""
@@ -117,6 +118,17 @@ class Recipe(object):
 
     self.logger = logging.getLogger(name.capitalize())
 
+    # Gets a personalized prefixes list or the one from buildout
+    prefixes = tools.parse_list(options.get('prefixes', ''))
+    if not prefixes: 
+      prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
+    prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
+
+    # Builds an environment wrapper, in case dependent packages need to be
+    # compiled
+    self.envwrapper = EnvironmentWrapper(self.logger,
+          zc.buildout.buildout.bool_option(options, 'debug', 'false'), prefixes)
+
     self.python = PythonInterpreter(buildout, 'Python', options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.ipython = IPythonInterpreter(buildout, 'IPython', options.copy())
@@ -124,11 +136,14 @@ class Recipe(object):
     self.sphinx = Sphinx(buildout, 'Sphinx', options.copy())
 
   def install(self):
-    return \
-        self.python.install() + \
-        self.scripts.install() + \
-        self.ipython.install() + \
-        self.nose.install() + \
-        self.sphinx.install()
+    self.envwrapper.set()
+    retval = \
+        self.python.install_on_wrapped_env() + \
+        self.scripts.install_on_wrapped_env() + \
+        self.ipython.install_on_wrapped_env() + \
+        self.nose.install_on_wrapped_env() + \
+        self.sphinx.install_on_wrapped_env()
+    self.envwrapper.unset()
+    return retval
 
   update = install

@@ -11,25 +11,7 @@ import logging
 import zc.buildout
 from . import tools
 from .script import Recipe as Script
-
-class PythonInterpreter(Script):
-  """Creates a nice python interpreter on the bin directory"""
-  
-  def __init__(self, buildout, name, options):
-
-    self.logger = logging.getLogger(name)
-
-    interpreter = options.setdefault('interpreter', 'python')
-    if options.has_key('scripts'): del options['scripts']
-    options['scripts'] = interpreter
-    options['dependent-scripts'] = 'false'
-    Script.__init__(self, buildout, name, options)
-
-  def install(self):
-
-    return Script.install(self)
-
-  update = install
+from .python import Recipe as PythonInterpreter
 
 class UserScripts(Script):
   """Installs all user scripts from the eggs"""

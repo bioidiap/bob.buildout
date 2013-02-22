@@ -1,41 +1,42 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Andre Anjos <andre.dos.anjos@gmail.com>
-# Mon  4 Feb 14:12:24 2013 
+# Mon  4 Feb 14:12:24 2013
 
-"""Builds custom scripts with the right paths for external dependencies
-installed on different prefixes.
+"""Builds a custom python script interpreter
 """
 
 import os
 import sys
+import time
 import logging
 from . import tools
 from .envwrapper import EnvironmentWrapper
 
+from distutils.sysconfig import get_python_lib
 from zc.buildout.buildout import bool_option
 import zc.buildout.easy_install
 from zc.recipe.egg import Scripts
-#from z3c.recipe.scripts import Scripts #does not work as expected...
 
-from distutils.sysconfig import get_python_lib
+# Python interpreter script template
+py_script_template = """#!%(interpreter)s
+# %(date)s
 
-# Fixes python script template
-zc.buildout.easy_install.py_script_template = \
-    zc.buildout.easy_install.py_script_template.replace(
-    """__import__("code").interact(banner="", local=globals())""",
-    """
-    import os
-    if os.environ.has_key('PYTHONSTARTUP') and os.environ['PYTHONSTARTUP']:
-      execfile(os.environ['PYTHONSTARTUP'])
-    __import__('code').interact(banner=('Python ' + sys.version + ' on ' + sys.platform + '\\nType "help", "copyright", "credits" or "license" for more information.'), local=globals())
-  """)
+'''Dummy python interpreter - only starts a new one with a proper environment'''
 
-# Fixes buildout search path for external packages
-zc.buildout.easy_install.buildout_and_distribute_path += sys.path
+import os
+existing = os.environ.get("PYTHONPATH", "")
+if existing:
+  os.environ["PYTHONPATH"] = "%(paths)s" + os.pathsep + existing
+else:
+  os.environ["PYTHONPATH"] = "%(paths)s"
+
+import sys
+os.execvp("%(interpreter)s", sys.argv)
+"""
 
 class Recipe(Scripts):
-  """Just creates a given script with the "correct" paths
+  """Just creates a python interpreter with the "correct" paths
   """
 
   def __init__(self, buildout, name, options):
@@ -47,6 +48,7 @@ class Recipe(Scripts):
     self.logger = logging.getLogger(self.name)
 
     # Preprocess some variables
+    self.interpreter = options.setdefault('interpreter', 'python')
     self.newest = bool_option(buildout['buildout'], 'newest')
     self.offline = bool_option(buildout['buildout'], 'offline')
     self.options['bin-directory'] = buildout['buildout']['bin-directory']
@@ -58,7 +60,7 @@ class Recipe(Scripts):
 
     if not self.eggs: # Cannot proceed without eggs...
       raise MissingOption("Referenced option does not exist for section nor it could be found on the global 'buildout' section:", name, 'eggs')
-    
+ 
     # Gets a personalized prefixes list or the one from buildout
     prefixes = tools.parse_list(options.get('prefixes', ''))
     if not prefixes: 
@@ -67,7 +69,7 @@ class Recipe(Scripts):
 
     # Builds an environment wrapper, in case dependent packages need to be
     # compiled
-    self.envwrapper = EnvironmentWrapper(self.logger, 
+    self.envwrapper = EnvironmentWrapper(self.logger,
           bool_option(options, 'debug', 'false'), prefixes)
 
     # Computes the final user paths that need consideration, set that back on
@@ -86,7 +88,7 @@ class Recipe(Scripts):
     # initializes the script infrastructure
     super(Recipe, self).__init__(buildout, name, options)
 
-  def working_set(self, extra=()):
+  def working_set(self):
     """Separate method to just get the working set - overriding zc.recipe.egg
 
     This is intended for reuse by similar recipes.
@@ -95,7 +97,7 @@ class Recipe(Scripts):
     options = self.options
     b_options = self.buildout['buildout']
 
-    distributions = self.eggs + list(extra)
+    distributions = list(self.eggs)
 
     # Backward compat. :(
     options['executable'] = sys.executable
@@ -163,10 +165,33 @@ class Recipe(Scripts):
 
     return self.eggs, ws
 
+  def install_on_wrapped_env(self):
+    eggs, ws = self.working_set()
+    retval = os.path.join(self.buildout['buildout']['bin-directory'],
+        self.interpreter)
+    self._write_executable_file(retval, py_script_template % {
+      'date': time.asctime(),
+      'paths': os.pathsep.join([k for k in ws.entries if k not in sys.path]),
+      'interpreter': sys.executable,
+      })
+    self.logger.info("Generated script '%s'." % retval)
+    return (retval,)
+
   def install(self):
     self.envwrapper.set()
-    retval = tuple(super(Recipe, self).install())
+    retval = self.install_on_wrapped_env()
     self.envwrapper.unset()
     return retval
+
+  def _write_executable_file(self, name, content):
+    f = open(name, 'w')
+    current_umask = os.umask(0o022) # give a dummy umask
+    os.umask(current_umask)
+    perms = 0o777 - current_umask
+    try: 
+      f.write(content)
+    finally: 
+      f.close()
+      os.chmod(name, perms)
 
   update = install

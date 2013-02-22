@@ -7,12 +7,17 @@
 """
 
 import os
+import sys
+import shutil
+import tempfile
 import logging
 from . import tools
-from zc.recipe.egg.custom import Develop
+import zc.buildout.easy_install
 from zc.buildout.buildout import bool_option
+from .envwrapper import EnvironmentWrapper
+from .python import Recipe as PythonInterpreter
 
-class Recipe(Develop):
+class Recipe(object):
   """Compiles a Python/C++ egg extension for Bob
   """
 
@@ -23,69 +28,76 @@ class Recipe(Develop):
     self.buildout = buildout
 
     # finds the setup script or use the default
-    options['setup'] = os.path.join(buildout['buildout']['directory'],
+    self.setup = os.path.join(buildout['buildout']['directory'],
         options.get('setup', '.'))
 
-    self.debug = bool_option(options, 'debug', 'true')
+    # some fine-tunning
+    if os.path.isdir(self.setup):
+      self.directory = self.setup
+      self.setup = os.path.join(self.directory, 'setup.py')
+    else:
+      self.directory = os.path.dirname(self.setup)
+
+    # where to place the egg
+    self.dest = self.buildout['buildout']['develop-eggs-directory']
+
+    # generates the script that will work as the "builder"
+    builder_options = self.options.copy()
+    builder_options['eggs'] = 'xbob.extension' # we like having this one
+    name = 'xpython'
+    builder_options['interpreter'] = name
+    self.builder = PythonInterpreter(buildout, name, builder_options)
 
     # gets a personalized prefixes list or the one from buildout
     prefixes = tools.parse_list(options.get('prefixes', ''))
     if not prefixes:
       prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
 
-    # set the pkg-config paths to look at
-    pkgcfg = [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
-    self.pkgcfg = [os.path.abspath(k) for k in pkgcfg if os.path.exists(k)]
+    self.envwrapper = EnvironmentWrapper(self.logger,
+        bool_option(options, 'debug', 'false'), prefixes)
 
-    Develop.__init__(self, buildout, name, options)
+  def develop(self, executable):
+    """Copy of zc.buildout.easy_install.develop()
+    
+    This copy has been modified to use our own development executable
+    """
 
-  def _set_environment(self):
-    """Sets the current environment for variables needed for the setup of the
-    package to be compiled"""
+    undo = []
+    try:
+      fd, tsetup = tempfile.mkstemp()
+      undo.append(lambda: os.remove(tsetup))
+      undo.append(lambda: os.close(fd))
 
-    self._saved_environment = {}
+      os.write(fd, (zc.buildout.easy_install.runsetup_template % dict(
+        distribute=zc.buildout.easy_install.distribute_loc,
+        setupdir=self.directory,
+        setup=self.setup,
+        __file__ = self.setup,
+        )).encode())
 
-    if self.pkgcfg:
+      tmp3 = tempfile.mkdtemp('build', dir=self.dest)
+      undo.append(lambda : shutil.rmtree(tmp3))
 
-      self._saved_environment['PKG_CONFIG_PATH'] = os.environ.get('PKG_CONFIG_PATH', None)
+      args = [executable, tsetup, '-q', 'develop', '-mxN', '-d', tmp3]
 
-      tools.prepend_env_paths('PKG_CONFIG_PATH', self.pkgcfg)
-      for k in reversed(self.pkgcfg):
-        self.logger.info("Adding pkg-config path '%s'" % k)
-      
-      self.logger.debug('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
+      self.logger.debug("in: %r\n%s", self.directory, ' '.join(args))
 
-    if self.debug:
+      zc.buildout.easy_install.call_subprocess(args)
 
-      if os.environ.has_key('CFLAGS'): 
-        self._saved_environment['CFLAGS'] = os.environ['CFLAGS']
-      else:
-        self._saved_environment['CFLAGS'] = None
+      return zc.buildout.easy_install._copyeggs(tmp3, self.dest, '.egg-link', undo)
 
-      # Disables optimization options for setuptools/distribute
-      os.environ['CFLAGS'] = '-O0'
-      self.logger.info("Setting debug build options")
-      self.logger.debug('CFLAGS=%s' % os.environ['CFLAGS'])
+    finally:
+      undo.reverse()
+      [f() for f in undo]
 
-  def _restore_environment(self):
-    """Resets the environment back to its previous state"""
-
-    for key in self._saved_environment:
-      if self._saved_environment[key] is None:
-        try:
-          del os.environ[key]
-        except KeyError:
-          pass
-      else:
-        os.environ[key] = self._saved_environment[key]
-        del self._saved_environment[key]
 
   # a modified copy of zc.buildout.easy_install.develop
   def install(self):
 
-    self._set_environment()
-    retval = Develop.install(self)
-    self._restore_environment()
+    self.envwrapper.set()
+    retval = self.builder.install_on_wrapped_env()
+    retval += (self.develop(retval[0]),)
+    self.envwrapper.unset()
     return retval
 
   update = install

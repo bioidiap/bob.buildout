@@ -63,4 +63,3 @@ class EnvironmentWrapper(object):
           pass
       else:
         os.environ[key] = self._saved_environment[key]
-        del self._saved_environment[key]

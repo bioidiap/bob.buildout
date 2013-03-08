@@ -22,6 +22,8 @@ class EnvironmentWrapper(object):
 
     # set the pkg-config paths to look at
     pkgcfg = [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
+    pkgcfg += [os.path.join(k, 'lib64', 'pkgconfig') for k in prefixes]
+    pkgcfg += [os.path.join(k, 'lib32', 'pkgconfig') for k in prefixes]
     self.pkgcfg = [os.path.abspath(k) for k in pkgcfg if os.path.exists(k)]
 
   def set(self):

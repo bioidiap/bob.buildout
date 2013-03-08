@@ -20,6 +20,15 @@ from zc.recipe.egg import Scripts
 
 from distutils.sysconfig import get_python_lib
 
+# Standard prefixes to check
+PYTHONDIR = 'python%d.%d' % sys.version_info[0:2]
+SUFFIXES = tools.uniq([
+    get_python_lib(prefix=''),
+    os.path.join('lib', PYTHONDIR, 'site-packages'),
+    os.path.join('lib32', PYTHONDIR, 'site-packages'),
+    os.path.join('lib64', PYTHONDIR, 'site-packages'),
+    ])
+
 # Fixes python script template
 zc.buildout.easy_install.py_script_template = \
     zc.buildout.easy_install.py_script_template.replace(
@@ -75,9 +84,10 @@ class Recipe(Scripts):
     self.user_paths = []
     if prefixes:
       for k in prefixes:
-        candidate = os.path.realpath(get_python_lib(prefix=k))
-        if os.path.exists(candidate) and candidate not in self.user_paths: 
-          self.user_paths.append(candidate)
+        for suffix in SUFFIXES:
+          candidate = os.path.realpath(os.path.join(k, suffix))
+          if os.path.exists(candidate) and candidate not in self.user_paths:
+            self.user_paths.append(candidate)
 
     # Shall we panic or ignore if we cannot find all eggs?
     self.panic = options.get('error-on-failure', 'true').lower() == 'true'

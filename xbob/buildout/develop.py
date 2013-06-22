@@ -76,12 +76,20 @@ class Recipe(object):
       undo.append(lambda: os.remove(tsetup))
       undo.append(lambda: os.close(fd))
 
-      os.write(fd, (zc.buildout.easy_install.runsetup_template % dict(
-        distribute=zc.buildout.easy_install.distribute_loc,
-        setupdir=self.directory,
-        setup=self.setup,
-        __file__ = self.setup,
-        )).encode())
+      if hasattr(zc.buildout.easy_install, 'distribute_loc'):
+        os.write(fd, (zc.buildout.easy_install.runsetup_template % dict(
+          distribute=zc.buildout.easy_install.distribute_loc,
+          setupdir=self.directory,
+          setup=self.setup,
+          __file__ = self.setup,
+          )).encode())
+      else:
+        os.write(fd, (zc.buildout.easy_install.runsetup_template % dict(
+          setuptools=zc.buildout.easy_install.setuptools_loc,
+          setupdir=self.directory,
+          setup=self.setup,
+          __file__ = self.setup,
+          )).encode())
 
       tmp3 = tempfile.mkdtemp('build', dir=self.dest)
       undo.append(lambda : shutil.rmtree(tmp3))

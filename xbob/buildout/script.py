@@ -41,7 +41,10 @@ zc.buildout.easy_install.py_script_template = \
   """)
 
 # Fixes buildout search path for external packages
-zc.buildout.easy_install.buildout_and_distribute_path += sys.path
+if hasattr(zc.buildout.easy_install, 'buildout_and_distribute_path'):
+  zc.buildout.easy_install.buildout_and_distribute_path += sys.path
+else:
+  zc.buildout.easy_install.buildout_and_setuptools_path += sys.path
 
 class Recipe(Scripts):
   """Just creates a given script with the "correct" paths

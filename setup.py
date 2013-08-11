@@ -53,6 +53,7 @@ setup(
       'Topic :: Software Development :: Libraries :: Python Modules',
       'Natural Language :: English',
       'Programming Language :: Python',
+      'Programming Language :: Python :: 3',
       ],
 
     )

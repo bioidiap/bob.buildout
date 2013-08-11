@@ -44,7 +44,7 @@ class EnvironmentWrapper(object):
 
     if self.debug:
 
-      if os.environ.has_key('CFLAGS'): 
+      if 'CFLAGS' in os.environ: 
         self._saved_environment['CFLAGS'] = os.environ['CFLAGS']
       else:
         self._saved_environment['CFLAGS'] = None

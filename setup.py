@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Andre Anjos <andre.anjos@idiap.ch>
-# Mon 13 Aug 2012 09:49:00 CEST 
+# Mon 13 Aug 2012 09:49:00 CEST
 
 from setuptools import setup, find_packages
 
 setup(
     name='xbob.buildout',
-    version='0.2.14',
+    version='0.3.0',
     description="zc.buildout recipes to perform a variety of tasks required by Bob satellite packages",
     keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs', 'bob'],
     url='http://github.com/bioidiap/xbob.buildout',

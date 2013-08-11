@@ -21,8 +21,8 @@ class UserScripts(Script):
 
     self.logger = logging.getLogger(name)
 
-    if options.has_key('interpreter'): del options['interpreter']
-    if options.has_key('scripts'): del options['scripts']
+    if 'interpreter' in options: del options['interpreter']
+    if 'scripts' in options: del options['scripts']
     Script.__init__(self, buildout, name, options)
 
   def install(self):
@@ -62,8 +62,8 @@ class NoseTests(Script):
     self.logger = logging.getLogger(name)
     
     # Initializes nosetests, if it is available - don't panic!
-    if options.has_key('interpreter'): del options['interpreter']
-    if options.has_key('nose-flags'):
+    if 'interpreter' in options: del options['interpreter']
+    if 'nose-flags' in options:
       # use 'options' instead of 'options' to force use
       flags = tools.parse_list(options['nose-flags'])
       init_code = ['sys.argv.append(%r)' % k for k in flags]
@@ -90,14 +90,14 @@ class Sphinx(Script):
     self.logger = logging.getLogger(name)
     
     # Initializes the sphinx document generator - don't panic!
-    if options.has_key('interpreter'): del options['interpreter']
+    if 'interpreter' in options: del options['interpreter']
     options['scripts'] = '\n'.join([
       'sphinx-build',
       'sphinx-apidoc', 
       'sphinx-autogen', 
       'sphinx-quickstart',
       ])
-    if options.has_key('entry-points'): del options['entry-points']
+    if 'entry-points' in options: del options['entry-points']
     options.setdefault('panic', 'false')
     options['dependent-scripts'] = 'false'
     eggs = options.get('eggs', buildout['buildout']['eggs'])

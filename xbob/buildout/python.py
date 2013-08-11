@@ -161,7 +161,7 @@ class Recipe(Scripts):
           else: 
             for k in tws: ws.add(k)
 
-    except zc.buildout.easy_install.MissingDistribution, e:
+    except zc.buildout.easy_install.MissingDistribution as e:
       if self.panic: 
         raise
       else:

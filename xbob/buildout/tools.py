@@ -82,7 +82,7 @@ def find_eggs(eggdirs, glob, recurse):
 def prepend_env_paths(name, values):
   """Prepends a value to an environment variable in the "right" way"""
 
-  if os.environ.has_key(name) and os.environ[name]:
+  if name in os.environ and os.environ[name]:
     os.environ[name] = os.pathsep.join(values + [os.environ[name]])
   else:
     os.environ[name] = os.pathsep.join(values)

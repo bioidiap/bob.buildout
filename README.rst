@@ -115,7 +115,7 @@ interpreter
   The name of a script to generate that allows access to a Python interpreter
   that has the path set based on the eggs installed. If you don't specify
   anything, the default value ``python`` will be used.
-  
+
 extra-paths
   Extra paths to be appended in a generated script. To prepend, using the
   ``prefixes`` entry.
@@ -159,3 +159,7 @@ nose
 sphinx
   This recipe generates only the Sphinx documentation generator applications.
   Extra options considered: none.
+
+gdbpy
+  This recipe generates a gdb launcher using the python interpreter so you can
+  start your scripts directly typing ``gdbpy myscript.py``.

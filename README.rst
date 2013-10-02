@@ -160,6 +160,6 @@ sphinx
   This recipe generates only the Sphinx documentation generator applications.
   Extra options considered: none.
 
-gdbpy
+gdb-python
   This recipe generates a gdb launcher using the python interpreter so you can
   start your scripts directly typing ``gdbpy myscript.py``.

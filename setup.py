@@ -31,7 +31,7 @@ setup(
         'develop = xbob.buildout.develop:Recipe',
         'scripts = xbob.buildout.scripts:Recipe',
         'python = xbob.buildout.scripts:PythonInterpreter',
-        'gdbpy = xbob.buildout.scripts:GdbPythonInterpreter',
+        'gdb-python = xbob.buildout.scripts:GdbPythonInterpreter',
         'ipython = xbob.buildout.scripts:IPythonInterpreter',
         'nose = xbob.buildout.scripts:NoseTests',
         'sphinx = xbob.buildout.scripts:Sphinx',

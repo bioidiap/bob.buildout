@@ -41,8 +41,11 @@ else:
   os.environ["PYTHONPATH"] = "%(paths)s"
 
 import sys
-args = [sys.argv[0], "--ex", "r", "--args", "%(interpreter)s"] + sys.argv[1:]
-os.execvp("gdb", args)
+if sys.argv[1] in ('-?', '-h', '--help'):
+  os.execvp("gdb", sys.argv)
+else:
+  args = [sys.argv[0], "--ex", "r", "--args", "%(interpreter)s"] + sys.argv[1:]
+  os.execvp("gdb", args)
 """
 
 class Recipe(Scripts):
@@ -58,7 +61,7 @@ class Recipe(Scripts):
     self.logger = logging.getLogger(self.name)
 
     # Preprocess some variables
-    self.interpreter = options.setdefault('interpreter', 'gdbpy')
+    self.interpreter = options.setdefault('interpreter', 'gdb-python')
     self.newest = bool_option(buildout['buildout'], 'newest')
     self.offline = bool_option(buildout['buildout'], 'offline')
     self.options['bin-directory'] = buildout['buildout']['bin-directory']

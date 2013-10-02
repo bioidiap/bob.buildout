@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Andre Anjos <andre.dos.anjos@gmail.com>
-# Mon  4 Feb 14:12:24 2013 
+# Mon  4 Feb 14:12:24 2013
 
 """Builds custom interpreters with the right paths for external Bob
 """
@@ -12,6 +12,7 @@ import zc.buildout
 from . import tools
 from .script import Recipe as Script
 from .python import Recipe as PythonInterpreter
+from .gdbpy import Recipe as GdbPythonInterpreter
 from .envwrapper import EnvironmentWrapper
 
 class UserScripts(Script):
@@ -37,7 +38,7 @@ class IPythonInterpreter(Script):
   def __init__(self, buildout, name, options):
 
     self.logger = logging.getLogger(name)
-    
+
     interpreter = options.setdefault('interpreter', 'python')
     del options['interpreter']
     options['entry-points'] = 'i%s=IPython.frontend.terminal.ipapp:launch_new_instance' % interpreter
@@ -60,7 +61,7 @@ class NoseTests(Script):
   def __init__(self, buildout, name, options):
 
     self.logger = logging.getLogger(name)
-    
+
     # Initializes nosetests, if it is available - don't panic!
     if 'interpreter' in options: del options['interpreter']
     if 'nose-flags' in options:
@@ -88,13 +89,13 @@ class Sphinx(Script):
   def __init__(self, buildout, name, options):
 
     self.logger = logging.getLogger(name)
-    
+
     # Initializes the sphinx document generator - don't panic!
     if 'interpreter' in options: del options['interpreter']
     options['scripts'] = '\n'.join([
       'sphinx-build',
-      'sphinx-apidoc', 
-      'sphinx-autogen', 
+      'sphinx-apidoc',
+      'sphinx-autogen',
       'sphinx-quickstart',
       ])
     if 'entry-points' in options: del options['entry-points']
@@ -120,7 +121,7 @@ class Recipe(object):
 
     # Gets a personalized prefixes list or the one from buildout
     prefixes = tools.parse_list(options.get('prefixes', ''))
-    if not prefixes: 
+    if not prefixes:
       prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
     prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
 
@@ -133,6 +134,7 @@ class Recipe(object):
     self.dependent_scripts = options.get('dependent-scripts')
 
     self.python = PythonInterpreter(buildout, 'Python', options.copy())
+    self.gdbpy = GdbPythonInterpreter(buildout, 'GdbPython', options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.ipython = IPythonInterpreter(buildout, 'IPython', options.copy())
     self.nose = NoseTests(buildout, 'Nose', options.copy())
@@ -142,6 +144,7 @@ class Recipe(object):
     self.envwrapper.set()
     retval = \
         self.python.install_on_wrapped_env() + \
+        self.gdbpy.install_on_wrapped_env() + \
         self.scripts.install_on_wrapped_env() + \
         self.ipython.install_on_wrapped_env() + \
         self.nose.install_on_wrapped_env() + \

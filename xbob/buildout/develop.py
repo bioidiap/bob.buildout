@@ -56,13 +56,15 @@ class Recipe(object):
     builder_options['interpreter'] = name
     self.builder = PythonInterpreter(buildout, name, builder_options)
 
+    self.debug = bool_option(options, 'debug', bool_option(self.buildout['buildout'], 'debug', 'false'))
+    self.verbose = bool_option(options, 'verbose', bool_option(self.buildout['buildout'], 'verbose', 'false'))
+
     # gets a personalized prefixes list or the one from buildout
     prefixes = tools.parse_list(options.get('prefixes', ''))
     if not prefixes:
       prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
 
-    self.envwrapper = EnvironmentWrapper(self.logger,
-        bool_option(options, 'debug', 'false'), prefixes)
+    self.envwrapper = EnvironmentWrapper(self.logger, self.debug, prefixes)
 
   def develop(self, executable):
     """Copy of zc.buildout.easy_install.develop()
@@ -95,6 +97,7 @@ class Recipe(object):
       undo.append(lambda : shutil.rmtree(tmp3))
 
       args = [executable, tsetup, '-q', 'develop', '-mxN', '-d', tmp3]
+      if self.verbose: args[2] = '-v'
 
       self.logger.debug("in: %r\n%s", self.directory, ' '.join(args))
 

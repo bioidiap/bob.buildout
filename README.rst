@@ -36,6 +36,9 @@ debug
   If set, the module will be compiled with debugging symbols and with
   optimization turned off.
 
+verbose
+  If set, it will output the compilation commands while compiling the module.
+
 eggs
   The eggs option specifies a list of eggs to use for **building** this
   package. Each string must be given on a separate line. If you don't specify

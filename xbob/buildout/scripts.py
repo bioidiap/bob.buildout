@@ -46,7 +46,7 @@ class IPythonInterpreter(Script):
     options['dependent-scripts'] = 'false'
     options.setdefault('panic', 'false')
     eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['nose'])
+    options['eggs'] = tools.add_eggs(eggs, ['nose', 'coverage'])
     Script.__init__(self, buildout, name, options)
 
   def install(self):
@@ -74,7 +74,7 @@ class NoseTests(Script):
     options['dependent-scripts'] = 'false'
     options.setdefault('panic', 'false')
     eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['nose'])
+    options['eggs'] = tools.add_eggs(eggs, ['nose', 'coverage'])
     Script.__init__(self, buildout, name, options)
 
   def install(self):

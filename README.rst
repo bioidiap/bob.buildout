@@ -165,4 +165,4 @@ sphinx
 
 gdb-python
   This recipe generates a gdb launcher using the python interpreter so you can
-  start your scripts directly typing ``gdbpy myscript.py``.
+  start your scripts directly typing ``gdb-python myscript.py``.

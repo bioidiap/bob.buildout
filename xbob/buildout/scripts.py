@@ -102,7 +102,7 @@ class Sphinx(Script):
     options.setdefault('panic', 'false')
     options['dependent-scripts'] = 'false'
     eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['sphinx'])
+      options['eggs'] = tools.add_eggs(eggs, ['sphinx', 'sphinx-pypi-upload'])
     Script.__init__(self, buildout, name, options)
 
   def install(self):

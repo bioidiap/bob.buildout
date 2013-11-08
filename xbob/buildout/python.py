@@ -41,7 +41,7 @@ else:
   os.environ["PYTHONPATH"] = "%(paths)s"
 
 import sys
-os.execvp("%(interpreter)s", sys.argv)
+os.execvp("%(interpreter)s", ["%(interpreter)s"] + sys.argv[1:])
 """
 
 class Recipe(Scripts):
@@ -64,15 +64,15 @@ class Recipe(Scripts):
 
     # Gets a personalized eggs list or the one from buildout
     self.eggs = tools.parse_list(options.get('eggs', ''))
-    if not self.eggs: 
+    if not self.eggs:
       self.eggs = tools.parse_list(buildout['buildout'].get('eggs', ''))
 
     if not self.eggs: # Cannot proceed without eggs...
       raise MissingOption("Referenced option does not exist for section nor it could be found on the global 'buildout' section:", name, 'eggs')
- 
+
     # Gets a personalized prefixes list or the one from buildout
     prefixes = tools.parse_list(options.get('prefixes', ''))
-    if not prefixes: 
+    if not prefixes:
       prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
     prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
 
@@ -130,9 +130,9 @@ class Recipe(Scripts):
         ws = None
         for d in distributions:
           tws = zc.buildout.easy_install.working_set([d], paths)
-          if ws is None: 
+          if ws is None:
             ws = tws
-          else: 
+          else:
             for k in tws: ws.add(k)
 
       else:
@@ -152,17 +152,17 @@ class Recipe(Scripts):
 
         ws = None
         for d in distributions:
-          tws = zc.buildout.easy_install.install([d,], 
+          tws = zc.buildout.easy_install.install([d,],
               b_options['eggs-directory'], links=self.links, index=self.index,
               path=paths, newest=self.newest, allow_hosts=self.allow_hosts)
 
-          if ws is None: 
+          if ws is None:
             ws = tws
-          else: 
+          else:
             for k in tws: ws.add(k)
 
     except zc.buildout.easy_install.MissingDistribution as e:
-      if self.panic: 
+      if self.panic:
         raise
       else:
         self.logger.info('Discarding entry-points for section "%s": %s' % \
@@ -171,7 +171,7 @@ class Recipe(Scripts):
     # Sanitize ws.entries so our prefixes come first
     ws.entries = [k for k in ws.entries if k in self.user_paths] + \
         [k for k in ws.entries if k not in self.user_paths]
-    
+
     # Print some logging information for this run
     for path in [k for k in ws.entries if k in self.user_paths]:
       self.logger.info("Adding prefix '%s'" % path)
@@ -201,9 +201,9 @@ class Recipe(Scripts):
     current_umask = os.umask(0o022) # give a dummy umask
     os.umask(current_umask)
     perms = 0o777 - current_umask
-    try: 
+    try:
       f.write(content)
-    finally: 
+    finally:
       f.close()
       os.chmod(name, perms)
 

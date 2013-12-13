@@ -39,20 +39,27 @@ class EnvironmentWrapper(object):
       tools.prepend_env_paths('PKG_CONFIG_PATH', self.pkgcfg)
       for k in reversed(self.pkgcfg):
         self.logger.info("Adding pkg-config path '%s'" % k)
-      
+
       self.logger.debug('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
 
-    if self.debug:
+    if 'CFLAGS' in os.environ:
+      self._saved_environment['CFLAGS'] = os.environ['CFLAGS']
+    else:
+      self._saved_environment['CFLAGS'] = None
 
-      if 'CFLAGS' in os.environ: 
-        self._saved_environment['CFLAGS'] = os.environ['CFLAGS']
-      else:
-        self._saved_environment['CFLAGS'] = None
+    if self.debug:
 
       # Disables optimization options for setuptools/distribute
       os.environ['CFLAGS'] = '-O0'
       self.logger.info("Setting debug build options")
-      self.logger.debug('CFLAGS=%s' % os.environ['CFLAGS'])
+
+    else:
+
+      # Disables debug symbols, enable extra optimizations
+      os.environ['CFLAGS'] = '-O3 -g0'
+      self.logger.info("Setting release build options")
+
+    self.logger.debug('CFLAGS=%s' % os.environ['CFLAGS'])
 
   def unset(self):
     """Resets the environment back to its previous state"""

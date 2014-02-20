@@ -48,18 +48,25 @@ class EnvironmentWrapper(object):
       self._saved_environment['CFLAGS'] = None
 
     if self.debug:
-
-      # Disables optimization options for setuptools/distribute
-      os.environ['CFLAGS'] = '-O0'
+      # Disables optimization, enable debug symbols
+      cflags = '-O0 -g'
+      cxxflags = '-O0 -g'
       self.logger.info("Setting debug build options")
 
     else:
-
       # Disables debug symbols, enable extra optimizations
-      os.environ['CFLAGS'] = '-O3 -g0'
+      cflags = '-O3 -g0'
+      cxxflags = cflags
       self.logger.info("Setting release build options")
 
+    # Disables optimization options for setuptools/distribute
+    if 'CFLAGS' in os.environ: os.environ['CFLAGS'] += ' ' + cflags
+    else: os.environ['CFLAGS'] = cflags
     self.logger.debug('CFLAGS=%s' % os.environ['CFLAGS'])
+
+    if 'CXXFLAGS' in os.environ: os.environ['CXXFLAGS'] += ' ' + cxxflags
+    else: os.environ['CXXFLAGS'] = cxxflags
+    self.logger.debug('CXXFLAGS=%s' % os.environ['CXXFLAGS'])
 
   def unset(self):
     """Resets the environment back to its previous state"""

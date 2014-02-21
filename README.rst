@@ -95,8 +95,8 @@ To use this recipe, you just have to simply do::
   [scripts]
   recipe = xbob.buildout:scripts
 
-Supported Options
-=================
+Common Supported Options
+========================
 
 The recipe supports the following options:
 

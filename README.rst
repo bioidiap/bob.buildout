@@ -73,16 +73,18 @@ python
   A pre-configured python interpreter
 
 ipython
-  If the package ``ipython`` is installed, a pre-configured ipython interpreter
-  will also be created
+  Makes sure ipython is installed and ready for use.
+
+pylint
+  A code checker using PyLint will be created so you can check your code for
+  conformance.
 
 nosetests
-  If the package ``nose`` is installed, a test runner called ``nosetests`` will
-  be created on the bin directory of buildout.
+  A test runner called ``nosetests`` will be created on the bin directory of
+  buildout.
 
-sphinx- *utils*
-  If the package ``sphinx`` is installed, several sphinx utilities will be
-  created on the bin directory of buildout.
+sphinx
+  Several sphinx utilities will be created on the bin directory of buildout.
 
 package scripts
   Package scripts will be created taking into account the ``prefixes``
@@ -154,6 +156,10 @@ ipython
 egg.scripts
   This recipe generates only the scripts (and dependent scripts) for the
   package. Extra options considered: ``dependent-scripts``.
+
+pylint
+  This recipe generates only the ``pylint`` program. Extra options
+  considered are:``pylint-flags``.
 
 nose
   This recipe generates only the ``nosetests`` program. Extra options

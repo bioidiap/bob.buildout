@@ -49,23 +49,18 @@ class EnvironmentWrapper(object):
 
     if self.debug:
       # Disables optimization, enable debug symbols
-      cflags = '-O0 -g'
-      cxxflags = '-O0 -g'
+      flags = '-O0 -g'
       self.logger.info("Setting debug build options")
 
     else:
       # Disables debug symbols, enable extra optimizations
-      cflags = '-O3 -g0'
-      cxxflags = cflags
+      flags = '-O3 -g0'
       self.logger.info("Setting release build options")
 
-    # Disables optimization options for setuptools/distribute
-    if 'CFLAGS' in os.environ: os.environ['CFLAGS'] += ' ' + cflags
-    else: os.environ['CFLAGS'] = cflags
+    tools.append_environ_flags(flags, 'CFLAGS')
     self.logger.debug('CFLAGS=%s' % os.environ['CFLAGS'])
 
-    if 'CXXFLAGS' in os.environ: os.environ['CXXFLAGS'] += ' ' + cxxflags
-    else: os.environ['CXXFLAGS'] = cxxflags
+    tools.append_environ_flags(flags, 'CXXFLAGS')
     self.logger.debug('CXXFLAGS=%s' % os.environ['CXXFLAGS'])
 
   def unset(self):

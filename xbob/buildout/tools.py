@@ -1,23 +1,23 @@
 #!/usr/bin/env python
 # vim: set fileencoding=utf-8 :
 # Andre Anjos <andre.dos.anjos@gmail.com>
-# Wed 22 Aug 10:20:07 2012 
+# Wed 22 Aug 10:20:07 2012
 
 """Generic tools for Bob buildout recipes
 """
-  
+
 import os
 import fnmatch
 
 def uniq(seq, idfun=None):
   """Order preserving, fast de-duplication for lists"""
-   
+
   if idfun is None:
     def idfun(x): return x
 
   seen = {}
   result = []
-  
+
   for item in seq:
     marker = idfun(item)
     if marker in seen: continue
@@ -34,7 +34,7 @@ def deep_working_set(egg, depth, logger):
   """Given a zc.recipe.egg.Egg object in 'egg' and a depth, recurse through
   the package dependencies and satisfy them all requiring an egg for each
   dependency."""
-  
+
   import pkg_resources
 
   def _make_specs(req):
@@ -53,7 +53,7 @@ def deep_working_set(egg, depth, logger):
       dep_deps = [_make_specs(k) for k in \
           ws.find(pkg_resources.Requirement.parse(dep)).requires()]
       retval.extend(_recurse(egg, ws, dep_deps, depth-1))
-   
+
     return retval
 
   deps, ws = egg.working_set()
@@ -93,3 +93,14 @@ def add_eggs(eggs, l):
   egglist = parse_list(eggs)
   egglist = uniq(egglist + l)
   return '\n'.join(egglist)
+
+def append_environ_flags(flags, variable):
+  """Append flags to a given environment variable.
+
+  Makes sure that the flag is not inserted twice on the variable string.
+  """
+
+  value = os.environ.get(variable, '')
+  filtered = ' '.join([k for k in value.split() if k not in flags.split()])
+  if filtered: os.environ[variable] = filtered + ' ' + flags
+  else: os.environ[variable] = flags

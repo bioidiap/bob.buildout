@@ -127,7 +127,12 @@ class Sphinx(Script):
       'sphinx-autogen',
       'sphinx-quickstart',
       ])
-    if 'entry-points' in options: del options['entry-points']
+    options['entry-points'] = '\n'.join([
+      'sphinx-build=sphinx:main',
+      'sphinx-apidoc=sphinx.apidoc:main',
+      'sphinx-autogen=sphinx.ext.autosummary.generate:main',
+      'sphinx-quickstart=sphinx.quickstart:main',
+      ])
     options.setdefault('panic', 'false')
     options['dependent-scripts'] = 'false'
     eggs = options.get('eggs', buildout['buildout']['eggs'])

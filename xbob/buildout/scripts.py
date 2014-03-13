@@ -46,7 +46,7 @@ class IPythonInterpreter(Script):
     options['dependent-scripts'] = 'false'
     options.setdefault('panic', 'false')
     eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['ipython', 'ipdb'])
+    options['eggs'] = tools.add_eggs(eggs, ['ipython', 'ipdb', 'pudb'])
     Script.__init__(self, buildout, name, options)
 
   def install(self):
@@ -64,14 +64,6 @@ class PyLint(Script):
 
     # Initializes nosetests, if it is available - don't panic!
     if 'interpreter' in options: del options['interpreter']
-    if 'pylint-flags' in options:
-      # use 'options' instead of 'options' to force use
-      flags = tools.parse_list(options['pylint-flags'])
-      init_code = ['sys.argv.append(%r)' % k for k in flags]
-      options['initialization'] = '\n'.join(init_code)
-    options['entry-points'] = 'pylint=pylint.lint:Run'
-    options['arguments'] = 'sys.argv[1:]'
-    options['scripts'] = 'pylint'
     options['dependent-scripts'] = 'false'
     options.setdefault('panic', 'false')
     eggs = options.get('eggs', buildout['buildout']['eggs'])

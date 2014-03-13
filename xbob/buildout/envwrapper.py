@@ -15,10 +15,11 @@ class EnvironmentWrapper(object):
   settings from initialization.
   """
 
-  def __init__(self, logger, debug, prefixes):
+  def __init__(self, logger, debug, prefixes, flags=None):
 
     self.debug = debug
     self.logger = logger
+    self.flags = ' '.join(flags) if flags else ''
 
     # set the pkg-config paths to look at
     pkgcfg = [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
@@ -47,6 +48,11 @@ class EnvironmentWrapper(object):
     else:
       self._saved_environment['CFLAGS'] = None
 
+    if 'CXXFLAGS' in os.environ:
+      self._saved_environment['CXXFLAGS'] = os.environ['CXXFLAGS']
+    else:
+      self._saved_environment['CXXFLAGS'] = None
+
     if self.debug:
       # Disables optimization, enable debug symbols
       flags = '-O0 -g'
@@ -56,6 +62,10 @@ class EnvironmentWrapper(object):
       # Disables debug symbols, enable extra optimizations
       flags = '-O3 -g0'
       self.logger.info("Setting release build options")
+
+    if self.flags:
+      flags += ' ' + self.flags
+      self.logger.info("Setting user build options (%s)" % (self.flags,))
 
     tools.append_environ_flags(flags, 'CFLAGS')
     self.logger.debug('CFLAGS=%s' % os.environ['CFLAGS'])

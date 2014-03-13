@@ -11,6 +11,7 @@ import sys
 import shutil
 import tempfile
 import logging
+import warnings
 from . import tools
 import zc.buildout.easy_install
 from zc.buildout.buildout import bool_option
@@ -22,6 +23,8 @@ class Recipe(object):
   """
 
   def __init__(self, buildout, name, options):
+
+    warnings.warn("this recipe is deprecated, use xbob.buildout as your first extension instead (before any other)", DeprecationWarning)
 
     self.name, self.options = name, options
     self.logger = logging.getLogger(self.name)
@@ -56,7 +59,7 @@ class Recipe(object):
     builder_options['interpreter'] = name
     self.builder = PythonInterpreter(buildout, name, builder_options)
 
-    self.debug = bool_option(options, 'debug', 
+    self.debug = bool_option(options, 'debug',
         bool_option(self.buildout['buildout'], 'debug', 'false'))
     self.verbose = bool_option(options, 'verbose',
         bool_option(self.buildout['buildout'], 'verbose', 'false'))
@@ -70,7 +73,7 @@ class Recipe(object):
 
   def develop(self, executable):
     """Copy of zc.buildout.easy_install.develop()
-    
+
     This copy has been modified to use our own development executable
     """
 

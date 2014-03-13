@@ -11,49 +11,39 @@ Packages <http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/Organi
   ``zc.buildout`` automatically, if you followed our recipe to build `Satellite
   Packages`_.
 
-C++/Python Package Builder
---------------------------
+C++/Python Extension
+--------------------
 
-This recipe can build C++/Python extensions that link against Bob using
-``pkg-config``. This recipe will look at the ``buildout`` section entry called
-``prefixes``, that potentially lists prefixes that should be **prepended** to
-the default ``pkg-config`` environment::
-
-  [mycxx]
-  recipe = xbob.buildout:develop
-
-This recipe also, indirectly, generates a python interpreter named (by default)
-``xpython.builder``. This program allows you to build the package using
-installed or development eggs. Our build therefore by-passes the normal package
-building via setuptools/distribute and use buildout for finding the eggs which
-are required for the build. Note this has *nothing* to do with package
-use, for which you can use the recipes below.
+This extension allows you to compile C/C++ extensions that depend on each other
+using a buildout. It assures that eggs living in both ``develop-eggs`` and
+``eggs`` are on your path before building the packages in the ``develop``
+section. By using this extension you can drop the use of the local recipe
+``xbob.buildout:develop``, which should be considered deprecated.
 
 Supported Options
 =================
 
+verbose
+
+  If set, it will output the compilation commands while compiling the module.
+
+prefixes
+
+  A list of directories where this recipe will look for subdirectories with the
+  stem ``lib/pkgconfig``. All directories matching this condition are appended
+  to the ``pkg-config`` environment using the environment variable
+  ``PKG_CONFIG_PATH``.
+
 debug
+
   If set, the module will be compiled with debugging symbols and with
   optimization turned off.
 
-verbose
-  If set, it will output the compilation commands while compiling the module.
+flags
 
-eggs
-  The eggs option specifies a list of eggs to use for **building** this
-  package. Each string must be given on a separate line. If you don't specify
-  anything, at least ``xbob.extension`` is included. Otherwise, we will add
-  that one to your list, if not yet available.
-
-interpreter
-  The name of the interpreter that is generated for **building** this package.
-  If you don't set it, it is by default called ``xpython.builder``.
-
-buildout.prefixes
-  A list of directories where this recipe will look for subdirectories with
-  the stem ``lib/pkgconfig``. All directories matching this condition are
-  appended to the ``pkg-config`` environment using the environment variable
-  ``PKG_CONFIG_PATH``.
+  Adds the given flags to ``CFLAGS`` and ``CXXFLAGS``. It can also be used to
+  set debugging or release options if you prefer. This list of flags has
+  priority over the ``debug`` settings.
 
 Multi-Script Installer
 ----------------------

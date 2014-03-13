@@ -148,8 +148,7 @@ egg.scripts
   package. Extra options considered: ``dependent-scripts``.
 
 pylint
-  This recipe generates only the ``pylint`` program. Extra options
-  considered are:``pylint-flags``.
+  No extra options for this recipe.
 
 nose
   This recipe generates only the ``nosetests`` program. Extra options

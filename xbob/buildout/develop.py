@@ -24,11 +24,11 @@ class Recipe(object):
 
   def __init__(self, buildout, name, options):
 
-    warnings.warn("this recipe is deprecated, use xbob.buildout as your first extension instead (before any other)", DeprecationWarning)
-
     self.name, self.options = name, options
     self.logger = logging.getLogger(self.name)
     self.buildout = buildout
+
+    self.logger.warn("this recipe is **deprecated**, use xbob.buildout as your first extension instead (before any other)")
 
     # finds the setup script or use the default
     self.setup = os.path.join(buildout['buildout']['directory'],

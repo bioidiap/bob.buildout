@@ -86,8 +86,13 @@ class Extension:
           undo.append(lambda: os.remove(tsetup))
           undo.append(lambda: os.close(fd))
 
+          if hasattr(zc.buildout.easy_install, 'distribute_loc'):
+            setuptools_loc = zc.buildout.easy_install.distribute_loc
+          else:
+            setuptools_loc = zc.buildout.easy_install.setuptools_loc
+
           os.write(fd, (runsetup_template % dict(
-              setuptools=zc.buildout.easy_install.setuptools_loc,
+              setuptools=setuptools_loc,
               setupdir=directory,
               setup=setup,
               deveggsdir=self.deveggsdir,

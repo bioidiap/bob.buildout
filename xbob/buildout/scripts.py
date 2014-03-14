@@ -8,12 +8,21 @@
 
 import os
 import logging
+import pkg_resources
 import zc.buildout
 from . import tools
 from .script import Recipe as Script
 from .python import Recipe as PythonInterpreter
 from .gdbpy import Recipe as GdbPythonInterpreter
 from .envwrapper import EnvironmentWrapper
+
+def version_is_lessthan(name, version):
+  """Checks if the version of a package is at least..."""
+
+  if not is_available(name): return False
+  else:
+    from distutils.version import LooseVersion
+    return LooseVersion(pkg_resources.require(name)[0].version) < version
 
 class UserScripts(Script):
   """Installs all user scripts from the eggs"""
@@ -37,17 +46,23 @@ class IPythonInterpreter(Script):
 
   def __init__(self, buildout, name, options):
 
+    self.name = name
+    self.buildout = buildout
     self.logger = logging.getLogger(name)
+    self.options = options
+    self.egglist = options.get('eggs', buildout['buildout']['eggs'])
 
-    interpreter = options.setdefault('interpreter', 'python')
-    del options['interpreter']
-    options['entry-points'] = 'i%s=IPython.frontend.terminal.ipapp:launch_new_instance' % interpreter
-    options['scripts'] = 'i%s' % interpreter
-    options['dependent-scripts'] = 'false'
-    options.setdefault('panic', 'false')
-    eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['ipython', 'ipdb', 'pudb'])
-    Script.__init__(self, buildout, name, options)
+    # adds ipython interpreter into the mix
+    interpreter = self.options.setdefault('interpreter', 'python')
+    del self.options['interpreter']
+    self.options['entry-points'] = 'i%s=IPython.frontend.terminal.ipapp:launch_new_instance' % interpreter
+    self.options['scripts'] = 'i%s' % interpreter
+    self.options['dependent-scripts'] = 'false'
+    self.options.setdefault('panic', 'false')
+    self.options['eggs'] = tools.add_eggs(self.egglist, ['ipython'])
+
+    # initializes base class
+    Script.__init__(self, self.buildout, self.name, self.options)
 
   def install(self):
 
@@ -64,6 +79,17 @@ class PyLint(Script):
 
     # Initializes nosetests, if it is available - don't panic!
     if 'interpreter' in options: del options['interpreter']
+    if 'pylint-flags' in options:
+      if version_is_lessthan('pylint', '1.0'):
+        # use 'options' instead of 'self.options' to force use
+        flags = tools.parse_list(options['pylint-flags'])
+        init_code = ['sys.argv.append(%r)' % k for k in flags]
+        options['initialization'] = '\n'.join(init_code)
+      else:
+        self.logger.warn('the option pylint-flags for this recipe is only available for older versions of pylint < 1.0')
+    options['entry-points'] = 'pylint=pylint.lint:Run'
+    options['arguments'] = 'sys.argv[1:]'
+    options['scripts'] = 'pylint'
     options['dependent-scripts'] = 'false'
     options.setdefault('panic', 'false')
     eggs = options.get('eggs', buildout['buildout']['eggs'])
@@ -173,8 +199,6 @@ class Recipe(object):
         self.python.install_on_wrapped_env() + \
         self.gdbpy.install_on_wrapped_env() + \
         self.scripts.install_on_wrapped_env() + \
-        self.ipython.install_on_wrapped_env() + \
-        self.pylint.install_on_wrapped_env() + \
         self.nose.install_on_wrapped_env() + \
         self.sphinx.install_on_wrapped_env()
     self.envwrapper.unset()

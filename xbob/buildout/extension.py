@@ -47,12 +47,16 @@ class Extension:
       prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
 
       # shall we compile in debug mode?
-      debug = bool_option(self.buildout['buildout'], 'debug', 'false')
+      debug = self.buildout['buildout'].get('debug', None)
+      if isinstance(debug, str):
+        debug = bool_option(self.buildout['buildout'], 'debug', 'false')
 
-      # gets list of flags
-      flags = tools.parse_list(buildout['buildout'].get('flags', ''))
+      # has the user established an enviroment?
+      environ_section = self.buildout['buildout'].get('environ', 'environ')
+      environ = self.buildout.get(environ_section, {})
 
-      self.envwrapper = EnvironmentWrapper(logger, debug, prefixes, flags)
+      # finally builds the environment wrapper
+      self.envwrapper = EnvironmentWrapper(logger, debug, prefixes, environ)
 
   def develop(self, setup, dest, build_ext=None, executable=sys.executable):
 

@@ -1,9 +1,11 @@
-==========================
- Buildout Recipes for Bob
-==========================
+===================================
+ Buildout Recipes for Bob Packages
+===================================
 
 This package contains a number of recipes to be used to build `Satellite
-Packages <http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/OrganizeYourCode.html>`_ for `Bob <http://idiap.github.com/bob/>`_, a signal-processing and machine learning toolbox originally developed by the Biometrics Group at Idiap, in Switzerland.
+Packages <http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/OrganizeYourCode.html>`_ for `Bob <http://idiap.github.com/bob/>`_,
+a signal-processing and machine learning toolbox originally developed by the
+Biometrics Group at Idiap, in Switzerland.
 
 .. note::
 
@@ -25,7 +27,8 @@ Supported Options
 
 verbose
 
-  If set, it will output the compilation commands while compiling the module.
+  If set, buildout it will output the compilation commands while compiling the
+  module.
 
 prefixes
 
@@ -39,11 +42,13 @@ debug
   If set, the module will be compiled with debugging symbols and with
   optimization turned off.
 
-flags
+environ
 
-  Adds the given flags to ``CFLAGS`` and ``CXXFLAGS``. It can also be used to
-  set debugging or release options if you prefer. This list of flags has
-  priority over the ``debug`` settings.
+  The name of a section on your configuration file that contains the names and
+  values of environment variables that should be used through the build. This
+  section is named, by default, ``environ``. If a section named ``environ``
+  exists, it is read and the environment variables are set **before** the
+  specified eggs are developed.
 
 Multi-Script Installer
 ----------------------
@@ -62,12 +67,9 @@ called ``eggs``, but that can be overriden locally. It generates these scripts:
 python
   A pre-configured python interpreter
 
-ipython
-  Makes sure ipython is installed and ready for use.
-
-pylint
-  A code checker using PyLint will be created so you can check your code for
-  conformance.
+gdb-python
+  A pre-configured python interpreter, prefixed with ``gdb`` to make debugging
+  easier. Use it like you use ``python``.
 
 nosetests
   A test runner called ``nosetests`` will be created on the bin directory of
@@ -143,9 +145,9 @@ ipython
   This recipe generates an IPython interpreter on the binary directory.
   Extra options considered: ``interpreter``.
 
-egg.scripts
-  This recipe generates only the scripts (and dependent scripts) for the
-  package. Extra options considered: ``dependent-scripts``.
+gdb-python
+  This recipe generates a gdb launcher using the python interpreter so you can
+  start your scripts directly typing ``gdb-python myscript.py``.
 
 pylint
   No extra options for this recipe.
@@ -158,6 +160,6 @@ sphinx
   This recipe generates only the Sphinx documentation generator applications.
   Extra options considered: none.
 
-gdb-python
-  This recipe generates a gdb launcher using the python interpreter so you can
-  start your scripts directly typing ``gdb-python myscript.py``.
+egg.scripts
+  This recipe generates only the scripts (and dependent scripts) for the
+  package. Extra options considered: ``dependent-scripts``.

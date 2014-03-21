@@ -188,8 +188,6 @@ class Recipe(object):
     self.python = PythonInterpreter(buildout, 'Python', options.copy())
     self.gdbpy = GdbPythonInterpreter(buildout, 'GdbPython', options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
-    self.ipython = IPythonInterpreter(buildout, 'IPython', options.copy())
-    self.pylint = PyLint(buildout, 'PyLint', options.copy())
     self.nose = NoseTests(buildout, 'Nose', options.copy())
     self.sphinx = Sphinx(buildout, 'Sphinx', options.copy())
 

@@ -7,80 +7,74 @@
 """
 
 import os
+import string
 import logging
-from . import tools
+
+def substitute(value, d):
+  """Substitutes ${} expressions on ``value`` with values from ``d``, using
+  string.Template"""
+
+  return string.Template(value).substitute(**d)
 
 class EnvironmentWrapper(object):
   """Provides methods for wrapping other install() methods with environment
   settings from initialization.
   """
 
-  def __init__(self, logger, debug, prefixes, flags=None):
+  DEBUG_FLAGS = '-O0 -g'
+  RELEASE_FLAGS = '-O3'
+
+  def __init__(self, logger, debug=None, prefixes=None, environ=None):
 
     self.debug = debug
-    self.logger = logger
-    self.flags = ' '.join(flags) if flags else ''
+    self.environ = dict(environ) if environ else {}
 
-    # set the pkg-config paths to look at
-    pkgcfg = [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
+    # do environment variable substitution on user dictionary
+    for key in self.environ:
+      self.environ[key] = substitute(self.environ[key], self.environ)
+
+    # if PKG_CONFIG_PATH is set on self.environ, then prefix it
+    pkgcfg = []
+    if 'PKG_CONFIG_PATH' in self.environ:
+      pkgcfg += self.environ['PKG_CONFIG_PATH'].split(os.pathsep)
+
+    # set the pkg-config paths to look at, environment settings in front
+    prefixes = prefixes if prefixes else []
+    if 'XBOB_PREFIX_PATH' in self.environ:
+      prefixes = self.environ['XBOB_PREFIX_PATH'].split(os.pathsep) + prefixes
+    pkgcfg += [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
     pkgcfg += [os.path.join(k, 'lib64', 'pkgconfig') for k in prefixes]
     pkgcfg += [os.path.join(k, 'lib32', 'pkgconfig') for k in prefixes]
-    self.pkgcfg = [os.path.abspath(k) for k in pkgcfg if os.path.exists(k)]
+
+    # joins all paths
+    if prefixes:
+      self.environ['XBOB_PREFIX_PATH'] = os.pathsep.join(prefixes)
+    if pkgcfg:
+      self.environ['PKG_CONFIG_PATH'] = os.pathsep.join(pkgcfg)
+
+    # reset the CFLAGS and CXXFLAGS depending on the user input
+    cflags = None
+    if self.debug is True: cflags = str(EnvironmentWrapper.DEBUG_FLAGS)
+    elif self.debug is False: cflags = str(EnvironmentWrapper.RELEASE_FLAGS)
+    # else: pass
+
+    if cflags:
+      self.environ['CFLAGS'] = cflags + ' ' + self.environ.get('CFLAGS', '')
+      self.environ['CFLAGS'] = self.environ['CFLAGS'].strip() #clean-up
+      self.environ['CXXFLAGS'] = cflags + ' ' + self.environ.get('CXXFLAGS', '')
+      self.environ['CXXFLAGS'] = self.environ['CXXFLAGS'].strip() #clean-up
 
   def set(self):
     """Sets the current environment for variables needed for the setup of the
     package to be compiled"""
 
-    self._saved_environment = {}
-
-    if self.pkgcfg:
-
-      self._saved_environment['PKG_CONFIG_PATH'] = os.environ.get('PKG_CONFIG_PATH', None)
-
-      tools.prepend_env_paths('PKG_CONFIG_PATH', self.pkgcfg)
-      for k in reversed(self.pkgcfg):
-        self.logger.info("Adding pkg-config path '%s'" % k)
-
-      self.logger.debug('PKG_CONFIG_PATH=%s' % os.environ['PKG_CONFIG_PATH'])
-
-    if 'CFLAGS' in os.environ:
-      self._saved_environment['CFLAGS'] = os.environ['CFLAGS']
-    else:
-      self._saved_environment['CFLAGS'] = None
-
-    if 'CXXFLAGS' in os.environ:
-      self._saved_environment['CXXFLAGS'] = os.environ['CXXFLAGS']
-    else:
-      self._saved_environment['CXXFLAGS'] = None
-
-    if self.debug:
-      # Disables optimization, enable debug symbols
-      flags = '-O0 -g'
-      self.logger.info("Setting debug build options")
-
-    else:
-      # Disables debug symbols, enable extra optimizations
-      flags = '-O3 -g0'
-      self.logger.info("Setting release build options")
-
-    if self.flags:
-      flags += ' ' + self.flags
-      self.logger.info("Setting user build options (%s)" % (self.flags,))
-
-    tools.append_environ_flags(flags, 'CFLAGS')
-    self.logger.debug('CFLAGS=%s' % os.environ['CFLAGS'])
-
-    tools.append_environ_flags(flags, 'CXXFLAGS')
-    self.logger.debug('CXXFLAGS=%s' % os.environ['CXXFLAGS'])
+    self._saved_environment = dict(os.environ) #copy
+    os.environ.update(self.environ)
 
   def unset(self):
     """Resets the environment back to its previous state"""
 
-    for key in self._saved_environment:
-      if self._saved_environment[key] is None:
-        try:
-          del os.environ[key]
-        except KeyError:
-          pass
-      else:
-        os.environ[key] = self._saved_environment[key]
+    # cleanup
+    if self._saved_environment:
+      os.environ = self._saved_environment
+      self._saved_environment = {}

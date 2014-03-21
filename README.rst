@@ -32,23 +32,45 @@ verbose
 
 prefixes
 
-  A list of directories where this recipe will look for subdirectories with the
-  stem ``lib/pkgconfig``. All directories matching this condition are appended
-  to the ``pkg-config`` environment using the environment variable
-  ``PKG_CONFIG_PATH``.
+  A list of directories where this recipe will look for installed software,
+  such as compiled libraries and header files. It is the same as setting the
+  environment variable ``XBOB_PREFIX_PATH`` to a list of paths containing
+  externally installed software. As a side-effect, setting ``XBOB_PREFIX_PATH``
+  also sets, internally, ``PKG_CONFIG_PATH`` to a list of directories following
+  where to search for pkg-config files.
 
 debug
 
   If set, the module will be compiled with debugging symbols and with
-  optimization turned off.
+  optimization turned off. If ``debug`` is set to ``true``, this is equivalent
+  to appending the environment variables ``CFLAGS`` and ``CXXFLAGS`` with ``-O0
+  -g``. If it is set to ``false``, it is the same as appending ``-O3 -g0``
+  instead.
 
 environ
 
   The name of a section on your configuration file that contains the names and
   values of environment variables that should be used through the build. This
-  section is named, by default, ``environ``. If a section named ``environ``
-  exists, it is read and the environment variables are set **before** the
-  specified eggs are developed.
+  section is named, by default, ``environ``.
+
+  If a section named ``environ`` exists, it is read and the environment
+  variables are set **before** the specified eggs are developed. You can use
+  variable substitution on this section. Here is an an example::
+
+    [environ]
+    CFLAGS = '-O0 -g -DNDEBUG'
+    CXXFLAGS = ${CFLAGS}
+
+  Notice there is some functionality overlap between the previous flags and the
+  use of section ``environ``. While it is more flexible, you must understand
+  the consequences of setting both ``prefixes`` and ``debug``, together with
+  ``environ``. The rule is simple: values set on the ``environ`` section have
+  **precedence** to ``debug`` and ``prefixes``. If you set ``debug`` and
+  ``CFLAGS`` (or ``CXXFLAGS``) in the ``environ`` section, for example, then
+  the values on the final ``CFLAGS`` variable would be ``-O0 -g`` followed by
+  ``environ``'s ``CFLAGS`` settings. Analogously, the paths defined by
+  ``environ``'s ``XBOB_PREFIX_PATH`` and ``PKG_CONFIG_PATH`` are **prepended**
+  to those listed in ``prefixes``, if that is also set.
 
 Multi-Script Installer
 ----------------------

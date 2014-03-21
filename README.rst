@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/bioidiap/xbob.buildout.svg?branch=master
+   :target: https://travis-ci.org/bioidiap/xbob.buildout
+
 ===================================
  Buildout Recipes for Bob Packages
 ===================================

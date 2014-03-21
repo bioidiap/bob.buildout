@@ -22,7 +22,7 @@ class EnvironmentWrapper(object):
   """
 
   DEBUG_FLAGS = '-O0 -g'
-  RELEASE_FLAGS = '-O3'
+  RELEASE_FLAGS = '-O3 -g0'
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 

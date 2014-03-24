@@ -112,6 +112,10 @@ nosetests
   A test runner called ``nosetests`` will be created on the bin directory of
   buildout.
 
+coverage
+  A test coverage application called ``coverage`` will be created on the bin
+  directory of buildout.
+
 sphinx
   Several sphinx utilities will be created on the bin directory of buildout.
 
@@ -192,6 +196,10 @@ pylint
 nose
   This recipe generates only the ``nosetests`` program. Extra options
   considered are:``nose-flags``.
+
+coverage
+  This recipe generates only the ``coverage`` program. Extra options
+  considered are:``coverage-flags``.
 
 sphinx
   This recipe generates only the Sphinx documentation generator applications.

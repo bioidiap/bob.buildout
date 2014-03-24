@@ -1,5 +1,17 @@
+.. vim: set fileencoding=utf-8 :
+.. Andre Anjos <andre.anjos@idiap.ch>
+.. Thu 30 Jan 08:46:53 2014 CET
+
 .. image:: https://travis-ci.org/bioidiap/xbob.buildout.svg?branch=master
    :target: https://travis-ci.org/bioidiap/xbob.buildout
+.. image:: https://coveralls.io/repos/bioidiap/xbob.buildout/badge.png
+   :target: https://coveralls.io/r/bioidiap/xbob.buildout
+.. image:: http://img.shields.io/github/tag/bioidiap/xbob.buildout.png
+   :target: https://github.com/bioidiap/xbob.buildout
+.. image:: http://img.shields.io/pypi/v/xbob.buildout.png
+   :target: https://pypi.python.org/pypi/xbob.buildout
+.. image:: http://img.shields.io/pypi/dm/xbob.buildout.png
+   :target: https://pypi.python.org/pypi/xbob.buildout
 
 ===================================
  Buildout Recipes for Bob Packages

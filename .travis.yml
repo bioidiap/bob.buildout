@@ -4,8 +4,13 @@ python:
   - "2.7"
   - "3.2"
   - "3.3"
+before_install:
+  - sudo apt-get update -qq
+  - pip install coveralls
 install:
   - "python bootstrap.py"
   - "./bin/buildout"
 script:
-  - "./bin/nosetests -sv"
+  - "./bin/coverage run --source=xbob.extension ./bin/nosetests -sv"
+after_success:
+  - "coveralls"

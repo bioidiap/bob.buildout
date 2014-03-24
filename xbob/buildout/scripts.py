@@ -121,7 +121,35 @@ class NoseTests(Script):
     options['dependent-scripts'] = 'false'
     options.setdefault('panic', 'false')
     eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['nose', 'coverage'])
+    options['eggs'] = tools.add_eggs(eggs, ['nose'])
+    Script.__init__(self, buildout, name, options)
+
+  def install(self):
+
+    return Script.install(self)
+
+  update = install
+
+class Coverage(Script):
+  """Installs Nose infrastructure"""
+
+  def __init__(self, buildout, name, options):
+
+    self.logger = logging.getLogger(name)
+
+    # Initializes nosetests, if it is available - don't panic!
+    if 'interpreter' in options: del options['interpreter']
+    if 'coverage-flags' in options:
+      # use 'options' instead of 'options' to force use
+      flags = tools.parse_list(options['coverage-flags'])
+      init_code = ['sys.argv.append(%r)' % k for k in flags]
+      options['initialization'] = '\n'.join(init_code)
+    options['entry-points'] = 'coverage=coverage:main'
+    options['scripts'] = 'coverage'
+    options['dependent-scripts'] = 'false'
+    options.setdefault('panic', 'false')
+    eggs = options.get('eggs', buildout['buildout']['eggs'])
+    options['eggs'] = tools.add_eggs(eggs, ['coverage'])
     Script.__init__(self, buildout, name, options)
 
   def install(self):
@@ -189,6 +217,7 @@ class Recipe(object):
     self.gdbpy = GdbPythonInterpreter(buildout, 'GdbPython', options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.nose = NoseTests(buildout, 'Nose', options.copy())
+    self.coverage = NoseTests(buildout, 'Coverage', options.copy())
     self.sphinx = Sphinx(buildout, 'Sphinx', options.copy())
 
   def install(self):

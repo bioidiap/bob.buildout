@@ -131,7 +131,7 @@ class NoseTests(Script):
   update = install
 
 class Coverage(Script):
-  """Installs Nose infrastructure"""
+  """Installs Coverage infrastructure"""
 
   def __init__(self, buildout, name, options):
 
@@ -217,7 +217,7 @@ class Recipe(object):
     self.gdbpy = GdbPythonInterpreter(buildout, 'GdbPython', options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.nose = NoseTests(buildout, 'Nose', options.copy())
-    self.coverage = NoseTests(buildout, 'Coverage', options.copy())
+    self.coverage = Coverage(buildout, 'Coverage', options.copy())
     self.sphinx = Sphinx(buildout, 'Sphinx', options.copy())
 
   def install(self):
@@ -227,6 +227,7 @@ class Recipe(object):
         self.gdbpy.install_on_wrapped_env() + \
         self.scripts.install_on_wrapped_env() + \
         self.nose.install_on_wrapped_env() + \
+        self.coverage.install_on_wrapped_env() + \
         self.sphinx.install_on_wrapped_env()
     self.envwrapper.unset()
     return retval

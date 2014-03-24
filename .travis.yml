@@ -11,6 +11,6 @@ install:
   - "python bootstrap.py"
   - "./bin/buildout"
 script:
-  - "./bin/coverage run --source=xbob.extension ./bin/nosetests -sv"
+  - "./bin/coverage run --source=xbob.buildout ./bin/nosetests -sv"
 after_success:
   - "coveralls"

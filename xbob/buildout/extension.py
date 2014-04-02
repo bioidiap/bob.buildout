@@ -57,6 +57,7 @@ class Extension:
 
       # finally builds the environment wrapper
       self.envwrapper = EnvironmentWrapper(logger, debug, prefixes, environ)
+      self.envwrapper.set()
 
   def develop(self, setup, dest, build_ext=None, executable=sys.executable):
 
@@ -69,8 +70,6 @@ class Extension:
 
       undo = []
       try:
-          self.envwrapper.set()
-          undo.append(self.envwrapper.unset)
           if build_ext:
               setup_cfg = os.path.join(directory, 'setup.cfg')
               if os.path.exists(setup_cfg):

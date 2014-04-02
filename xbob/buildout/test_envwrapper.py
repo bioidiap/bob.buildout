@@ -200,3 +200,29 @@ def test_set_multiple():
   for key in os.environ:
     assert key in before, "key `%s' was not on os.environ before" % (key,)
   nose.tools.eq_(before, os.environ)
+
+@nose.with_setup(cleanup)
+def test_preserve_user():
+
+  # a few checks before we start
+  environ = dict(
+      CFLAGS='-DNDEBUG',
+      CXXFLAGS='${CFLAGS}',
+      )
+
+  os.environ['CFLAGS'] = '-BUILDOUT-TEST-STRING'
+
+  e = EnvironmentWrapper(logging.getLogger(), debug=True, environ=environ)
+
+  before = dict(os.environ)
+
+  e.set()
+  nose.tools.eq_(len(os.environ) - len(before), 1)
+  assert os.environ['CFLAGS'].endswith('-BUILDOUT-TEST-STRING')
+
+  e.unset()
+  for key in before:
+    assert key in os.environ, "key `%s' from before is not on os.environ" % (key,)
+  for key in os.environ:
+    assert key in before, "key `%s' was not on os.environ before" % (key,)
+  nose.tools.eq_(before, os.environ)

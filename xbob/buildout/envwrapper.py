@@ -59,9 +59,9 @@ class EnvironmentWrapper(object):
     # else: pass
 
     if cflags:
-      self.environ['CFLAGS'] = cflags + ' ' + self.environ.get('CFLAGS', '')
+      self.environ['CFLAGS'] = cflags + ' ' + os.environ.get('CFLAGS', '')
       self.environ['CFLAGS'] = self.environ['CFLAGS'].strip() #clean-up
-      self.environ['CXXFLAGS'] = cflags + ' ' + self.environ.get('CXXFLAGS', '')
+      self.environ['CXXFLAGS'] = cflags + ' ' + os.environ.get('CXXFLAGS', '')
       self.environ['CXXFLAGS'] = self.environ['CXXFLAGS'].strip() #clean-up
 
   def set(self):

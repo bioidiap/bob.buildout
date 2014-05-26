@@ -12,7 +12,7 @@ from zc.buildout.buildout import bool_option
 from . import tools
 from .envwrapper import EnvironmentWrapper
 
-logger = logger = logging.getLogger("xbob.buildout")
+logger = logger = logging.getLogger("bob.buildout")
 
 runsetup_template = """
 import sys

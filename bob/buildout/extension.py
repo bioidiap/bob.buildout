@@ -12,14 +12,21 @@ from zc.buildout.buildout import bool_option
 from . import tools
 from .envwrapper import EnvironmentWrapper
 
-logger = logger = logging.getLogger("bob.buildout")
+logger = logging.getLogger("bob.buildout")
+
+def eggpaths(basedir):
+  """Find all compatible distributions living in a certain subdir"""
+
+  from pkg_resources import find_distributions
+  generator = find_distributions(basedir)
+  return ':'.join([k.location for k in generator])
 
 runsetup_template = """
 import sys
 sys.path.insert(0, %(setupdir)r)
 sys.path.insert(0, %(setuptools)r)
+sys.path = %(eggpaths)r.split(':') + sys.path
 sys.path.insert(0, %(deveggsdir)r)
-sys.path.insert(0, %(eggsdir)r)
 
 import os, setuptools
 
@@ -99,7 +106,7 @@ class Extension:
               setupdir=directory,
               setup=setup,
               deveggsdir=self.deveggsdir,
-              eggsdir=self.eggsdir,
+              eggpaths=eggpaths(self.eggsdir),
               __file__ = setup,
               )).encode())
 

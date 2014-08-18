@@ -167,7 +167,7 @@ class Extension:
       prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
 
       # shall we compile in debug mode?
-      debug = self.buildout['buildout'].get('debug', None)
+      debug = self.buildout['buildout'].get('debug', False)
       if isinstance(debug, str):
         debug = bool_option(self.buildout['buildout'], 'debug', 'false')
 

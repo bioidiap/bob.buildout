@@ -9,6 +9,8 @@
 import os
 import string
 import logging
+import platform
+
 
 def substitute(value, d):
   """Substitutes ${} expressions on ``value`` with values from ``d``, using
@@ -21,8 +23,11 @@ class EnvironmentWrapper(object):
   settings from initialization.
   """
 
-  DEBUG_FLAGS = '-O0 -g'
-  RELEASE_FLAGS = '-O3 -g0'
+  DEBUG_FLAGS = '-O0 -g -DBOB_DEBUG'
+  RELEASE_FLAGS = '-O3 -g0 -DNDEBUG -mtune=generic'
+  # Note: CLang does not work well with BZ_DEBUG\n
+  if platform.system() != 'Darwin':
+    DEBUG_FLAGS += " -DBZ_DEBUG"
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 
@@ -40,15 +45,15 @@ class EnvironmentWrapper(object):
 
     # set the pkg-config paths to look at, environment settings in front
     prefixes = prefixes if prefixes else []
-    if 'XBOB_PREFIX_PATH' in self.environ:
-      prefixes = self.environ['XBOB_PREFIX_PATH'].split(os.pathsep) + prefixes
+    if 'BOB_PREFIX_PATH' in self.environ:
+      prefixes = self.environ['BOB_PREFIX_PATH'].split(os.pathsep) + prefixes
     pkgcfg += [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
     pkgcfg += [os.path.join(k, 'lib64', 'pkgconfig') for k in prefixes]
     pkgcfg += [os.path.join(k, 'lib32', 'pkgconfig') for k in prefixes]
 
     # joins all paths
     if prefixes:
-      self.environ['XBOB_PREFIX_PATH'] = os.pathsep.join(prefixes)
+      self.environ['BOB_PREFIX_PATH'] = os.pathsep.join(prefixes)
     if pkgcfg:
       self.environ['PKG_CONFIG_PATH'] = os.pathsep.join(pkgcfg)
 
@@ -65,6 +70,7 @@ class EnvironmentWrapper(object):
       self.environ['CXXFLAGS'] = cflags + ' ' + \
           self.environ.get('CXXFLAGS', '') + os.environ.get('CXXFLAGS', '')
       self.environ['CXXFLAGS'] = self.environ['CXXFLAGS'].strip() #clean-up
+
 
   def set(self):
     """Sets the current environment for variables needed for the setup of the

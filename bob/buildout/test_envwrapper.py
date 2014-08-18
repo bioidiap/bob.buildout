@@ -34,7 +34,7 @@ def test_default():
 def cleanup():
   '''Removes weird variables from the user environment just for the tests'''
 
-  remove = ['CFLAGS', 'CXXFLAGS', 'XBOB_PREFIX_PATH', 'PKG_CONFIG_PATH']
+  remove = ['CFLAGS', 'CXXFLAGS', 'BOB_PREFIX_PATH', 'PKG_CONFIG_PATH']
   for key in remove:
     if key in os.environ: del os.environ[key]
 
@@ -109,8 +109,8 @@ def test_set_prefixes():
   #nose.tools.eq_(len(os.environ) - len(before), 2)
   assert 'PKG_CONFIG_PATH' in os.environ
   nose.tools.eq_(os.environ['PKG_CONFIG_PATH'], e.environ['PKG_CONFIG_PATH'])
-  assert 'XBOB_PREFIX_PATH' in os.environ
-  nose.tools.eq_(os.environ['XBOB_PREFIX_PATH'], os.pathsep.join(prefixes))
+  assert 'BOB_PREFIX_PATH' in os.environ
+  nose.tools.eq_(os.environ['BOB_PREFIX_PATH'], os.pathsep.join(prefixes))
 
   e.unset()
   for key in before:
@@ -123,7 +123,7 @@ def test_set_prefixes():
 def test_set_environment():
 
   # a few checks before we start
-  varname = 'XBOB_FOO'
+  varname = 'BOB_FOO'
   varvalue = 'abc'
   assert varname not in os.environ
 
@@ -148,9 +148,9 @@ def test_environ_substitutions():
 
   # defines the environment with all legal substitutions
   environ = dict(
-      XBOB_FOO = 'foo',
-      XBOB_T1 = '${XBOB_FOO}:bar',
-      XBOB_T2 = 'bar$XBOB_FOO',
+      BOB_FOO = 'foo',
+      BOB_T1 = '${BOB_FOO}:bar',
+      BOB_T2 = 'bar$BOB_FOO',
       )
 
   e = EnvironmentWrapper(logging.getLogger(), environ=environ)
@@ -160,9 +160,9 @@ def test_environ_substitutions():
   e.set()
   nose.tools.eq_(len(os.environ) - len(before), 3)
   for key in environ: assert key in os.environ
-  nose.tools.eq_(os.environ['XBOB_FOO'], environ['XBOB_FOO'])
-  nose.tools.eq_(os.environ['XBOB_T1'], environ['XBOB_FOO'] + ':bar')
-  nose.tools.eq_(os.environ['XBOB_T2'], 'bar' + environ['XBOB_FOO'])
+  nose.tools.eq_(os.environ['BOB_FOO'], environ['BOB_FOO'])
+  nose.tools.eq_(os.environ['BOB_T1'], environ['BOB_FOO'] + ':bar')
+  nose.tools.eq_(os.environ['BOB_T2'], 'bar' + environ['BOB_FOO'])
 
   e.unset()
   for key in before:
@@ -179,7 +179,7 @@ def test_set_multiple():
       CFLAGS='-DNDEBUG',
       CXXFLAGS='${CFLAGS}',
       PKG_CONFIG_PATH='/a/b/lib/pkgconfig',
-      XBOB_PREFIX_PATH='/c/d'
+      BOB_PREFIX_PATH='/c/d'
       )
 
   e = EnvironmentWrapper(logging.getLogger(), debug=True, environ=environ)
@@ -190,9 +190,9 @@ def test_set_multiple():
   nose.tools.eq_(len(os.environ) - len(before), 4)
   nose.tools.eq_(os.environ['CFLAGS'], EnvironmentWrapper.DEBUG_FLAGS + ' ' + environ['CFLAGS'])
   nose.tools.eq_(os.environ['CXXFLAGS'], os.environ['CFLAGS'])
-  nose.tools.eq_(os.environ['XBOB_PREFIX_PATH'], environ['XBOB_PREFIX_PATH'])
+  nose.tools.eq_(os.environ['BOB_PREFIX_PATH'], environ['BOB_PREFIX_PATH'])
   assert os.environ['PKG_CONFIG_PATH'].startswith(environ['PKG_CONFIG_PATH'])
-  assert os.environ['PKG_CONFIG_PATH'].find(environ['XBOB_PREFIX_PATH']) >= 0
+  assert os.environ['PKG_CONFIG_PATH'].find(environ['BOB_PREFIX_PATH']) >= 0
 
   e.unset()
   for key in before:

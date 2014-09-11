@@ -91,19 +91,14 @@ def is_tarfile(filename):
 
   import tarfile
 
-  try:
-    tarobj = tarfile.open(filename)
-  except:
-    return False
-
-  return True
+  return tarfile.is_tarfile(filename)
 
 def tarfile_readlines(package, filename):
   """Read all lines of a given file in tar ball"""
 
   import tarfile
 
-  with tarfile.TarFile(package) as f:
+  with tarfile.open(package) as f:
     try:
       package_dir = os.path.splitext(os.path.dirname(package))[0]
       if package_dir.endswith('.tar'): package_dir = package_dir[:-4]

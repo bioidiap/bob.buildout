@@ -4,17 +4,16 @@ consideration eggs installed at both development and deployment directories."""
 import os
 import sys
 import shutil
-import logging
 import tempfile
 import subprocess
 import pkg_resources
 import zc.buildout.easy_install
-from zc.buildout.buildout import bool_option
 
 from . import tools
 from .envwrapper import EnvironmentWrapper
 
-logger = logging.getLogger("bob.buildout")
+import logging
+logger = logging.getLogger(__name__)
 
 runsetup_template = """
 import os
@@ -32,51 +31,25 @@ sys.argv[0] = %(setup)r
 exec(compile(open(%(setup)r).read(), %(setup)r, 'exec'))
 """
 
-def get_latest_egg_paths(path):
-  """Returns a list of paths in eggs-dir with the latest versions
-  of installed distributions."""
-
-  distros = []
-  for k in os.listdir(path):
-     distros += pkg_resources.find_distributions(os.path.join(path, k))
-
-  distros.sort(key=lambda x: x.parsed_version, reverse=True)
-
-  distro_path = {}
-  for k in distros: distro_path.setdefault(k.key, k.location)
-
-  return list(distro_path.values())
-
-def prepend_path(path, paths):
-  """Prepends a path to the list of paths making sure it remains unique"""
-
-  if path in paths: paths.remove(path)
-  paths.insert(0, path)
-
 class Installer:
 
-  def __init__(self, mix_eggs, verbose, eggs_dir, dev_eggs_dir):
+  def __init__(self, buildout):
 
-    self.mix_eggs = mix_eggs
-    self.verbose = verbose
-    self.eggs_dir = eggs_dir
-    self.dev_eggs_dir = dev_eggs_dir
+    self.buildout = buildout
+
+    self.verbose = tools.verbose(self.buildout)
+
+    self.find_links = buildout.get('find_links', '')
 
   def __call__(self, spec, ws, dest, dist):
     """We will replace the default easy_install call by this one"""
 
+    # satisfy all package requirements before installing the package itself
+    tools.satisfy_requirements(self.buildout, spec, ws)
+
     tmp = tempfile.mkdtemp(dir=dest)
 
     try:
-
-        # setup the path to be used
-        paths = get_latest_egg_paths(self.eggs_dir)
-        if self.mix_eggs: prepend_path(self.dev_eggs_dir, paths)
-        if hasattr(zc.buildout.easy_install, 'distribute_loc'):
-            prepend_path(zc.buildout.easy_install.distribute_loc, paths)
-        else:
-            prepend_path(zc.buildout.easy_install.setuptools_loc, paths)
-        paths = os.pathsep.join(paths)
 
         args = [sys.executable, '-c',
             zc.buildout.easy_install._easy_install_cmd, '-mZUNxd', tmp]
@@ -85,16 +58,25 @@ class Installer:
         else:
             args.append('-q')
 
+        links = self.buildout.get('find-links', '')
+        if links: args.extend(['-f', links])
+
         args.append(spec)
 
         if logger.getEffectiveLevel() <= logging.DEBUG:
             logger.debug('Running easy_install:\n"%s"\npath=%s\n',
-                         '" "'.join(args), paths)
+                '" "'.join(args),
+                tools.get_pythonpath(self.buildout, ws),
+                )
 
         sys.stdout.flush() # We want any pending output first
 
         exit_code = subprocess.call(list(args),
-            env=dict(os.environ, PYTHONPATH=paths))
+            env=dict(
+              os.environ,
+              PYTHONPATH=tools.get_pythonpath(self.buildout, ws),
+              ),
+            )
 
         dists = []
         env = pkg_resources.Environment([tmp])
@@ -154,34 +136,26 @@ class Extension:
 
   def __init__(self, buildout):
 
-      self.buildout = buildout
-
-      # where to place the egg
-      self.dev_eggs_dir = self.buildout['buildout']['develop-eggs-directory']
-      self.eggs_dir = self.buildout['buildout']['eggs-directory']
-
-      self.verbose = bool_option(self.buildout['buildout'], 'verbose', 'false')
-      self.mix_eggs = bool_option(self.buildout['buildout'], 'mix-eggs', 'false')
+      self.buildout = buildout['buildout']
 
       # gets a personalized prefixes list or the one from buildout
-      prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
+      self.prefixes = tools.parse_list(self.buildout.get('prefixes', ''))
 
       # shall we compile in debug mode?
-      debug = self.buildout['buildout'].get('debug', False)
-      if isinstance(debug, str):
-        debug = bool_option(self.buildout['buildout'], 'debug', 'false')
+      debug = tools.debug(self.buildout)
+      self.verbose = tools.verbose(self.buildout)
 
       # has the user established an enviroment?
-      environ_section = self.buildout['buildout'].get('environ', 'environ')
+      environ_section = self.buildout.get('environ', 'environ')
       environ = self.buildout.get(environ_section, {})
 
       # finally builds the environment wrapper
-      self.envwrapper = EnvironmentWrapper(logger, debug, prefixes, environ)
+      self.envwrapper = EnvironmentWrapper(logger, debug,
+          self.prefixes, environ)
       self.envwrapper.set()
 
       # and we replace the installer by our modified version
-      self.installer = Installer(self.mix_eggs, self.verbose,
-          self.eggs_dir, self.dev_eggs_dir)
+      self.installer = Installer(self.buildout)
 
   def develop(self, setup, dest, build_ext=None, executable=sys.executable):
 
@@ -192,18 +166,12 @@ class Extension:
       else:
           directory = os.path.dirname(setup)
 
+      working_set = tools.working_set(self.buildout, self.prefixes)
+      tools.satisfy_requirements(self.buildout, directory, working_set)
+
       undo = []
 
       try:
-
-          # setup the path to be used
-          paths = get_latest_egg_paths(self.eggs_dir)
-          prepend_path(self.dev_eggs_dir, paths) #dev in front of mature eggs
-          if hasattr(zc.buildout.easy_install, 'distribute_loc'):
-              prepend_path(zc.buildout.easy_install.distribute_loc, paths)
-          else:
-              prepend_path(zc.buildout.easy_install.setuptools_loc, paths)
-          paths = os.pathsep.join(paths)
 
           if build_ext:
               setup_cfg = os.path.join(directory, 'setup.cfg')
@@ -225,7 +193,7 @@ class Extension:
           undo.append(lambda: os.close(fd))
 
           os.write(fd, (runsetup_template % dict(
-              paths=paths,
+              paths=tools.get_pythonpath(self.buildout, working_set),
               setup=setup,
               setupdir=directory,
               __file__ = setup,

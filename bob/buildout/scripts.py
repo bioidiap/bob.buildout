@@ -239,7 +239,6 @@ class Recipe(object):
     self.envwrapper.set()
     retval = \
         self.python.install_on_wrapped_env() + \
-        #self.ipython.install_on_wrapped_env() + \
         self.gdbpy.install_on_wrapped_env() + \
         self.scripts.install_on_wrapped_env() + \
         self.nose.install_on_wrapped_env() + \

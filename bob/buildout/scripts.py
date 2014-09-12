@@ -7,6 +7,7 @@
 """
 
 import os
+import six
 import logging
 import pkg_resources
 import zc.buildout
@@ -227,7 +228,7 @@ class Recipe(object):
     self.dependent_scripts = options.get('dependent-scripts')
 
     self.python = PythonInterpreter(buildout, 'Python', options.copy())
-    self.ipython = IPythonInterpreter(buildout, 'IPython', options.copy())
+    #self.ipython = IPythonInterpreter(buildout, 'IPython', options.copy())
     self.gdbpy = GdbPythonInterpreter(buildout, 'GdbPython', options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.nose = NoseTests(buildout, 'Nose', options.copy())
@@ -238,7 +239,7 @@ class Recipe(object):
     self.envwrapper.set()
     retval = \
         self.python.install_on_wrapped_env() + \
-        self.ipython.install_on_wrapped_env() + \
+        #self.ipython.install_on_wrapped_env() + \
         self.gdbpy.install_on_wrapped_env() + \
         self.scripts.install_on_wrapped_env() + \
         self.nose.install_on_wrapped_env() + \

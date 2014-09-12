@@ -200,15 +200,12 @@ class Recipe(object):
     self.logger = logging.getLogger(name.capitalize())
 
     # Gets a personalized prefixes list or the one from buildout
-    prefixes = tools.parse_list(options.get('prefixes', ''))
-    if not prefixes:
-      prefixes = tools.parse_list(buildout['buildout'].get('prefixes', ''))
-    prefixes = [os.path.abspath(k) for k in prefixes if os.path.exists(k)]
+    prefixes = tools.get_prefixes(buildout['buildout'])
 
     # Builds an environment wrapper, in case dependent packages need to be
     # compiled
     self.envwrapper = EnvironmentWrapper(self.logger,
-          zc.buildout.buildout.bool_option(options, 'debug', 'false'), prefixes)
+        tools.debug(buildout['buildout']), prefixes)
 
     # Touch the options
     self.dependent_scripts = options.get('dependent-scripts')

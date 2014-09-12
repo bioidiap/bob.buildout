@@ -14,7 +14,6 @@ import logging
 import warnings
 from . import tools
 import zc.buildout.easy_install
-from zc.buildout.buildout import bool_option
 from .envwrapper import EnvironmentWrapper
 from .python import Recipe as PythonInterpreter
 
@@ -59,10 +58,8 @@ class Recipe(object):
     builder_options['interpreter'] = name
     self.builder = PythonInterpreter(buildout, name, builder_options)
 
-    self.debug = bool_option(options, 'debug',
-        bool_option(self.buildout['buildout'], 'debug', 'false'))
-    self.verbose = bool_option(options, 'verbose',
-        bool_option(self.buildout['buildout'], 'verbose', 'false'))
+    self.debug = tools.debug(self.buildout['buildout'])
+    self.verbose = tools.verbose(self.buildout['buildout'])
 
     # gets a personalized prefixes list or the one from buildout
     prefixes = tools.parse_list(options.get('prefixes', ''))

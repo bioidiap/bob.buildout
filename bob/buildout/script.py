@@ -24,7 +24,7 @@ def _script(module_name, attrs, path, dest, arguments, initialization, rsetup):
 
   # the "difference": re-order python paths with a preference for locals
   realpath = [k.strip().strip("'").strip('"') for k in path.split(",\n")]
-  realpath = [k for k in realpath if k]
+  realpath = [k.strip() for k in realpath if k.strip()]
   path = ",\n  ".join(["'%s'" % k for k in realpath if k not in sys.path])
 
   contents = zc.buildout.easy_install.script_template % dict(

@@ -29,15 +29,17 @@ class UserScripts(Script):
 
   def __init__(self, buildout, name, options):
 
-    self.logger = logging.getLogger(name)
+    self.name = name
+    self.buildout = buildout
+    self.options = options
 
-    if 'interpreter' in options: del options['interpreter']
-    if 'scripts' in options: del options['scripts']
-    Script.__init__(self, buildout, name, options)
+    if 'interpreter' in options: del self.options['interpreter']
+    if 'scripts' in options: del self.options['scripts']
+    super(UserScripts, self).__init__(self.buildout, self.name, self.options)
 
   def install(self):
 
-    return Script.install(self)
+    return super(UserScripts, self).install()
 
   update = install
 
@@ -48,9 +50,7 @@ class IPythonInterpreter(Script):
 
     self.name = name
     self.buildout = buildout
-    self.logger = logging.getLogger(name)
     self.options = options
-    self.egglist = options.get('eggs', buildout['buildout']['eggs'])
 
     # adds ipython interpreter into the mix
     interpreter = self.options.setdefault('interpreter', 'python')
@@ -58,15 +58,17 @@ class IPythonInterpreter(Script):
     self.options['entry-points'] = 'i%s=IPython.frontend.terminal.ipapp:launch_new_instance' % interpreter
     self.options['scripts'] = 'i%s' % interpreter
     self.options['dependent-scripts'] = 'false'
-    self.options.setdefault('panic', 'false')
-    self.options['eggs'] = tools.add_eggs(self.egglist, ['ipython'])
+
+    eggs = tools.eggs(self.buildout['buildout'], self.options, self.name)
+    self.options['eggs'] = tools.add_eggs(eggs, ['ipython'])
 
     # initializes base class
-    Script.__init__(self, self.buildout, self.name, self.options)
+    super(IPythonInterpreter, self).__init__(self.buildout,
+        self.name, self.options)
 
   def install(self):
 
-    return Script.install(self)
+    return super(IPythonInterpreter, self).install()
 
   update = install
 
@@ -76,29 +78,33 @@ class PyLint(Script):
   def __init__(self, buildout, name, options):
 
     self.logger = logging.getLogger(name)
+    self.name = name
+    self.buildout = buildout
+    self.options = options
 
-    # Initializes nosetests, if it is available - don't panic!
-    if 'interpreter' in options: del options['interpreter']
+    if 'interpreter' in options: del self.options['interpreter']
     if 'pylint-flags' in options:
       if version_is_lessthan('pylint', '1.0'):
         # use 'options' instead of 'self.options' to force use
         flags = tools.parse_list(options['pylint-flags'])
         init_code = ['sys.argv.append(%r)' % k for k in flags]
-        options['initialization'] = '\n'.join(init_code)
+        self.options['initialization'] = '\n'.join(init_code)
       else:
         self.logger.warn('the option pylint-flags for this recipe is only available for older versions of pylint < 1.0')
-    options['entry-points'] = 'pylint=pylint.lint:Run'
-    options['arguments'] = 'sys.argv[1:]'
-    options['scripts'] = 'pylint'
-    options['dependent-scripts'] = 'false'
-    options.setdefault('panic', 'false')
-    eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['pylint'])
-    Script.__init__(self, buildout, name, options)
+    self.options['entry-points'] = 'pylint=pylint.lint:Run'
+    self.options['arguments'] = 'sys.argv[1:]'
+    self.options['scripts'] = 'pylint'
+    self.options['dependent-scripts'] = 'false'
+
+    eggs = tools.eggs(self.buildout['buildout'], self.options, self.name)
+    self.options['eggs'] = tools.add_eggs(eggs, ['pylint'])
+
+    # initializes base class
+    super(PyLint, self).__init__(self.buildout, self.name, self.options)
 
   def install(self):
 
-    return Script.install(self)
+    return super(PyLint, self).install()
 
   update = install
 
@@ -107,26 +113,29 @@ class NoseTests(Script):
 
   def __init__(self, buildout, name, options):
 
-    self.logger = logging.getLogger(name)
+    self.name = name
+    self.buildout = buildout
+    self.options = options
 
-    # Initializes nosetests, if it is available - don't panic!
     if 'interpreter' in options: del options['interpreter']
     if 'nose-flags' in options:
       # use 'options' instead of 'options' to force use
       flags = tools.parse_list(options['nose-flags'])
       init_code = ['sys.argv.append(%r)' % k for k in flags]
       options['initialization'] = '\n'.join(init_code)
-    options['entry-points'] = 'nosetests=nose:run_exit'
-    options['scripts'] = 'nosetests'
-    options['dependent-scripts'] = 'false'
-    options.setdefault('panic', 'false')
-    eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['nose'])
-    Script.__init__(self, buildout, name, options)
+    self.options['entry-points'] = 'nosetests=nose:run_exit'
+    self.options['scripts'] = 'nosetests'
+    self.options['dependent-scripts'] = 'false'
+
+    eggs = tools.eggs(self.buildout['buildout'], self.options, self.name)
+    self.options['eggs'] = tools.add_eggs(eggs, ['nose'])
+
+    # initializes base class
+    super(NoseTests, self).__init__(self.buildout, self.name, self.options)
 
   def install(self):
 
-    return Script.install(self)
+    return super(NoseTests, self).install()
 
   update = install
 
@@ -135,26 +144,29 @@ class Coverage(Script):
 
   def __init__(self, buildout, name, options):
 
-    self.logger = logging.getLogger(name)
+    self.name = name
+    self.buildout = buildout
+    self.options = options
 
-    # Initializes nosetests, if it is available - don't panic!
     if 'interpreter' in options: del options['interpreter']
     if 'coverage-flags' in options:
       # use 'options' instead of 'options' to force use
       flags = tools.parse_list(options['coverage-flags'])
       init_code = ['sys.argv.append(%r)' % k for k in flags]
-      options['initialization'] = '\n'.join(init_code)
-    options['entry-points'] = 'coverage=coverage:main'
-    options['scripts'] = 'coverage'
-    options['dependent-scripts'] = 'false'
-    options.setdefault('panic', 'false')
-    eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['coverage'])
-    Script.__init__(self, buildout, name, options)
+      self.options['initialization'] = '\n'.join(init_code)
+    self.options['entry-points'] = 'coverage=coverage:main'
+    self.options['scripts'] = 'coverage'
+    self.options['dependent-scripts'] = 'false'
+
+    eggs = tools.eggs(self.buildout['buildout'], self.options, self.name)
+    self.options['eggs'] = tools.add_eggs(eggs, ['coverage'])
+
+    # initializes base class
+    super(Coverage, self).__init__(self.buildout, self.name, self.options)
 
   def install(self):
 
-    return Script.install(self)
+    return super(Coverage, self).install()
 
   update = install
 
@@ -163,31 +175,35 @@ class Sphinx(Script):
 
   def __init__(self, buildout, name, options):
 
-    self.logger = logging.getLogger(name)
+    self.name = name
+    self.buildout = buildout
+    self.options = options
 
-    # Initializes the sphinx document generator - don't panic!
-    if 'interpreter' in options: del options['interpreter']
-    options['scripts'] = '\n'.join([
+    if 'interpreter' in options: del self.options['interpreter']
+    self.options['scripts'] = '\n'.join([
       'sphinx-build',
       'sphinx-apidoc',
       'sphinx-autogen',
       'sphinx-quickstart',
       ])
-    options['entry-points'] = '\n'.join([
+    self.options['entry-points'] = '\n'.join([
       'sphinx-build=sphinx:main',
       'sphinx-apidoc=sphinx.apidoc:main',
       'sphinx-autogen=sphinx.ext.autosummary.generate:main',
       'sphinx-quickstart=sphinx.quickstart:main',
       ])
-    options.setdefault('panic', 'false')
-    options['dependent-scripts'] = 'false'
-    eggs = options.get('eggs', buildout['buildout']['eggs'])
-    options['eggs'] = tools.add_eggs(eggs, ['sphinx', 'sphinx-pypi-upload'])
-    Script.__init__(self, buildout, name, options)
+    self.options['dependent-scripts'] = 'false'
+
+    eggs = tools.eggs(self.buildout['buildout'], self.options, self.name)
+    self.options['eggs'] = tools.add_eggs(eggs,
+        ['sphinx', 'sphinx-pypi-upload'])
+
+    # initializes base class
+    super(Sphinx, self).__init__(self.buildout, self.name, self.options)
 
   def install(self):
 
-    return Script.install(self)
+    return super(Sphinx, self).install()
 
   update = install
 
@@ -211,6 +227,7 @@ class Recipe(object):
     self.dependent_scripts = options.get('dependent-scripts')
 
     self.python = PythonInterpreter(buildout, 'Python', options.copy())
+    self.ipython = IPythonInterpreter(buildout, 'IPython', options.copy())
     self.gdbpy = GdbPythonInterpreter(buildout, 'GdbPython', options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.nose = NoseTests(buildout, 'Nose', options.copy())
@@ -221,6 +238,7 @@ class Recipe(object):
     self.envwrapper.set()
     retval = \
         self.python.install_on_wrapped_env() + \
+        self.ipython.install_on_wrapped_env() + \
         self.gdbpy.install_on_wrapped_env() + \
         self.scripts.install_on_wrapped_env() + \
         self.nose.install_on_wrapped_env() + \

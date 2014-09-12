@@ -37,14 +37,13 @@ def uniq(seq, idfun=None):
 def parse_list(l):
   """Parses a ini-style list from buildout and solves complex nesting"""
 
+  if not l: return []
   return uniq([k.strip() for k in l.split() if len(k.strip()) > 0])
 
 def add_eggs(eggs, l):
   """Adds eggs from a list into the buildout option"""
 
-  egglist = parse_list(eggs)
-  egglist = uniq(egglist + l)
-  return '\n'.join(egglist)
+  return '\n'.join(uniq(eggs + l))
 
 def prepend_path(path, paths):
   """Prepends a path to the list of paths making sure it remains unique"""
@@ -344,7 +343,4 @@ def prefer_final(buildout):
 
 def eggs(buildout, options, name):
   retval = options.get('eggs', buildout.get('eggs', ''))
-  if not retval:
-    raise MissingOption("Could not find an 'eggs' entry in either the " \
-        "section '%s' nor at the 'buildout' section" % (name,))
   return parse_list(retval)

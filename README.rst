@@ -49,8 +49,8 @@ prefixes
 
   A list of directories where this recipe will look for installed software,
   such as compiled libraries and header files. It is the same as setting the
-  environment variable ``XBOB_PREFIX_PATH`` to a list of paths containing
-  externally installed software. As a side-effect, setting ``XBOB_PREFIX_PATH``
+  environment variable ``BOB_PREFIX_PATH`` to a list of paths containing
+  externally installed software. As a side-effect, setting ``BOB_PREFIX_PATH``
   also sets, internally, ``PKG_CONFIG_PATH`` to a list of directories following
   where to search for pkg-config files.
 
@@ -84,7 +84,7 @@ environ
   ``CFLAGS`` (or ``CXXFLAGS``) in the ``environ`` section, for example, then
   the values on the final ``CFLAGS`` variable would be ``-O0 -g`` followed by
   ``environ``'s ``CFLAGS`` settings. Analogously, the paths defined by
-  ``environ``'s ``XBOB_PREFIX_PATH`` and ``PKG_CONFIG_PATH`` are **prepended**
+  ``environ``'s ``BOB_PREFIX_PATH`` and ``PKG_CONFIG_PATH`` are **prepended**
   to those listed in ``prefixes``, if that is also set.
 
 Multi-Script Installer

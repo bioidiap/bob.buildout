@@ -8,7 +8,9 @@
 
 import os
 import sys
+import fnmatch
 import pkg_resources
+import distutils
 import zc.buildout
 import zc.buildout.easy_install
 from zc.buildout.buildout import bool_option, MissingOption
@@ -247,6 +249,28 @@ def find_site_packages(prefixes):
 
   return retval
 
+def has_distribution(path):
+  """Tests if a given path really has installed python distributions"""
+
+  ws = pkg_resources.WorkingSet([path])
+  return bool(ws.entry_keys[path])
+
+def order_egg_dirs(buildout):
+  """Orders the egg directories and returns them newest first"""
+
+  eggdir = buildout['eggs-directory']
+  eggs = [os.path.join(eggdir, k) for k in os.listdir(eggdir)]
+  distros = {}
+  for egg in eggs:
+    working_set = pkg_resources.WorkingSet([egg])
+    for key in working_set.entry_keys[egg]:
+      distro = working_set.by_key[key]
+      distro_version = distutils.version.LooseVersion(distro.version)
+      if key in distros and distro_version > distros[key][0]:
+        distros[key] = (distro_version, egg)
+
+  return [k[1] for k in distros]
+
 def working_set(buildout, prefixes):
   """Creates and returns a new working set based on user prefixes and existing
   packages already installed"""
@@ -254,19 +278,23 @@ def working_set(buildout, prefixes):
   working_set = pkg_resources.WorkingSet([])
 
   # add development directory first
-  working_set.add_entry(buildout['develop-eggs-directory'])
+  dev_dir = buildout['develop-eggs-directory']
+  for path in fnmatch.filter(os.listdir(dev_dir), '*.egg-link'):
+    full_path = os.path.join(dev_dir, path)
+    working_set.add_entry(open(full_path, 'rt').read().split('\n')[0])
 
-  # add all egg directories
-  for path in os.listdir(buildout['eggs-directory']):
-    full_path = os.path.join(buildout['eggs-directory'], path)
-    working_set.add_entry(full_path)
+  # add all egg directories, newest first
+  for path in order_egg_dirs(buildout): working_set.add_entry(path)
 
   # adds the user paths
   for path in find_site_packages(prefixes):
-    working_set.add_entry(full_path)
+    if has_distribution(full_path) and full_path not in working_set.entries:
+      working_set.add_entry(full_path)
 
   # finally, adds the system path
-  for path in sys.path: working_set.add_entry(path)
+  for path in sys.path:
+    if has_distribution(path) and path not in working_set.entries:
+      working_set.add_entry(path)
 
   return working_set
 
@@ -310,6 +338,9 @@ def debug(buildout):
 
 def verbose(buildout):
   return bool_option(buildout, 'verbose', 'false')
+
+def prefer_final(buildout):
+  return bool_option(buildout, 'prefer-final', 'true')
 
 def eggs(buildout, options, name):
   retval = options.get('eggs', buildout.get('eggs', ''))

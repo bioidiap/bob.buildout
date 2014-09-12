@@ -7,6 +7,7 @@
 installed on different prefixes.
 """
 
+import os
 import sys
 import logging
 from zc.recipe.egg import Scripts
@@ -24,8 +25,8 @@ def _script(module_name, attrs, path, dest, arguments, initialization, rsetup):
 
   # the "difference": re-order python paths with a preference for locals
   realpath = [k.strip().strip("'").strip('"') for k in path.split(",\n")]
-  realpath = [k.strip() for k in realpath if k.strip()]
-  path = ",\n  ".join(["'%s'" % k for k in realpath if k not in sys.path])
+  realpath = [os.path.realpath(k.strip()) for k in realpath if k.strip()]
+  path = ",\n  ".join(["'%s'" % k for k in realpath if k not in tools.site_paths])
 
   contents = zc.buildout.easy_install.script_template % dict(
       python = python,

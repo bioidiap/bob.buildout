@@ -8,6 +8,7 @@
 
 import os
 import sys
+import site
 import fnmatch
 import pkg_resources
 import distutils
@@ -17,6 +18,8 @@ from zc.buildout.buildout import bool_option, MissingOption
 
 import logging
 logger = logging.getLogger(__name__)
+
+site_paths = [os.path.realpath(k) for k in site.sys.path]
 
 def uniq(seq, idfun=None):
   """Order preserving, fast de-duplication for lists"""
@@ -216,7 +219,7 @@ def get_pythonpath(working_set):
   else:
     prepend_path(zc.buildout.easy_install.setuptools_loc, paths)
 
-  return [k for k in working_set.entries if k not in sys.path]
+  return [k for k in working_set.entries if k not in site_paths]
 
 def get_prefixes(buildout):
   """Returns a list of prefixes set on the buildout section"""
@@ -265,10 +268,11 @@ def order_egg_dirs(buildout):
     for key in working_set.entry_keys[egg]:
       distro = working_set.by_key[key]
       distro_version = distutils.version.LooseVersion(distro.version)
-      if key in distros and distro_version > distros[key][0]:
-        distros[key] = (distro_version, egg)
+      if key in distros:
+        if distro_version <= distros[key][0]: continue
+      distros[key] = (distro_version, egg)
 
-  return [k[1] for k in distros]
+  return [k[1] for k in distros.values()]
 
 def working_set(buildout, prefixes):
   """Creates and returns a new working set based on user prefixes and existing

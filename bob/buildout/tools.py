@@ -204,8 +204,8 @@ def satisfy_requirements(buildout, package, working_set):
     logger.info("Installing `%s' for package `%s'...", req, package)
     working_set = install_package(buildout, req, working_set)
 
-def get_pythonpath(buildout, working_set):
-  """Returns the PYTHONPATH setting for a particular buildout"""
+def get_pythonpath(working_set):
+  """Returns the PYTHONPATH setting for a particular working set"""
 
   # get all paths available in the current working set
   paths = list(working_set.entries)
@@ -215,7 +215,7 @@ def get_pythonpath(buildout, working_set):
   else:
     prepend_path(zc.buildout.easy_install.setuptools_loc, paths)
 
-  return os.pathsep.join(paths)
+  return [k for k in working_set.entries if k not in sys.path]
 
 def get_prefixes(buildout):
   """Returns a list of prefixes set on the buildout section"""

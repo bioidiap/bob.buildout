@@ -66,7 +66,7 @@ class Installer:
         if logger.getEffectiveLevel() <= logging.DEBUG:
             logger.debug('Running easy_install:\n"%s"\npath=%s\n',
                 '" "'.join(args),
-                tools.get_pythonpath(self.buildout, ws),
+                os.pathsep.join(tools.get_pythonpath(ws)),
                 )
 
         sys.stdout.flush() # We want any pending output first
@@ -74,7 +74,7 @@ class Installer:
         exit_code = subprocess.call(list(args),
             env=dict(
               os.environ,
-              PYTHONPATH=tools.get_pythonpath(self.buildout, ws),
+              PYTHONPATH=os.pathsep.join(tools.get_pythonpath(ws)),
               ),
             )
 
@@ -193,7 +193,7 @@ class Extension:
           undo.append(lambda: os.close(fd))
 
           os.write(fd, (runsetup_template % dict(
-              paths=tools.get_pythonpath(self.buildout, working_set),
+              paths=os.pathsep.join(tools.get_pythonpath(working_set)),
               setup=setup,
               setupdir=directory,
               __file__ = setup,

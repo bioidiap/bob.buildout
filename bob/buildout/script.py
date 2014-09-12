@@ -9,28 +9,37 @@ installed on different prefixes.
 
 import sys
 import logging
+from zc.recipe.egg import Scripts
+
 from . import tools
 from .envwrapper import EnvironmentWrapper
 
 import zc.buildout.easy_install
-from zc.recipe.egg import Scripts
+def _script(module_name, attrs, path, dest, arguments, initialization, rsetup):
+  """Default script generator"""
 
-# Fixes python script template
-zc.buildout.easy_install.py_script_template = \
-    zc.buildout.easy_install.py_script_template.replace(
-    """__import__("code").interact(banner="", local=globals())""",
-    """
-    import os
-    if os.environ.has_key('PYTHONSTARTUP') and os.environ['PYTHONSTARTUP']:
-      execfile(os.environ['PYTHONSTARTUP'])
-    __import__('code').interact(banner=('Python ' + sys.version + ' on ' + sys.platform + '\\nType "help", "copyright", "credits" or "license" for more information.'), local=globals())
-  """)
+  if zc.buildout.easy_install.is_win32: dest += '-script.py'
 
-# Fixes buildout search path for external packages
-if hasattr(zc.buildout.easy_install, 'buildout_and_distribute_path'):
-  zc.buildout.easy_install.buildout_and_distribute_path += sys.path
-else:
-  zc.buildout.easy_install.buildout_and_setuptools_path += sys.path
+  python = zc.buildout.easy_install._safe_arg(sys.executable)
+
+  # the "difference": re-order python paths with a preference for locals
+  realpath = [k.strip().strip("'").strip('"') for k in path.split(",\n")]
+  path = ",\n  ".join(["'%s'" % k for k in realpath if k not in sys.path])
+
+  contents = zc.buildout.easy_install.script_template % dict(
+      python = python,
+      path = path,
+      module_name = module_name,
+      attrs = attrs,
+      arguments = arguments,
+      initialization = initialization,
+      relative_paths_setup = rsetup,
+      )
+
+  return zc.buildout.easy_install._create_script(contents, dest)
+
+# Monkey patches the default script generator
+zc.buildout.easy_install._script = _script
 
 class Recipe(Scripts):
   """Just creates a given script with the "correct" paths
@@ -43,9 +52,6 @@ class Recipe(Scripts):
     self.options = options
 
     self.logger = logging.getLogger(self.name)
-
-    # Preprocess some variables
-    self.options['bin-directory'] = buildout['buildout']['bin-directory']
 
     # Gets a personalized eggs list or the one from buildout
     self.eggs = tools.eggs(buildout['buildout'], options, name)
@@ -80,11 +86,16 @@ class Recipe(Scripts):
       ws = tools.working_set(self.buildout['buildout'], self.prefixes)
 
       if tools.newest(self.buildout['buildout']):
-        to_install = distributions
-      else: #only installs packages which are not yet installed
-        ws, to_install = tools.filter_working_set_soft(ws, distributions)
 
-      for d in to_install: tools.install_package(self.buildout['buildout'], d, ws)
+        for d in distributions:
+          tools.install_package(self.buildout['buildout'], d, ws)
+        ws = tools.filter_working_set_hard(ws, distributions)
+
+      else: #only installs packages which are not yet installed
+
+        ws, to_install = tools.filter_working_set_soft(ws, distributions)
+        for d in to_install:
+          tools.install_package(self.buildout['buildout'], d, ws)
 
     return self.eggs, ws
 

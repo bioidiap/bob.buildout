@@ -9,6 +9,8 @@
 import os
 import sys
 import time
+
+from . import tools
 from .script import Recipe as Script
 
 class Recipe(Script):
@@ -30,11 +32,10 @@ class Recipe(Script):
 '''Booting interpreter - starts a new one with a proper environment'''
 
 import os
+
 existing = os.environ.get("PYTHONPATH", "")
-if existing:
-  os.environ["PYTHONPATH"] = "%(paths)s" + os.pathsep + existing
-else:
-  os.environ["PYTHONPATH"] = "%(paths)s"
+os.environ["PYTHONPATH"] = "%(paths)s" + os.pathsep + existing
+os.environ["PYTHONPATH"] = os.environ["PYTHONPATH"].strip(os.pathsep)
 
 import sys
 os.execvp("%(interpreter)s", ["%(interpreter)s"] + sys.argv[1:])
@@ -49,7 +50,7 @@ os.execvp("%(interpreter)s", ["%(interpreter)s"] + sys.argv[1:])
         self.interpreter)
     self._write_executable_file(retval, self.template % {
       'date': time.asctime(),
-      'paths': os.pathsep.join([k for k in ws.entries if k not in sys.path]),
+      'paths': os.pathsep.join(tools.get_pythonpath(ws)),
       'interpreter': sys.executable,
       })
     self.logger.info("Generated script '%s'." % retval)

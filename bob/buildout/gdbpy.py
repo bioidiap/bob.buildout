@@ -28,11 +28,10 @@ class Recipe(Script):
 '''Dummy program - only starts a new one with a proper environment'''
 
 import os
+
 existing = os.environ.get("PYTHONPATH", "")
-if existing:
-  os.environ["PYTHONPATH"] = "%(paths)s" + os.pathsep + existing
-else:
-  os.environ["PYTHONPATH"] = "%(paths)s"
+os.environ["PYTHONPATH"] = "%(paths)s" + os.pathsep + existing
+os.environ["PYTHONPATH"] = os.environ["PYTHONPATH"].strip(os.pathsep)
 
 import sys
 if sys.argv[1] in ('-?', '-h', '--help'):

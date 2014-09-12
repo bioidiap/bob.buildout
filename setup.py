@@ -47,6 +47,7 @@ setup(
     install_requires=[
       'setuptools',
       'zc.recipe.egg',
+      'six',
       ],
 
     classifiers=[

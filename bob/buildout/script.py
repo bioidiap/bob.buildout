@@ -27,6 +27,7 @@ def _script(module_name, attrs, path, dest, arguments, initialization, rsetup):
   realpath = [k.strip().strip("'").strip('"') for k in path.split(",\n")]
   realpath = [os.path.realpath(k.strip()) for k in realpath if k.strip()]
   path = ",\n  ".join(["'%s'" % k for k in realpath if k not in tools.site_paths])
+  if not path: path = "''" #dummy path
 
   contents = zc.buildout.easy_install.script_template % dict(
       python = python,

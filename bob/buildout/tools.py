@@ -291,8 +291,8 @@ def working_set(buildout, prefixes):
 
   # adds the user paths
   for path in find_site_packages(prefixes):
-    if has_distribution(full_path) and full_path not in working_set.entries:
-      working_set.add_entry(full_path)
+    if has_distribution(path) and path not in working_set.entries:
+      working_set.add_entry(path)
 
   # finally, adds the system path
   for path in sys.path:

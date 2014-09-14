@@ -295,7 +295,7 @@ def working_set(buildout, prefixes):
       working_set.add_entry(path)
 
   # finally, adds the system path
-  for path in sys.path:
+  for path in site.sys.path:
     if has_distribution(path) and path not in working_set.entries:
       working_set.add_entry(path)
 

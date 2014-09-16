@@ -39,10 +39,22 @@ class Installer:
 
     self.verbose = tools.verbose(self.buildout)
 
+    # has the user established an environment?
+    environ = buildout.get('environ', {})
+
+    # finally builds the environment wrapper
+    self.envwrapper = EnvironmentWrapper(
+        logger,
+        tools.debug(self.buildout),
+        self.prefixes, environ)
+
     self.find_links = buildout.get('find_links', '')
 
   def __call__(self, spec, ws, dest, dist):
     """We will replace the default easy_install call by this one"""
+
+    # set the environment
+    self.envwrapper.set()
 
     # satisfy all package requirements before installing the package itself
     tools.satisfy_requirements(self.buildout, spec, ws)
@@ -131,6 +143,7 @@ class Installer:
 
     finally:
         shutil.rmtree(tmp)
+        self.envwrapper.unset()
 
 class Extension:
 
@@ -141,17 +154,8 @@ class Extension:
       # gets a personalized prefixes list or the one from buildout
       self.prefixes = tools.parse_list(self.buildout.get('prefixes', ''))
 
-      # shall we compile in debug mode?
-      debug = tools.debug(self.buildout)
+      # shall we be verbose
       self.verbose = tools.verbose(self.buildout)
-
-      # has the user established an environment?
-      environ = buildout.get('environ', {})
-
-      # finally builds the environment wrapper
-      self.envwrapper = EnvironmentWrapper(logger, debug,
-          self.prefixes, environ)
-      self.envwrapper.set()
 
       # and we replace the installer by our modified version
       self.installer = Installer(self.buildout)
@@ -168,7 +172,9 @@ class Extension:
       working_set = tools.working_set(self.buildout, self.prefixes)
       tools.satisfy_requirements(self.buildout, directory, working_set)
 
+      self.envwrapper.set()
       undo = []
+      undo.append(self.envwrapper.unset)
 
       try:
 

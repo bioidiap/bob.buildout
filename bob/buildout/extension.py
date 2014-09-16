@@ -168,9 +168,9 @@ class Extension:
       working_set = tools.working_set(self.buildout)
       tools.satisfy_requirements(self.buildout, directory, working_set)
 
-      self.envwrapper.set()
+      self.installer.envwrapper.set()
       undo = []
-      undo.append(self.envwrapper.unset)
+      undo.append(self.installer.envwrapper.unset)
 
       try:
 

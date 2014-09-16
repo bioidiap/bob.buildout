@@ -145,9 +145,8 @@ class Extension:
       debug = tools.debug(self.buildout)
       self.verbose = tools.verbose(self.buildout)
 
-      # has the user established an enviroment?
-      environ_section = self.buildout.get('environ', 'environ')
-      environ = self.buildout.get(environ_section, {})
+      # has the user established an environment?
+      environ = buildout.get('environ', {})
 
       # finally builds the environment wrapper
       self.envwrapper = EnvironmentWrapper(logger, debug,

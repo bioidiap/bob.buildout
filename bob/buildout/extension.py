@@ -35,7 +35,7 @@ class Installer:
 
   def __init__(self, buildout):
 
-    self.buildout = buildout
+    self.buildout = buildout['buildout']
 
     self.verbose = tools.verbose(self.buildout)
 
@@ -154,7 +154,7 @@ class Extension:
 
       # replace zc.buildout's installer by our modified version, it will be
       # called indirectly by this extension, via zc.buildout
-      self.installer = Installer(self.buildout)
+      self.installer = Installer(buildout)
 
   def develop(self, setup, dest, build_ext=None, executable=sys.executable):
 

@@ -92,13 +92,14 @@ class Recipe(Scripts):
 
         for d in distributions:
           tools.install_package(self.buildout['buildout'], d, ws)
-        ws = tools.filter_working_set_hard(ws, distributions)
 
       else: #only installs packages which are not yet installed
 
-        ws, to_install = tools.filter_working_set_soft(ws, distributions)
+        _ws, to_install = tools.filter_working_set_soft(ws, distributions)
         for d in to_install:
           tools.install_package(self.buildout['buildout'], d, ws)
+
+      ws = tools.filter_working_set_hard(ws, distributions)
 
     return self.eggs, ws
 

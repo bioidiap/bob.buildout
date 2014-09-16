@@ -60,13 +60,13 @@ class Recipe(Scripts):
     self.eggs = tools.eggs(buildout['buildout'], options, name)
 
     # Gets a personalized prefixes list or the one from buildout
-    self.prefixes = tools.get_prefixes(buildout['buildout'])
-    self.user_paths = tools.find_site_packages(self.prefixes)
+    prefixes = tools.get_prefixes(buildout['buildout'])
+    self.user_paths = tools.find_site_packages(prefixes)
 
     # Builds an environment wrapper, in case dependent packages need to be
     # compiled
     self.envwrapper = EnvironmentWrapper(self.logger,
-        tools.debug(buildout['buildout']), self.prefixes)
+        tools.debug(buildout['buildout']), prefixes)
 
     # initializes the script infrastructure
     super(Recipe, self).__init__(buildout, name, options)
@@ -81,12 +81,12 @@ class Recipe(Scripts):
 
     if tools.offline(self.buildout['buildout']):
 
-      ws = tools.working_set(self.buildout['buildout'], self.prefixes)
+      ws = tools.working_set(self.buildout['buildout'])
       ws = tools.filter_working_set_hard(ws, distributions)
 
     else:
 
-      ws = tools.working_set(self.buildout['buildout'], self.prefixes)
+      ws = tools.working_set(self.buildout['buildout'])
 
       if tools.newest(self.buildout['buildout']):
 

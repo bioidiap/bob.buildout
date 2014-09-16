@@ -39,14 +39,12 @@ class Installer:
 
     self.verbose = tools.verbose(self.buildout)
 
-    # has the user established an environment?
-    environ = buildout.get('environ', {})
-
     # finally builds the environment wrapper
-    self.envwrapper = EnvironmentWrapper(
-        logger,
+    self.envwrapper = EnvironmentWrapper(logger,
         tools.debug(self.buildout),
-        self.prefixes, environ)
+        tools.get_prefixes(self.buildout),
+        buildout.get('environ', {}),
+        )
 
     self.find_links = buildout.get('find_links', '')
 
@@ -151,13 +149,11 @@ class Extension:
 
       self.buildout = buildout['buildout']
 
-      # gets a personalized prefixes list or the one from buildout
-      self.prefixes = tools.parse_list(self.buildout.get('prefixes', ''))
-
-      # shall we be verbose
+      # shall we be verbose?
       self.verbose = tools.verbose(self.buildout)
 
-      # and we replace the installer by our modified version
+      # replace zc.buildout's installer by our modified version, it will be
+      # called indirectly by this extension, via zc.buildout
       self.installer = Installer(self.buildout)
 
   def develop(self, setup, dest, build_ext=None, executable=sys.executable):
@@ -169,7 +165,7 @@ class Extension:
       else:
           directory = os.path.dirname(setup)
 
-      working_set = tools.working_set(self.buildout, self.prefixes)
+      working_set = tools.working_set(self.buildout)
       tools.satisfy_requirements(self.buildout, directory, working_set)
 
       self.envwrapper.set()

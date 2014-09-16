@@ -274,7 +274,7 @@ def order_egg_dirs(buildout):
 
   return [k[1] for k in distros.values()]
 
-def working_set(buildout, prefixes):
+def working_set(buildout):
   """Creates and returns a new working set based on user prefixes and existing
   packages already installed"""
 
@@ -290,7 +290,7 @@ def working_set(buildout, prefixes):
   for path in order_egg_dirs(buildout): working_set.add_entry(path)
 
   # adds the user paths
-  for path in find_site_packages(prefixes):
+  for path in find_site_packages(get_prefixes(buildout)):
     if has_distribution(path) and path not in working_set.entries:
       working_set.add_entry(path)
 

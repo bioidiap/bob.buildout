@@ -284,7 +284,15 @@ def working_set(buildout):
   dev_dir = buildout['develop-eggs-directory']
   for path in fnmatch.filter(os.listdir(dev_dir), '*.egg-link'):
     full_path = os.path.join(dev_dir, path)
-    working_set.add_entry(open(full_path, 'rt').read().split('\n')[0])
+    python_path = open(full_path, 'rt').read().split('\n')[0]
+    distro = None
+    wants = os.path.splitext(path)[0]
+    distro = [k for k in pkg_resources.find_distributions(python_path) \
+        if k.project_name == wants]
+    if not distro:
+      raise RuntimeError("Could not find a distribution for `%s' under `%s'" \
+          " - check egg-link at `%s'" % wants, python_path, full_path)
+    working_set.add(distro)
 
   # add all egg directories, newest first
   for path in order_egg_dirs(buildout): working_set.add_entry(path)

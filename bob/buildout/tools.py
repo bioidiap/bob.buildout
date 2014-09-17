@@ -292,7 +292,7 @@ def working_set(buildout):
     if not distro:
       raise RuntimeError("Could not find a distribution for `%s' under `%s'" \
           " - check egg-link at `%s'" % wants, python_path, full_path)
-    working_set.add(distro)
+    working_set.add(distro[0])
 
   # add all egg directories, newest first
   for path in order_egg_dirs(buildout): working_set.add_entry(path)

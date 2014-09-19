@@ -84,7 +84,7 @@ def zipfile_readlines(package, filename):
   with zipfile.ZipFile(package) as f:
     try:
       package_dir = os.path.splitext(os.path.basename(package))[0]
-      return f.open(os.path.join(package_dir, filename), 'rU').readlines()
+      return [line.decode('utf-8') if isinstance(line, bytes) else line for line in f.open(os.path.join(package_dir, filename), 'rU').readlines()]
     except:
       pass
 
@@ -106,7 +106,7 @@ def tarfile_readlines(package, filename):
     try:
       package_dir = os.path.splitext(os.path.dirname(package))[0]
       if package_dir.endswith('.tar'): package_dir = package_dir[:-4]
-      return f.extractfile(os.path.join(package_dir, filename)).readlines()
+      return [line.decode('utf-8') if isinstance(line, bytes) else line for line in f.extractfile(os.path.join(package_dir, filename)).readlines()]
     except:
       pass
 

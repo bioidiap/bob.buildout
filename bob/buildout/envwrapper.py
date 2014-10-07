@@ -86,3 +86,9 @@ class EnvironmentWrapper(object):
     if self._saved_environment:
       os.environ = self._saved_environment
       self._saved_environment = {}
+
+  def __enter__(self):
+    self.set()
+
+  def __exit__(self, *exc_details):
+    self.unset()

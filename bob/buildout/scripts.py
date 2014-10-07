@@ -236,15 +236,13 @@ class Recipe(object):
     self.sphinx = Sphinx(buildout, 'Sphinx', options.copy())
 
   def install(self):
-    self.envwrapper.set()
-    retval = \
-        self.python.install_on_wrapped_env() + \
-        self.gdbpy.install_on_wrapped_env() + \
-        self.scripts.install_on_wrapped_env() + \
-        self.nose.install_on_wrapped_env() + \
-        self.coverage.install_on_wrapped_env() + \
-        self.sphinx.install_on_wrapped_env()
-    self.envwrapper.unset()
-    return retval
+    with self.envwrapper as ew:
+      return \
+          self.python.install_on_wrapped_env() + \
+          self.gdbpy.install_on_wrapped_env() + \
+          self.scripts.install_on_wrapped_env() + \
+          self.nose.install_on_wrapped_env() + \
+          self.coverage.install_on_wrapped_env() + \
+          self.sphinx.install_on_wrapped_env()
 
   update = install

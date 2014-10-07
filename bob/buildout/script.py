@@ -16,33 +16,46 @@ from . import tools
 from .envwrapper import EnvironmentWrapper
 
 import zc.buildout.easy_install
-def _script(module_name, attrs, path, dest, arguments, initialization, rsetup):
-  """Default script generator"""
 
-  if zc.buildout.easy_install.is_win32: dest += '-script.py'
+class ScriptGenerator(object):
+  """Replaces the default script generator so paths are properly filtered"""
 
-  python = zc.buildout.easy_install._safe_arg(sys.executable)
+  def __init__(self, buildout, prefixes):
 
-  # the "difference": re-order python paths with a preference for locals
-  realpath = [k.strip().strip("'").strip('"') for k in path.split(",\n")]
-  realpath = [os.path.realpath(k.strip()) for k in realpath if k.strip()]
-  path = ",\n  ".join(["'%s'" % k for k in realpath if k not in tools.site_paths])
-  if not path: path = "''" #dummy path
+    self.buildout = buildout
+    self.prefixes = prefixes
 
-  contents = zc.buildout.easy_install.script_template % dict(
-      python = python,
-      path = path,
-      module_name = module_name,
-      attrs = attrs,
-      arguments = arguments,
-      initialization = initialization,
-      relative_paths_setup = rsetup,
-      )
+  def __enter__(self):
+    self.__old__  = zc.buildout.easy_install._script
+    zc.buildout.easy_install._script = self
 
-  return zc.buildout.easy_install._create_script(contents, dest)
+  def __exit__(self, *exc_details):
+    zc.buildout.easy_install._script = self.__old__
 
-# Monkey patches the default script generator
-zc.buildout.easy_install._script = _script
+  def __call__(self, module_name, attrs, path, dest, arguments, initialization, rsetup):
+    """Default script generator"""
+
+    if zc.buildout.easy_install.is_win32: dest += '-script.py'
+
+    python = zc.buildout.easy_install._safe_arg(sys.executable)
+
+    # the "difference": re-order python paths with a preference for locals
+    realpath = [k.strip().strip("'").strip('"') for k in path.split(",\n")]
+    realpath = [os.path.realpath(k.strip()) for k in realpath if k.strip()]
+    path = ",\n  ".join(["'%s'" % k for k in realpath if k not in tools.site_paths(self.buildout['buildout'], self.prefixes)])
+    if not path: path = "''" #dummy path
+
+    contents = zc.buildout.easy_install.script_template % dict(
+        python = python,
+        path = path,
+        module_name = module_name,
+        attrs = attrs,
+        arguments = arguments,
+        initialization = initialization,
+        relative_paths_setup = rsetup,
+        )
+
+    return zc.buildout.easy_install._create_script(contents, dest)
 
 class Recipe(Scripts):
   """Just creates a given script with the "correct" paths
@@ -104,12 +117,11 @@ class Recipe(Scripts):
     return self.eggs, ws
 
   def install_on_wrapped_env(self):
-    return tuple(super(Recipe, self).install())
+    with ScriptGenerator(self.buildout, self.prefixes) as sg:
+      return tuple(super(Recipe, self).install())
 
   def install(self):
-    self.envwrapper.set()
-    retval = self.install_on_wrapped_env()
-    self.envwrapper.unset()
-    return retval
+    with self.envwrapper as ew:
+      return self.install_on_wrapped_env()
 
   update = install

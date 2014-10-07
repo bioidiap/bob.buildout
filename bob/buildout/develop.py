@@ -114,11 +114,9 @@ class Recipe(object):
 
   # a modified copy of zc.buildout.easy_install.develop
   def install(self):
-
-    self.envwrapper.set()
-    retval = self.builder.install_on_wrapped_env()
-    retval += (self.develop(retval[0]),)
-    self.envwrapper.unset()
-    return retval
+    with self.envwrapper as ew:
+      retval = self.builder.install_on_wrapped_env()
+      retval += (self.develop(retval[0]),)
+      return retval
 
   update = install

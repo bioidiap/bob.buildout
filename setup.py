@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bob.buildout',
-    version='0.4.9a1',
+    version='0.5.0a0',
     description="zc.buildout recipes to perform a variety of tasks required by Bob satellite packages",
     keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs', 'bob'],
     url='http://github.com/bioidiap/bob.buildout',

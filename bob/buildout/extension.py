@@ -40,9 +40,10 @@ class Installer:
     self.verbose = tools.verbose(self.buildout)
 
     # finally builds the environment wrapper
+    self.prefixes = tools.get_prefixes(self.buildout)
     self.envwrapper = EnvironmentWrapper(logger,
         tools.debug(self.buildout),
-        tools.get_prefixes(self.buildout),
+        self.prefixes,
         buildout.get('environ', {}),
         )
 
@@ -76,7 +77,7 @@ class Installer:
         if logger.getEffectiveLevel() <= logging.DEBUG:
             logger.debug('Running easy_install:\n"%s"\npath=%s\n',
                 '" "'.join(args),
-                os.pathsep.join(tools.get_pythonpath(ws)),
+                os.pathsep.join(tools.get_pythonpath(ws, self.buildout, self.prefixes)),
                 )
 
         sys.stdout.flush() # We want any pending output first
@@ -84,7 +85,7 @@ class Installer:
         exit_code = subprocess.call(list(args),
             env=dict(
               os.environ,
-              PYTHONPATH=os.pathsep.join(tools.get_pythonpath(ws)),
+              PYTHONPATH=os.pathsep.join(tools.get_pythonpath(ws, self.buildout, self.prefixes)),
               ),
             )
 
@@ -194,7 +195,7 @@ class Extension:
           undo.append(lambda: os.close(fd))
 
           os.write(fd, (runsetup_template % dict(
-              paths=os.pathsep.join(tools.get_pythonpath(working_set)),
+              paths=os.pathsep.join(tools.get_pythonpath(working_set, self.buildout, self.installer.prefixes)),
               setup=setup,
               setupdir=directory,
               __file__ = setup,

@@ -60,13 +60,13 @@ class Recipe(Scripts):
     self.eggs = tools.eggs(buildout['buildout'], options, name)
 
     # Gets a personalized prefixes list or the one from buildout
-    prefixes = tools.get_prefixes(buildout['buildout'])
-    self.user_paths = tools.find_site_packages(prefixes)
+    self.prefixes = tools.get_prefixes(buildout['buildout'])
+    self.user_paths = tools.find_site_packages(self.prefixes)
 
     # Builds an environment wrapper, in case dependent packages need to be
     # compiled
     self.envwrapper = EnvironmentWrapper(self.logger,
-        tools.debug(buildout['buildout']), prefixes)
+        tools.debug(buildout['buildout']), self.prefixes)
 
     # initializes the script infrastructure
     super(Recipe, self).__init__(buildout, name, options)

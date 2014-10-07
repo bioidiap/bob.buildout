@@ -50,7 +50,7 @@ os.execvp("%(interpreter)s", ["%(interpreter)s"] + sys.argv[1:])
         self.interpreter)
     self._write_executable_file(retval, self.template % {
       'date': time.asctime(),
-      'paths': os.pathsep.join(tools.get_pythonpath(ws)),
+      'paths': os.pathsep.join(tools.get_pythonpath(ws, self.buildout, self.prefixes)),
       'interpreter': sys.executable,
       })
     self.logger.info("Generated script '%s'." % retval)

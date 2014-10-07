@@ -19,7 +19,20 @@ from zc.buildout.buildout import bool_option, MissingOption
 import logging
 logger = logging.getLogger(__name__)
 
-site_paths = [os.path.realpath(k) for k in site.sys.path]
+def site_paths(buildout, prefixes):
+  """Filters the site paths to make sure we don't get mistaken when filtering
+  user directories.
+  """
+
+  def is_buildout_dir(path):
+    return path.startswith(buildout['eggs-directory']) or \
+        path.startswith(buildout['develop-eggs-directory'])
+
+  def is_in_prefixes(path):
+    return any([path.startswith(k) for k in prefixes])
+
+  retval = [os.path.realpath(k) for k in site.sys.path]
+  return [k for k in retval if not (is_buildout_dir(k) or is_in_prefixes(k))]
 
 def uniq(seq, idfun=None):
   """Order preserving, fast de-duplication for lists"""
@@ -208,7 +221,7 @@ def satisfy_requirements(buildout, package, working_set):
     logger.info("Installing `%s' for package `%s'...", req, package)
     working_set = install_package(buildout, req, working_set)
 
-def get_pythonpath(working_set):
+def get_pythonpath(working_set, buildout, prefixes):
   """Returns the PYTHONPATH setting for a particular working set"""
 
   # get all paths available in the current working set
@@ -219,7 +232,8 @@ def get_pythonpath(working_set):
   else:
     prepend_path(zc.buildout.easy_install.setuptools_loc, paths)
 
-  return [k for k in working_set.entries if k not in site_paths]
+  return [k for k in working_set.entries \
+      if k not in site_paths(buildout, prefixes)]
 
 def get_prefixes(buildout):
   """Returns a list of prefixes set on the buildout section"""

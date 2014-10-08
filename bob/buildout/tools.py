@@ -159,7 +159,7 @@ def unsatisfied_requirements(buildout, package, working_set):
   specs = [k.strip() for k in package_readlines(package, 'requirements.txt')]
 
   # discard empty lines and comments
-  specs = [k for k in specs if k and k[0] != '#']
+  specs = [k for k in specs if k and k[0] not in ('#', '-')]
 
   # do not consider packages which are already installed, with a reasonable
   # version matching the user specification, either on the current working

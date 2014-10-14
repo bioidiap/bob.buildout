@@ -9,6 +9,7 @@ installed on different prefixes.
 
 import os
 import sys
+import time
 import logging
 from zc.recipe.egg import Scripts
 
@@ -16,6 +17,26 @@ from . import tools
 from .envwrapper import EnvironmentWrapper
 
 import zc.buildout.easy_install
+
+# Monkey patches the default template for script generation
+zc.buildout.easy_install.script_template = \
+    zc.buildout.easy_install.script_header + """
+# Automatically generated on %(date)s
+
+'''Runs a specific user program'''
+
+%%(relative_paths_setup)s
+import sys
+sys.path[0:0] = [
+  %%(path)s,
+  ]
+import pkg_resources #re-initializes site properly
+%%(initialization)s
+import %%(module_name)s
+
+if __name__ == '__main__':
+    sys.exit(%%(module_name)s.%%(attrs)s(%%(arguments)s))
+""" % {'date': time.asctime()}
 
 class ScriptGenerator(object):
   """Replaces the default script generator so paths are properly filtered"""

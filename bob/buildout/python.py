@@ -27,7 +27,7 @@ class Recipe(Script):
 
     # Python interpreter script template
     self.template = """#!%(interpreter)s
-# %(date)s
+# Automatically generated on %(date)s
 
 '''Booting interpreter - starts a new one with a proper environment'''
 

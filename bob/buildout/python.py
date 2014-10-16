@@ -38,22 +38,24 @@ path = os.environ.get("PYTHONPATH", "") + os.pathsep + "%(paths)s"
 path = path.lstrip(os.pathsep) #in case PYTHONPATH is empty
 
 # re-writes a startup file for Python respecting user settings
-user_profile = os.environ.get("PYTHONSTARTUP", "")
+user_profile = os.environ.get("PYTHONSTARTUP", None)
 if user_profile and os.path.exists(user_profile):
-  with open(user_profile, 'r') as f: user_profile = f.read()
+  with open(user_profile, 'r') as f: user_profile_contents = f.read()
 
 import tempfile
 profile = tempfile.NamedTemporaryFile()
 profile.write('import sys\\n')
 profile.write('sys.path[0:0] = %%s\\n' %% path.split(os.pathsep))
 profile.write('import pkg_resources #fixes namespace import\\n')
-if user_profile:
+if user_profile_contents:
   profile.write('\\n\\n')
-  profile.write(user_profile)
+  profile.write(user_profile_contents)
   profile.write('\\n')
 profile.write('\\n')
 profile.write('import os\\n')
 profile.write('os.unlink("%%s")\\n' %% profile.name)
+if user_profile:
+  profile.write('os.environ["PYTHONSTARTUP"] = "%%s"\\n' %% user_profile)
 profile.flush() #makes sure contents are written to the temp file
 
 # overwrites PYTHONSTARTUP for the following process bootstrap

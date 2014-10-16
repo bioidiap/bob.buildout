@@ -58,7 +58,7 @@ profile.flush() #makes sure contents are written to the temp file
 
 # overwrites PYTHONSTARTUP for the following process bootstrap
 os.environ['PYTHONSTARTUP'] = profile.name
-print("Set temporary profile name to `%%s'" %% (profile.name,))
+#print("Set temporary profile name to `%%s'" %% (profile.name,))
 
 # this will start a new Python process, that will erase the temp profile
 import sys

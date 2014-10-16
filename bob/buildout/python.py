@@ -33,10 +33,34 @@ class Recipe(Script):
 
 import os
 
-existing = os.environ.get("PYTHONPATH", "")
-os.environ["PYTHONPATH"] = "%(paths)s" + os.pathsep + existing
-os.environ["PYTHONPATH"] = os.environ["PYTHONPATH"].strip(os.pathsep)
+# builds a new path taking into considerating the user settings
+path = os.environ.get("PYTHONPATH", "") + os.pathsep + "%(paths)s"
+path = path.lstrip(os.pathsep) #in case PYTHONPATH is empty
 
+# re-writes a startup file for Python respecting user settings
+user_profile = os.environ.get("PYTHONSTARTUP", "")
+if user_profile and os.path.exists(user_profile):
+  with open(user_profile, 'r') as f: user_profile = f.read()
+
+import tempfile
+profile = tempfile.NamedTemporaryFile()
+profile.write('import sys\\n')
+profile.write('sys.path[0:0] = %%s\\n' %% path.split(os.pathsep))
+profile.write('import pkg_resources #fixes namespace import\\n')
+if user_profile:
+  profile.write('\\n\\n')
+  profile.write(user_profile)
+  profile.write('\\n')
+profile.write('\\n')
+profile.write('import os\\n')
+profile.write('os.unlink("%%s")\\n' %% profile.name)
+profile.flush() #makes sure contents are written to the temp file
+
+# overwrites PYTHONSTARTUP for the following process bootstrap
+os.environ['PYTHONSTARTUP'] = profile.name
+print("Set temporary profile name to `%%s'" %% (profile.name,))
+
+# this will start a new Python process, that will erase the temp profile
 import sys
 os.execvp("%(interpreter)s", ["%(interpreter)s"] + sys.argv[1:])
 """

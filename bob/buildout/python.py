@@ -35,7 +35,7 @@ import os
 
 # builds a new path taking into considerating the user settings
 path = os.environ.get("PYTHONPATH", "") + os.pathsep + "%(paths)s"
-path = path.lstrip(os.pathsep) #in case PYTHONPATH is empty
+os.environ['PYTHONPATH'] = path.lstrip(os.pathsep) #in case PYTHONPATH is empty
 
 # re-writes a startup file for Python respecting user settings
 user_profile = os.environ.get("PYTHONSTARTUP", None)
@@ -50,8 +50,6 @@ if user_profile_contents:
   profile.write('\\n\\n')
   profile.write(user_profile_contents)
   profile.write('\\n')
-profile.write('import sys\\n')
-profile.write('sys.path[0:0] = %%s\\n' %% path.split(os.pathsep))
 profile.write('import pkg_resources #fixes namespace import\\n')
 profile.write('\\n')
 profile.write('import os\\n')

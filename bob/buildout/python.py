@@ -46,13 +46,13 @@ else:
 
 import tempfile
 profile = tempfile.NamedTemporaryFile()
-profile.write('import sys\\n')
-profile.write('sys.path[0:0] = %%s\\n' %% path.split(os.pathsep))
-profile.write('import pkg_resources #fixes namespace import\\n')
 if user_profile_contents:
   profile.write('\\n\\n')
   profile.write(user_profile_contents)
   profile.write('\\n')
+profile.write('import sys\\n')
+profile.write('sys.path[0:0] = %%s\\n' %% path.split(os.pathsep))
+profile.write('import pkg_resources #fixes namespace import\\n')
 profile.write('\\n')
 profile.write('import os\\n')
 profile.write('os.unlink("%%s")\\n' %% profile.name)

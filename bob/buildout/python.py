@@ -41,6 +41,8 @@ path = path.lstrip(os.pathsep) #in case PYTHONPATH is empty
 user_profile = os.environ.get("PYTHONSTARTUP", None)
 if user_profile and os.path.exists(user_profile):
   with open(user_profile, 'r') as f: user_profile_contents = f.read()
+else:
+  user_profile_contents = ''
 
 import tempfile
 profile = tempfile.NamedTemporaryFile()

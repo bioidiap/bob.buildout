@@ -196,8 +196,7 @@ class Sphinx(Script):
     self.options['dependent-scripts'] = 'false'
 
     eggs = tools.eggs(self.buildout['buildout'], self.options, self.name)
-    self.options['eggs'] = tools.add_eggs(eggs,
-        ['sphinx', 'sphinx-pypi-upload'])
+    self.options['eggs'] = tools.add_eggs(eggs, ['sphinx'])
 
     # initializes base class
     super(Sphinx, self).__init__(self.buildout, self.name, self.options)

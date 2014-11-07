@@ -94,12 +94,17 @@ def zipfile_readlines(package, filename):
 
   import zipfile
 
-  with zipfile.ZipFile(package) as f:
+  f = None
+  try:
+    f = zipfile.ZipFile(package)
     try:
       package_dir = os.path.splitext(os.path.basename(package))[0]
       return [line.decode('utf-8') if isinstance(line, bytes) else line for line in f.open(os.path.join(package_dir, filename), 'rU').readlines()]
     except:
       pass
+  finally:
+    if f is not None:
+      f.close()
 
   return []
 

@@ -120,13 +120,17 @@ def tarfile_readlines(package, filename):
 
   import tarfile
 
-  with tarfile.open(package) as f:
+  try:
+    f = tarfile.open(package)
     try:
       package_dir = os.path.splitext(os.path.dirname(package))[0]
       if package_dir.endswith('.tar'): package_dir = package_dir[:-4]
       return [line.decode('utf-8') if isinstance(line, bytes) else line for line in f.extractfile(os.path.join(package_dir, filename)).readlines()]
     except:
       pass
+  finally:
+    if f is not None:
+      f.close()
 
   return []
 

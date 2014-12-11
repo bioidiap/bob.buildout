@@ -44,18 +44,22 @@ if user_profile and os.path.exists(user_profile):
 else:
   user_profile_contents = ''
 
+def encode(s):
+  import sys
+  if sys.version_info[0] >= 3:
+    return s.encode('UTF-8')
+  else:
+    return s
+
 import tempfile
 profile = tempfile.NamedTemporaryFile()
 if user_profile_contents:
-  profile.write('\\n\\n')
-  profile.write(user_profile_contents)
-  profile.write('\\n')
-profile.write('import pkg_resources #fixes namespace import\\n')
-profile.write('\\n')
-profile.write('import os\\n')
-profile.write('os.unlink("%%s")\\n' %% profile.name)
+  profile.write(encode('\\n\\n'))
+  profile.write(encode(user_profile_contents))
+  profile.write(encode('\\n'))
+profile.write(encode('import pkg_resources #fixes namespace import\\n\\nimport os\\nos.unlink("%%s")\\n' %% profile.name))
 if user_profile:
-  profile.write('os.environ["PYTHONSTARTUP"] = "%%s"\\n' %% user_profile)
+  profile.write(encode('os.environ["PYTHONSTARTUP"] = "%%s"\\n' %% user_profile))
 profile.flush() #makes sure contents are written to the temp file
 
 # overwrites PYTHONSTARTUP for the following process bootstrap

@@ -27,7 +27,7 @@ class Recipe(object):
     self.logger = logging.getLogger(self.name)
     self.buildout = buildout
 
-    self.logger.warn("this recipe is **deprecated**, use bob.buildout as your first extension instead (before any other)")
+    #self.logger.warn("this recipe is **deprecated**, use bob.buildout as your first extension instead (before any other)")
 
     # finds the setup script or use the default
     self.setup = os.path.join(buildout['buildout']['directory'],
@@ -46,7 +46,7 @@ class Recipe(object):
     # the eggs we need to **build** this package
     eggs = tools.parse_list(options.get('eggs', ''))
     required_eggs = [
-        'bob.extension', # basic extension building using pkg-config + Bob
+        #'bob.extension', # basic extension building using pkg-config + Bob
         ]
     eggs += required_eggs
     eggs = tools.uniq(eggs)

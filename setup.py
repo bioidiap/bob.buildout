@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 version = open("version.txt").read().rstrip()
 
 setup(
-    name='bob.buildout',
+    name='xbob.buildout',
     version=version,
     description="zc.buildout recipes to perform a variety of tasks required by Bob satellite packages",
     keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs', 'bob'],
@@ -26,24 +26,24 @@ setup(
     zip_safe=False,
 
     namespace_packages = [
-      'bob',
+      'xbob',
     ],
 
     entry_points = {
       'zc.buildout': [
-        'develop = bob.buildout.develop:Recipe',
-        'scripts = bob.buildout.scripts:Recipe',
-        'python = bob.buildout.scripts:PythonInterpreter',
-        'gdb-python = bob.buildout.scripts:GdbPythonInterpreter',
-        'ipython = bob.buildout.scripts:IPythonInterpreter',
-        'pylint = bob.buildout.scripts:PyLint',
-        'nose = bob.buildout.scripts:NoseTests',
-        'coverage = bob.buildout.scripts:Coverage',
-        'sphinx = bob.buildout.scripts:Sphinx',
-        'egg.scripts = bob.buildout.scripts:UserScripts',
+        'develop = xbob.buildout.develop:Recipe',
+        'scripts = xbob.buildout.scripts:Recipe',
+        'python = xbob.buildout.scripts:PythonInterpreter',
+        'gdb-python = xbob.buildout.scripts:GdbPythonInterpreter',
+        'ipython = xbob.buildout.scripts:IPythonInterpreter',
+        'pylint = xbob.buildout.scripts:PyLint',
+        'nose = xbob.buildout.scripts:NoseTests',
+        'coverage = xbob.buildout.scripts:Coverage',
+        'sphinx = xbob.buildout.scripts:Sphinx',
+        'egg.scripts = xbob.buildout.scripts:UserScripts',
         ],
       'zc.buildout.extension': [
-        'extension = bob.buildout.extension:extension',
+        'extension = xbob.buildout.extension:extension',
         ],
       },
 

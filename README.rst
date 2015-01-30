@@ -3,19 +3,19 @@
 .. Thu 30 Jan 08:46:53 2014 CET
 
 .. image:: http://img.shields.io/badge/docs-stable-yellow.png
-   :target: http://pythonhosted.org/bob.buildout/index.html
+   :target: http://pythonhosted.org/xbob.buildout/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.png
-   :target: https://www.idiap.ch/software/bob/docs/latest/bioidiap/bob.buildout/master/index.html
-.. image:: https://travis-ci.org/bioidiap/bob.buildout.svg?branch=master
+   :target: https://www.idiap.ch/software/bob/docs/latest/bioidiap/xbob.buildout/master/index.html
+.. image:: https://travis-ci.org/bioidiap/bob.buildout.svg?branch=1.0
    :target: https://travis-ci.org/bioidiap/bob.buildout
 .. image:: https://coveralls.io/repos/bioidiap/bob.buildout/badge.png
    :target: https://coveralls.io/r/bioidiap/bob.buildout
-.. image:: https://img.shields.io/badge/github-master-0000c0.png
-   :target: https://github.com/bioidiap/bob.buildout/tree/master
-.. image:: http://img.shields.io/pypi/v/bob.buildout.png
-   :target: https://pypi.python.org/pypi/bob.buildout
-.. image:: http://img.shields.io/pypi/dm/bob.buildout.png
-   :target: https://pypi.python.org/pypi/bob.buildout
+.. image:: https://img.shields.io/badge/github-1.0-0000c0.png
+   :target: https://github.com/bioidiap/bob.buildout/tree/1.0
+.. image:: http://img.shields.io/pypi/v/xbob.buildout.png
+   :target: https://pypi.python.org/pypi/xbob.buildout
+.. image:: http://img.shields.io/pypi/dm/xbob.buildout.png
+   :target: https://pypi.python.org/pypi/xbob.buildout
 
 ===================================
  Buildout Recipes for Bob Packages
@@ -39,7 +39,7 @@ This extension allows you to compile C/C++ extensions that depend on each other
 using a buildout. It assures that eggs living in both ``develop-eggs`` and
 ``eggs`` are on your path before building the packages in the ``develop``
 section. By using this extension you can drop the use of the local recipe
-``bob.buildout:develop``, which should be considered deprecated.
+``xbob.buildout:develop``, which should be considered deprecated.
 
 Supported Options
 =================
@@ -130,7 +130,7 @@ package scripts
 To use this recipe, you just have to simply do::
 
   [scripts]
-  recipe = bob.buildout:scripts
+  recipe = xbob.buildout:scripts
 
 Common Supported Options
 ========================

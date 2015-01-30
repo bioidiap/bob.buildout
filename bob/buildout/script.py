@@ -20,7 +20,7 @@ import zc.buildout.easy_install
 
 # Monkey patches the default template for script generation
 zc.buildout.easy_install.script_template = \
-    zc.buildout.easy_install.script_header + """
+    zc.buildout.easy_install.script_header + """ -S
 # Automatically generated on %(date)s
 
 '''Runs a specific user program'''
@@ -30,7 +30,7 @@ import sys
 sys.path[0:0] = [
   %%(path)s,
   ]
-import pkg_resources #re-initializes site properly
+import site #initializes site properly
 %%(initialization)s
 import %%(module_name)s
 

@@ -31,6 +31,7 @@ sys.path[0:0] = [
   %%(path)s,
   ]
 import site #initializes site properly
+site.main() #this is required for python>=3.4
 import pkg_resources #initializes virtualenvs properly
 %%(initialization)s
 import %%(module_name)s

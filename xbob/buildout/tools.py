@@ -314,7 +314,7 @@ def working_set(buildout):
         if k.project_name == wants]
     if not distro:
       raise RuntimeError("Could not find a distribution for `%s' under `%s'" \
-          " - check egg-link at `%s'" % wants, python_path, full_path)
+          " - check egg-link at `%s'" % (wants, python_path, full_path))
     working_set.add(distro[0])
 
   # add all egg directories, newest first

@@ -6,7 +6,7 @@ python:
   - "3.4"
 before_install:
   - sudo apt-get update -qq
-  - pip install --find-links ttps://www.idiap.ch/software/bob/wheels/travis/ --use-wheel sphinx nose --pre coveralls
+  - pip install --find-links https://www.idiap.ch/software/bob/wheels/travis/ --use-wheel sphinx nose --pre coveralls
 install:
   - "python bootstrap-buildout.py"
   - "./bin/buildout"

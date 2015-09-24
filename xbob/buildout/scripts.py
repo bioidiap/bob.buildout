@@ -155,7 +155,7 @@ class Coverage(Script):
       flags = tools.parse_list(options['coverage-flags'])
       init_code = ['sys.argv.append(%r)' % k for k in flags]
       self.options['initialization'] = '\n'.join(init_code)
-    self.options['entry-points'] = 'coverage=coverage:main'
+    self.options['entry-points'] = 'coverage=coverage.cmdline:main'
     self.options['scripts'] = 'coverage'
     self.options['dependent-scripts'] = 'false'
 

@@ -242,7 +242,7 @@ def get_pythonpath(working_set, buildout, prefixes):
     prepend_path(zc.buildout.easy_install.setuptools_loc, paths)
 
   return [k for k in working_set.entries \
-      if k not in site_paths(buildout, prefixes)]
+      if os.path.realpath(k) not in site_paths(buildout, prefixes)]
 
 def get_prefixes(buildout):
   """Returns a list of prefixes set on the buildout section"""

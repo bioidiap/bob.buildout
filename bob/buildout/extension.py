@@ -195,7 +195,8 @@ class Extension:
           undo.append(lambda: os.close(fd))
 
           os.write(fd, (runsetup_template % dict(
-              paths=os.pathsep.join(tools.get_pythonpath(working_set, self.buildout, self.installer.prefixes)),
+              # we reverse the order because we want the user paths to be inserted last ([::-1]).
+              paths=os.pathsep.join(tools.get_pythonpath(working_set, self.buildout, self.installer.prefixes)[::-1]),
               setup=setup,
               setupdir=directory,
               __file__ = setup,

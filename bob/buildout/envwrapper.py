@@ -24,7 +24,7 @@ class EnvironmentWrapper(object):
   """
 
   DEBUG_FLAGS = '-O0 -g -DBOB_DEBUG'
-  RELEASE_FLAGS = '-O3 -g0 -DNDEBUG -mtune=generic'
+  RELEASE_FLAGS = '-O3 -g0 -DNDEBUG -mtune=native'
   # Note: CLang does not work well with BZ_DEBUG\n
   if platform.system() != 'Darwin':
     DEBUG_FLAGS += " -DBZ_DEBUG"

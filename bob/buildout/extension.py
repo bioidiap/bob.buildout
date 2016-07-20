@@ -218,9 +218,26 @@ class Extension:
           undo.reverse()
           [f() for f in undo]
 
+
+def _dists_sig(dists):
+    '''Override of zc.buildout.buildout._dists_sig() to avoid excessive
+    directory hashing on "normal" distributions'''
+
+    seen = set()
+    result = []
+    for dist in dists:
+        if dist in seen:
+            continue
+        seen.add(dist)
+        location = dist.location
+        result.append(os.path.basename(location))
+    return result
+
+
 def extension(buildout):
     """Monkey patches zc.buildout.easy_install.develop"""
 
     ext = Extension(buildout)
     zc.buildout.easy_install.develop = ext.develop
     zc.buildout.easy_install.Installer._call_easy_install = ext.installer
+    zc.buildout.buildout._dists_sig = _dists_sig

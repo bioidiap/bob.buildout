@@ -13,19 +13,16 @@ setup(
     version=version,
     description="zc.buildout recipes to perform a variety of tasks required by Bob satellite packages",
     keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs', 'bob'],
-    url='http://github.com/bioidiap/bob.buildout',
-    license='GPLv3',
+    url='https://gitlab.idiap.ch/bob/bob.buildout',
+    license='BSD',
     author='Andre Anjos',
     author_email='andre.anjos@idiap.ch',
 
     long_description=open('README.rst').read(),
 
-    # This line is required for any distutils based packaging.
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-
-
 
     entry_points = {
       'zc.buildout': [
@@ -57,7 +54,7 @@ setup(
       'Environment :: Plugins',
       'Framework :: Buildout :: Recipe',
       'Intended Audience :: Developers',
-      'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+      'License :: OSI Approved :: BSD License',
       'Topic :: Software Development :: Build Tools',
       'Topic :: Software Development :: Libraries :: Python Modules',
       'Natural Language :: English',

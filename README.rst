@@ -1,36 +1,28 @@
 .. vim: set fileencoding=utf-8 :
-.. Andre Anjos <andre.anjos@idiap.ch>
 .. Thu 30 Jan 08:46:53 2014 CET
 
 .. image:: http://img.shields.io/badge/docs-stable-yellow.png
    :target: http://pythonhosted.org/bob.buildout/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.png
    :target: https://www.idiap.ch/software/bob/docs/latest/bioidiap/bob.buildout/master/index.html
-.. image:: https://travis-ci.org/bioidiap/bob.buildout.svg?branch=master
-   :target: https://travis-ci.org/bioidiap/bob.buildout?branch=master
-.. image:: https://coveralls.io/repos/bioidiap/bob.buildout/badge.svg?branch=master
-   :target: https://coveralls.io/r/bioidiap/bob.buildout?branch=master
-.. image:: https://img.shields.io/badge/github-master-0000c0.png
-   :target: https://github.com/bioidiap/bob.buildout/tree/master
+.. image:: https://gitlab.idiap.ch/bob/bob.buildout/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.buildout/commits/master
+.. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
+   :target: https://gitlab.idiap.ch/bob/bob.buildout
 .. image:: http://img.shields.io/pypi/v/bob.buildout.png
    :target: https://pypi.python.org/pypi/bob.buildout
 .. image:: http://img.shields.io/pypi/dm/bob.buildout.png
    :target: https://pypi.python.org/pypi/bob.buildout
 
+
 ===================================
  Buildout Recipes for Bob Packages
 ===================================
 
-This package contains a number of recipes to be used to build `Satellite
-Packages <http://www.idiap.ch/software/bob/docs/releases/last/sphinx/html/OrganizeYourCode.html>`_ for `Bob <http://idiap.github.com/bob/>`_,
-a signal-processing and machine learning toolbox originally developed by the
-Biometrics Group at Idiap, in Switzerland.
+This package is part of the signal-processing and machine learning toolbox
+Bob_. It contains a number of ``zc.buildout`` recipes for simplifying builds of
+Bob_ packages.
 
-.. note::
-
-  You normally don't need to download this package directly. It will be done by
-  ``zc.buildout`` automatically, if you followed our recipe to build `Satellite
-  Packages`_.
 
 C++/Python Extension
 --------------------
@@ -40,6 +32,7 @@ using a buildout. It assures that eggs living in both ``develop-eggs`` and
 ``eggs`` are on your path before building the packages in the ``develop``
 section. By using this extension you can drop the use of the local recipe
 ``bob.buildout:develop``, which should be considered deprecated.
+
 
 Supported Options
 =================
@@ -91,6 +84,7 @@ environ
   ``environ``'s ``BOB_PREFIX_PATH`` and ``PKG_CONFIG_PATH`` are **prepended**
   to those listed in ``prefixes``, if that is also set.
 
+
 Multi-Script Installer
 ----------------------
 
@@ -132,6 +126,7 @@ To use this recipe, you just have to simply do::
   [scripts]
   recipe = bob.buildout:scripts
 
+
 Common Supported Options
 ========================
 
@@ -167,48 +162,25 @@ nose-flags
   command line, automatically. Use this to preset arguments you like running
   all the time like ``-v``, for example.
 
-Other Recipes
--------------
 
-This package also provides recipes that allow for the discrete installation of
-interpreters and support programs, lumped together with the ``scripts`` recipe
-described above. You can use some of the options described above with these
-recipes. For example, the ``prefixes``, ``eggs`` and ``extra-paths`` are
-considered by all these recipes.
+Installation
+------------
 
-.. note::
+Follow our `installation`_ instructions. Then, using the Python interpreter
+provided by the distribution, bootstrap and buildout this package::
 
-  Use of these individual recipes should be done with care. The ``scripts``
-  recipe should be used by default, unless you have a special requirement that
-  is not covered by that recipe.
+  $ python bootstrap-buildout.py
+  $ ./bin/buildout
 
-python
-  This recipe generates **just** a python interpreter on the binary directory.
-  Extra options considered: ``interpreter``.
 
-ipython
-  This recipe generates an IPython interpreter on the binary directory.
-  Extra options considered: ``interpreter``.
+Contact
+-------
 
-gdb-python
-  This recipe generates a gdb launcher using the python interpreter so you can
-  start your scripts directly typing ``gdb-python myscript.py``.
+For questions or reporting issues to this software package, contact our
+development `mailing list`_.
 
-pylint
-  No extra options for this recipe.
 
-nose
-  This recipe generates only the ``nosetests`` program. Extra options
-  considered are:``nose-flags``.
-
-coverage
-  This recipe generates only the ``coverage`` program. Extra options
-  considered are:``coverage-flags``.
-
-sphinx
-  This recipe generates only the Sphinx documentation generator applications.
-  Extra options considered: none.
-
-egg.scripts
-  This recipe generates only the scripts (and dependent scripts) for the
-  package. Extra options considered: ``dependent-scripts``.
+.. Place your references here:
+.. _bob: https://www.idiap.ch/software/bob
+.. _installation: https://gitlab.idiap.ch/bob/bob/wikis/Installation
+.. _mailing list: https://groups.google.com/forum/?fromgroups#!forum/bob-devel

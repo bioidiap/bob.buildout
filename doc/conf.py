@@ -18,28 +18,37 @@ import pkg_resources
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+needs_sphinx = '1.3'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
-  'sphinx.ext.todo',
-  'sphinx.ext.coverage',
-  'sphinx.ext.pngmath',
-  'sphinx.ext.ifconfig',
-  'sphinx.ext.autodoc',
-  'sphinx.ext.autosummary',
-  'sphinx.ext.doctest',
-  'sphinx.ext.intersphinx',
-  ]
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.ifconfig',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
+    ]
 
 # The viewcode extension appeared only on Sphinx >= 1.0.0
 import sphinx
 if sphinx.__version__ >= "1.0":
   extensions.append('sphinx.ext.viewcode')
 
+if sphinx.__version__ >= "1.4":
+  extensions.append('sphinx.ext.imgmath')
+else:
+  extensions.append('sphinx.ext.pngmath')
+
 # Always includes todos
 todo_include_todos = True
+
+# Generates auto-summary automatically
+autosummary_generate = True
 
 # If we are on OSX, the 'dvipng' path maybe different
 dvipng_osx = '/opt/local/libexec/texlive/binaries/dvipng'

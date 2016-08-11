@@ -72,7 +72,7 @@ variables:
   before_script:
     - ./bootstrap-conda.sh ${CONDA_FOLDER} ${PYTHON_VER} ${CONDA_PREFIX}
     - source ${CONDA_FOLDER}/bin/activate ${CONDA_PREFIX}
-    - pip install zc.recipe.egg
+    - pip install --no-binary zc.recipe.egg
     - pip install --use-wheel --no-index --pre dist/*.whl
   script:
     - cd ${CONDA_PREFIX}

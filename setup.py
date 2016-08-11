@@ -11,7 +11,7 @@ version = open("version.txt").read().rstrip()
 setup(
     name='bob.buildout',
     version=version,
-    description="zc.buildout recipes to perform a variety of tasks required by Bob satellite packages",
+    description="A collection of zc.buildout recipes for Bob packages",
     keywords=['buildout', 'sphinx', 'nose', 'recipe', 'eggs', 'bob'],
     url='https://gitlab.idiap.ch/bob/bob.buildout',
     license='BSD',

@@ -23,11 +23,18 @@ class EnvironmentWrapper(object):
   settings from initialization.
   """
 
-  DEBUG_FLAGS = '-O0 -g -DBOB_DEBUG'
-  RELEASE_FLAGS = '-O3 -g0 -DNDEBUG -mtune=native'
+  DEBUG_CFLAGS = '-O0 -g -DBOB_DEBUG'
+  RELEASE_CFLAGS = '-O3 -g0 -DNDEBUG -mtune=generic'
+  LDFLAGS = ''
+  MACOSX_DEPLOYMENT_TARGET = '10.9'
+
+  if platform.system() == 'Darwin':
+    DEBUG_CFLAGS += ' -pthread'
+    LDFLAGS = '-lpthread'
+
   # Note: CLang does not work well with BZ_DEBUG\n
   if platform.system() != 'Darwin':
-    DEBUG_FLAGS += " -DBZ_DEBUG"
+    DEBUG_CFLAGS += ' -DBZ_DEBUG'
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 
@@ -45,32 +52,76 @@ class EnvironmentWrapper(object):
 
     # set the pkg-config paths to look at, environment settings in front
     prefixes = prefixes if prefixes else []
+    if 'CMAKE_PREFIX_PATH' in self.environ:
+      prefixes = self.environ['CMAKE_PREFIX_PATH'].split(os.pathsep) + prefixes
+    if 'CMAKE_PREFIX_PATH' in os.environ:
+      prefixes = os.environ['CMAKE_PREFIX_PATH'].split(os.pathsep) + prefixes
     if 'BOB_PREFIX_PATH' in self.environ:
       prefixes = self.environ['BOB_PREFIX_PATH'].split(os.pathsep) + prefixes
+    if 'BOB_PREFIX_PATH' in os.environ:
+      prefixes = os.environ['BOB_PREFIX_PATH'].split(os.pathsep) + prefixes
     pkgcfg += [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
     pkgcfg += [os.path.join(k, 'lib64', 'pkgconfig') for k in prefixes]
     pkgcfg += [os.path.join(k, 'lib32', 'pkgconfig') for k in prefixes]
 
-    # joins all paths
-    if prefixes:
-      self.environ['BOB_PREFIX_PATH'] = os.pathsep.join(prefixes)
-    if pkgcfg:
-      self.environ['PKG_CONFIG_PATH'] = os.pathsep.join(pkgcfg)
+    def __remove_environ(key):
+      if key in self.environ: del self.environ[key]
+
+    def __append_to_environ(key, value, sep=' '):
+      if self.environ.get(key):
+        if value:
+          self.environ[key] += sep + value.strip(sep)
+      else:
+        if value:
+          self.environ[key] = value.strip(sep)
+
+    # joins all paths, respecting potential environment variables set by the
+    # user, with priority
+    __remove_environ('BOB_PREFIX_PATH')
+    __append_to_environ('BOB_PREFIX_PATH', os.pathsep.join(prefixes),
+        os.pathsep)
+
+    __remove_environ('CMAKE_PREFIX_PATH')
+    __append_to_environ('CMAKE_PREFIX_PATH', os.pathsep.join(prefixes),
+        os.pathsep)
+
+    __remove_environ('PKG_CONFIG_PATH')
+    __append_to_environ('PKG_CONFIG_PATH', os.environ.get('PKG_CONFIG_PATH'),
+        os.pathsep)
+    __append_to_environ('PKG_CONFIG_PATH', os.pathsep.join(pkgcfg), os.pathsep)
 
     # reset the CFLAGS and CXXFLAGS depending on the user input
     cflags = None
-    if self.debug is True: cflags = str(EnvironmentWrapper.DEBUG_FLAGS)
-    elif self.debug is False: cflags = str(EnvironmentWrapper.RELEASE_FLAGS)
+    if self.debug is True: cflags = str(EnvironmentWrapper.DEBUG_CFLAGS)
+    elif self.debug is False: cflags = str(EnvironmentWrapper.RELEASE_CFLAGS)
     # else: pass
 
-    if cflags:
-      self.environ['CFLAGS'] = cflags + ' ' + \
-          self.environ.get('CFLAGS', '') + os.environ.get('CFLAGS', '')
-      self.environ['CFLAGS'] = self.environ['CFLAGS'].strip() #clean-up
-      self.environ['CXXFLAGS'] = cflags + ' ' + \
-          self.environ.get('CXXFLAGS', '') + os.environ.get('CXXFLAGS', '')
-      self.environ['CXXFLAGS'] = self.environ['CXXFLAGS'].strip() #clean-up
+    def _order_flags(key, internal=None):
+      if internal:
+        # prepend internal
+        saved = self.environ.get(key)
+        __remove_environ(key)
+        __append_to_environ(key, internal)
+        __append_to_environ(key, saved)
+      __append_to_environ(key, os.environ.get(key))
 
+    # for these environment variables, values set on the environment come last
+    # so they can override, values set on the buildout recipe or our internal
+    # settings
+    if cflags is not None:
+      _order_flags('CFLAGS', cflags)
+      _order_flags('CXXFLAGS', cflags)
+      _order_flags('LDFLAGS', EnvironmentWrapper.LDFLAGS)
+
+      # sets the MacOSX deployment target, if the user has not yet set it on
+      # their environment
+      if platform.system() == 'Darwin':
+        if os.environ.get('MACOSX_DEPLOYMENT_TARGET'):
+          self.environ['MACOSX_DEPLOYMENT_TARGET'] = \
+              os.environ['MACOSX_DEPLOYMENT_TARGET']
+        else:
+          self.environ['MACOSX_DEPLOYMENT_TARGET'] = \
+              EnvironmentWrapper.MACOSX_DEPLOYMENT_TARGET
 
   def set(self):
     """Sets the current environment for variables needed for the setup of the

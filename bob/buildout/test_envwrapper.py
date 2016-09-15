@@ -8,6 +8,7 @@
 import os
 import logging
 import nose.tools
+import platform
 
 from .envwrapper import EnvironmentWrapper
 
@@ -34,7 +35,8 @@ def test_default():
 def cleanup():
   '''Removes weird variables from the user environment just for the tests'''
 
-  remove = ['CFLAGS', 'CXXFLAGS', 'BOB_PREFIX_PATH', 'PKG_CONFIG_PATH']
+  remove = ['CFLAGS', 'CXXFLAGS', 'LDFLAGS', 'BOB_PREFIX_PATH',
+      'PKG_CONFIG_PATH', 'CMAKE_PREFIX_PATH', 'MACOSX_DEPLOYMENT_TARGET']
   for key in remove:
     if key in os.environ: del os.environ[key]
 
@@ -50,13 +52,28 @@ def test_set_debug_true():
   before = dict(os.environ)
 
   e.set()
-  nose.tools.eq_(len(os.environ) - len(before), 2)
+
+  if platform.system() == 'Darwin':
+    nose.tools.eq_(len(os.environ) - len(before), 4)
+  else:
+    # Linux
+    nose.tools.eq_(len(os.environ) - len(before), 2)
+
   assert 'CFLAGS' in os.environ
-  assert os.environ['CFLAGS'].find(EnvironmentWrapper.DEBUG_FLAGS) >= 0
-  assert os.environ['CFLAGS'].find(EnvironmentWrapper.RELEASE_FLAGS) < 0
+  assert os.environ['CFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) >= 0
+  assert os.environ['CFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) < 0
   assert 'CXXFLAGS' in os.environ
-  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.DEBUG_FLAGS) >= 0
-  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.RELEASE_FLAGS) < 0
+  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) >= 0
+  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) < 0
+
+  if platform.system() == 'Darwin':
+
+    assert 'LDFLAGS' in os.environ
+    assert os.environ['LDFLAGS'].find(EnvironmentWrapper.LDFLAGS) >= 0
+
+    assert 'MACOSX_DEPLOYMENT_TARGET' in os.environ
+    assert os.environ['MACOSX_DEPLOYMENT_TARGET'] == \
+        EnvironmentWrapper.MACOSX_DEPLOYMENT_TARGET
 
   e.unset()
   for key in before:
@@ -77,15 +94,30 @@ def test_set_debug_false():
   before = dict(os.environ)
 
   e.set()
-  nose.tools.eq_(len(os.environ) - len(before), 2)
+
+  if platform.system() == 'Darwin':
+    nose.tools.eq_(len(os.environ) - len(before), 4)
+  else:
+    # Linux
+    nose.tools.eq_(len(os.environ) - len(before), 2)
+
   assert 'CFLAGS' in os.environ
   assert 'CXXFLAGS' in os.environ
   nose.tools.eq_(os.environ['CFLAGS'], e.environ['CFLAGS'])
-  assert os.environ['CFLAGS'].find(EnvironmentWrapper.DEBUG_FLAGS) < 0
-  assert os.environ['CFLAGS'].find(EnvironmentWrapper.RELEASE_FLAGS) >= 0
+  assert os.environ['CFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) < 0
+  assert os.environ['CFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) >= 0
   nose.tools.eq_(os.environ['CXXFLAGS'], e.environ['CXXFLAGS'])
-  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.DEBUG_FLAGS) < 0
-  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.RELEASE_FLAGS) >= 0
+  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) < 0
+  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) >= 0
+
+  if platform.system() == 'Darwin':
+
+    assert 'LDFLAGS' in os.environ
+    assert os.environ['LDFLAGS'].find(EnvironmentWrapper.LDFLAGS) >= 0
+
+    assert 'MACOSX_DEPLOYMENT_TARGET' in os.environ
+    assert os.environ['MACOSX_DEPLOYMENT_TARGET'] == \
+        EnvironmentWrapper.MACOSX_DEPLOYMENT_TARGET
 
   e.unset()
   for key in before:
@@ -111,6 +143,8 @@ def test_set_prefixes():
   nose.tools.eq_(os.environ['PKG_CONFIG_PATH'], e.environ['PKG_CONFIG_PATH'])
   assert 'BOB_PREFIX_PATH' in os.environ
   nose.tools.eq_(os.environ['BOB_PREFIX_PATH'], os.pathsep.join(prefixes))
+  assert 'CMAKE_PREFIX_PATH' in os.environ
+  nose.tools.eq_(os.environ['CMAKE_PREFIX_PATH'], os.pathsep.join(prefixes))
 
   e.unset()
   for key in before:
@@ -132,6 +166,7 @@ def test_set_environment():
   before = dict(os.environ)
 
   e.set()
+
   nose.tools.eq_(len(os.environ) - len(before), 1)
   assert varname in os.environ
   nose.tools.eq_(os.environ[varname], varvalue)
@@ -179,7 +214,8 @@ def test_set_multiple():
       CFLAGS='-DNDEBUG',
       CXXFLAGS='${CFLAGS}',
       PKG_CONFIG_PATH='/a/b/lib/pkgconfig',
-      BOB_PREFIX_PATH='/c/d'
+      BOB_PREFIX_PATH='/c/d',
+      CMAKE_PREFIX_PATH='/d/f',
       )
 
   e = EnvironmentWrapper(logging.getLogger(), debug=True, environ=environ)
@@ -187,10 +223,18 @@ def test_set_multiple():
   before = dict(os.environ)
 
   e.set()
-  nose.tools.eq_(len(os.environ) - len(before), 4)
-  nose.tools.eq_(os.environ['CFLAGS'], EnvironmentWrapper.DEBUG_FLAGS + ' ' + environ['CFLAGS'])
+
+  if platform.system() == 'Darwin':
+    nose.tools.eq_(len(os.environ) - len(before), 7)
+  else:
+    # Linux
+    nose.tools.eq_(len(os.environ) - len(before), 5)
+
+  nose.tools.eq_(os.environ['CFLAGS'], EnvironmentWrapper.DEBUG_CFLAGS + ' ' + environ['CFLAGS'])
   nose.tools.eq_(os.environ['CXXFLAGS'], os.environ['CFLAGS'])
-  nose.tools.eq_(os.environ['BOB_PREFIX_PATH'], environ['BOB_PREFIX_PATH'])
+  assert os.environ['BOB_PREFIX_PATH'].startswith(environ['BOB_PREFIX_PATH'])
+  assert os.environ['BOB_PREFIX_PATH'].endswith(environ['CMAKE_PREFIX_PATH'])
+  assert os.environ['CMAKE_PREFIX_PATH'] == os.environ['BOB_PREFIX_PATH']
   assert os.environ['PKG_CONFIG_PATH'].startswith(environ['PKG_CONFIG_PATH'])
   assert os.environ['PKG_CONFIG_PATH'].find(environ['BOB_PREFIX_PATH']) >= 0
 
@@ -217,7 +261,13 @@ def test_preserve_user():
   before = dict(os.environ)
 
   e.set()
-  nose.tools.eq_(len(os.environ) - len(before), 1)
+
+  if platform.system() == 'Darwin':
+    nose.tools.eq_(len(os.environ) - len(before), 3)
+  else:
+    # Linux
+    nose.tools.eq_(len(os.environ) - len(before), 1)
+
   assert os.environ['CFLAGS'].endswith('-BUILDOUT-TEST-STRING')
 
   e.unset()

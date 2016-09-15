@@ -52,11 +52,20 @@ class EnvironmentWrapper(object):
 
     # set the pkg-config paths to look at, environment settings in front
     prefixes = prefixes if prefixes else []
+    if 'CMAKE_PREFIX_PATH' in self.environ:
+      prefixes = self.environ['CMAKE_PREFIX_PATH'].split(os.pathsep) + prefixes
+    if 'CMAKE_PREFIX_PATH' in os.environ:
+      prefixes = os.environ['CMAKE_PREFIX_PATH'].split(os.pathsep) + prefixes
     if 'BOB_PREFIX_PATH' in self.environ:
       prefixes = self.environ['BOB_PREFIX_PATH'].split(os.pathsep) + prefixes
+    if 'BOB_PREFIX_PATH' in os.environ:
+      prefixes = os.environ['BOB_PREFIX_PATH'].split(os.pathsep) + prefixes
     pkgcfg += [os.path.join(k, 'lib', 'pkgconfig') for k in prefixes]
     pkgcfg += [os.path.join(k, 'lib64', 'pkgconfig') for k in prefixes]
     pkgcfg += [os.path.join(k, 'lib32', 'pkgconfig') for k in prefixes]
+
+    def __remove_environ(key):
+      if key in self.environ: del self.environ[key]
 
     def __append_to_environ(key, value, sep=' '):
       if self.environ.get(key):
@@ -68,19 +77,15 @@ class EnvironmentWrapper(object):
 
     # joins all paths, respecting potential environment variables set by the
     # user, with priority
-    self.environ['BOB_PREFIX_PATH'] = None
-    __append_to_environ('BOB_PREFIX_PATH', os.environ.get('BOB_PREFIX_PATH'),
-        os.pathsep)
+    __remove_environ('BOB_PREFIX_PATH')
     __append_to_environ('BOB_PREFIX_PATH', os.pathsep.join(prefixes),
         os.pathsep)
 
-    self.environ['CMAKE_PREFIX_PATH'] = None
-    __append_to_environ('CMAKE_PREFIX_PATH',
-        os.environ.get('CMAKE_PREFIX_PATH'), os.pathsep)
+    __remove_environ('CMAKE_PREFIX_PATH')
     __append_to_environ('CMAKE_PREFIX_PATH', os.pathsep.join(prefixes),
         os.pathsep)
 
-    self.environ['PKG_CONFIG_PATH'] = None
+    __remove_environ('PKG_CONFIG_PATH')
     __append_to_environ('PKG_CONFIG_PATH', os.environ.get('PKG_CONFIG_PATH'),
         os.pathsep)
     __append_to_environ('PKG_CONFIG_PATH', os.pathsep.join(pkgcfg), os.pathsep)
@@ -94,28 +99,29 @@ class EnvironmentWrapper(object):
     def _order_flags(key, internal=None):
       if internal:
         # prepend internal
-        buildout_cflags = self.environ.get(key)
-        self.environ[key] = None
+        saved = self.environ.get(key)
+        __remove_environ(key)
         __append_to_environ(key, internal)
-        __append_to_environ(key, buildout_cflags)
+        __append_to_environ(key, saved)
       __append_to_environ(key, os.environ.get(key))
 
     # for these environment variables, values set on the environment come last
     # so they can override, values set on the buildout recipe or our internal
     # settings
-    _order_flags('CFLAGS', cflags)
-    _order_flags('CXXFLAGS', cflags)
-    _order_flags('LDFLAGS', EnvironmentWrapper.LDFLAGS)
+    if cflags is not None:
+      _order_flags('CFLAGS', cflags)
+      _order_flags('CXXFLAGS', cflags)
+      _order_flags('LDFLAGS', EnvironmentWrapper.LDFLAGS)
 
-    # sets the MacOSX deployment target, if the user has not yet set it on
-    # their environment
-    if platform.system() == 'Darwin':
-      if os.environ.get('MACOSX_DEPLOYMENT_TARGET'):
-        self.environ['MACOSX_DEPLOYMENT_TARGET'] = \
-            os.environ['MACOSX_DEPLOYMENT_TARGET']
-      else:
-        self.environ['MACOSX_DEPLOYMENT_TARGET'] = \
-            EnvironmentWrapper.MACOSX_DEPLOYMENT_TARGET
+      # sets the MacOSX deployment target, if the user has not yet set it on
+      # their environment
+      if platform.system() == 'Darwin':
+        if os.environ.get('MACOSX_DEPLOYMENT_TARGET'):
+          self.environ['MACOSX_DEPLOYMENT_TARGET'] = \
+              os.environ['MACOSX_DEPLOYMENT_TARGET']
+        else:
+          self.environ['MACOSX_DEPLOYMENT_TARGET'] = \
+              EnvironmentWrapper.MACOSX_DEPLOYMENT_TARGET
 
   def set(self):
     """Sets the current environment for variables needed for the setup of the

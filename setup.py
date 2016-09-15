@@ -50,7 +50,7 @@ setup(
 
     classifiers=[
       'Framework :: Bob',
-      'Development Status :: 4 - Beta',
+      'Development Status :: 5 - Production/Stable',
       'Environment :: Plugins',
       'Framework :: Buildout :: Recipe',
       'Intended Audience :: Developers',

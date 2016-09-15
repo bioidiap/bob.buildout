@@ -32,9 +32,9 @@ class EnvironmentWrapper(object):
     DEBUG_CFLAGS += ' -pthread'
     LDFLAGS = '-lpthread'
 
-   # Note: CLang does not work well with BZ_DEBUG\n
-   if platform.system() != 'Darwin':
-     DEBUG_CFLAGS += ' -DBZ_DEBUG'
+  # Note: CLang does not work well with BZ_DEBUG\n
+  if platform.system() != 'Darwin':
+    DEBUG_CFLAGS += ' -DBZ_DEBUG'
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 

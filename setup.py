@@ -8,6 +8,12 @@ from setuptools import setup, find_packages
 # Define package version
 version = open("version.txt").read().rstrip()
 
+with open('requirements.txt') as f:
+    install_requires = f.read().splitlines()
+    install_requires = [k.strip() for k in install_requires]
+    install_requires = [k for k in install_requires if not k.startswith('#')]
+    install_requires = [k for k in install_requires if k]
+
 setup(
     name='bob.buildout',
     version=version,
@@ -42,11 +48,7 @@ setup(
         ],
       },
 
-    install_requires=[
-      'setuptools',
-      'zc.recipe.egg',
-      'six',
-      ],
+    install_requires=install_requires,
 
     classifiers=[
       'Framework :: Bob',

@@ -1,2 +1,1 @@
-include LICENSE README.rst buildout.cfg bootstrap-buildout.py version.txt requirements.txt
-recursive-include doc conf.py *.rst *.ico *.png
+include README.rst buildout.cfg bootstrap-buildout.py version.txt

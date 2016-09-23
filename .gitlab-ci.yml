@@ -108,7 +108,7 @@ stages:
 build_linux_27:
   <<: *build_job
   variables: &linux_27_build_variables
-    PYTHON_VER: "2.7"
+    PYTHON_VERSION: "2.7"
     WHEEL_TAG: "py27"
   tags:
     - conda-linux
@@ -133,7 +133,7 @@ wheels_linux_27:
 build_linux_34:
   <<: *build_job
   variables: &linux_34_build_variables
-    PYTHON_VER: "3.4"
+    PYTHON_VERSION: "3.4"
     WHEEL_TAG: "py3"
   tags:
     - conda-linux
@@ -151,7 +151,7 @@ test_linux_34:
 build_linux_35:
   <<: *build_job
   variables: &linux_35_build_variables
-    PYTHON_VER: "3.5"
+    PYTHON_VERSION: "3.5"
     WHEEL_TAG: "py3"
   tags:
     - conda-linux
@@ -191,7 +191,7 @@ deploy_linux_35:
 build_macosx_27:
   <<: *build_job
   variables: &macosx_27_build_variables
-    PYTHON_VER: "2.7"
+    PYTHON_VERSION: "2.7"
     WHEEL_TAG: "py27"
   tags:
     - conda-macosx
@@ -209,7 +209,7 @@ test_macosx_27:
 build_macosx_34:
   <<: *build_job
   variables: &macosx_34_build_variables
-    PYTHON_VER: "3.4"
+    PYTHON_VERSION: "3.4"
     WHEEL_TAG: "py3"
   tags:
     - conda-macosx
@@ -227,7 +227,7 @@ test_macosx_34:
 build_macosx_35:
   <<: *build_job
   variables: &macosx_35_build_variables
-    PYTHON_VER: "3.5"
+    PYTHON_VERSION: "3.5"
     WHEEL_TAG: "py3"
   tags:
     - conda-macosx

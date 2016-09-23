@@ -123,6 +123,7 @@ test_linux_27:
 
 wheels_linux_27:
   <<: *wheels_job
+  variables: *linux_27_build_variables
   dependencies:
     - build_linux_27
   tags:
@@ -166,6 +167,7 @@ test_linux_35:
 
 wheels_linux_35:
   <<: *wheels_job
+  variables: *linux_35_build_variables
   dependencies:
     - build_linux_35
   tags:
@@ -173,6 +175,7 @@ wheels_linux_35:
 
 docs_linux_35:
   <<: *docs_job
+  variables: *linux_35_build_variables
   dependencies:
     - build_linux_35
   tags:

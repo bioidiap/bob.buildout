@@ -12,6 +12,15 @@ import platform
 
 from .envwrapper import EnvironmentWrapper
 
+def cleanup():
+  '''Removes weird variables from the user environment just for the tests'''
+
+  remove = ['CFLAGS', 'CXXFLAGS', 'LDFLAGS', 'BOB_PREFIX_PATH',
+      'PKG_CONFIG_PATH', 'CMAKE_PREFIX_PATH', 'MACOSX_DEPLOYMENT_TARGET']
+  for key in remove:
+    if key in os.environ: del os.environ[key]
+
+@nose.with_setup(cleanup)
 def test_default():
 
   e = EnvironmentWrapper(logging.getLogger())
@@ -31,14 +40,6 @@ def test_default():
   for key in os.environ:
     assert key in before, "key `%s' was not on os.environ before" % (key,)
   nose.tools.eq_(before, os.environ)
-
-def cleanup():
-  '''Removes weird variables from the user environment just for the tests'''
-
-  remove = ['CFLAGS', 'CXXFLAGS', 'LDFLAGS', 'BOB_PREFIX_PATH',
-      'PKG_CONFIG_PATH', 'CMAKE_PREFIX_PATH', 'MACOSX_DEPLOYMENT_TARGET']
-  for key in remove:
-    if key in os.environ: del os.environ[key]
 
 @nose.with_setup(cleanup)
 def test_set_debug_true():

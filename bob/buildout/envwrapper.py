@@ -30,6 +30,7 @@ class EnvironmentWrapper(object):
 
   if platform.system() == 'Darwin':
     DEBUG_CFLAGS += ' -pthread'
+    RELEASE_CFLAGS += ' -pthread'
     LDFLAGS = '-lpthread'
 
   # Note: CLang does not work well with BZ_DEBUG\n

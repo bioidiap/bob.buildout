@@ -25,8 +25,8 @@ class EnvironmentWrapper(object):
 
   # Note: CLang does not work well with BZ_DEBUG
   # 24.01.2017: we only support gcc on both Linux and MacOSX
-  DEBUG_CFLAGS = '-O0 -g -DBOB_DEBUG -pthread -DBZ_DEBUG'
-  RELEASE_CFLAGS = '-O3 -g0 -DNDEBUG -mtune=generic -pthread'
+  DEBUG_CFLAGS = '-O0 -g -DBOB_DEBUG -DBZ_DEBUG'
+  RELEASE_CFLAGS = '-O3 -g0 -DNDEBUG -mtune=generic'
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 

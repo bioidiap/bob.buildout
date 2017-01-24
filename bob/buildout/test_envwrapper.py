@@ -54,11 +54,7 @@ def test_set_debug_true():
 
   e.set()
 
-  if platform.system() == 'Darwin':
-    nose.tools.eq_(len(os.environ) - len(before), 4)
-  else:
-    # Linux
-    nose.tools.eq_(len(os.environ) - len(before), 2)
+  nose.tools.eq_(len(os.environ) - len(before), 2)
 
   assert 'CFLAGS' in os.environ
   assert os.environ['CFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) >= 0
@@ -66,15 +62,6 @@ def test_set_debug_true():
   assert 'CXXFLAGS' in os.environ
   assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) >= 0
   assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) < 0
-
-  if platform.system() == 'Darwin':
-
-    assert 'LDFLAGS' in os.environ
-    assert os.environ['LDFLAGS'].find(EnvironmentWrapper.LDFLAGS) >= 0
-
-    assert 'MACOSX_DEPLOYMENT_TARGET' in os.environ
-    assert os.environ['MACOSX_DEPLOYMENT_TARGET'] == \
-        EnvironmentWrapper.MACOSX_DEPLOYMENT_TARGET
 
   e.unset()
   for key in before:
@@ -96,11 +83,7 @@ def test_set_debug_false():
 
   e.set()
 
-  if platform.system() == 'Darwin':
-    nose.tools.eq_(len(os.environ) - len(before), 4)
-  else:
-    # Linux
-    nose.tools.eq_(len(os.environ) - len(before), 2)
+  nose.tools.eq_(len(os.environ) - len(before), 2)
 
   assert 'CFLAGS' in os.environ
   assert 'CXXFLAGS' in os.environ
@@ -110,15 +93,6 @@ def test_set_debug_false():
   nose.tools.eq_(os.environ['CXXFLAGS'], e.environ['CXXFLAGS'])
   assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) < 0
   assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) >= 0
-
-  if platform.system() == 'Darwin':
-
-    assert 'LDFLAGS' in os.environ
-    assert os.environ['LDFLAGS'].find(EnvironmentWrapper.LDFLAGS) >= 0
-
-    assert 'MACOSX_DEPLOYMENT_TARGET' in os.environ
-    assert os.environ['MACOSX_DEPLOYMENT_TARGET'] == \
-        EnvironmentWrapper.MACOSX_DEPLOYMENT_TARGET
 
   e.unset()
   for key in before:
@@ -225,11 +199,7 @@ def test_set_multiple():
 
   e.set()
 
-  if platform.system() == 'Darwin':
-    nose.tools.eq_(len(os.environ) - len(before), 7)
-  else:
-    # Linux
-    nose.tools.eq_(len(os.environ) - len(before), 5)
+  nose.tools.eq_(len(os.environ) - len(before), 5)
 
   nose.tools.eq_(os.environ['CFLAGS'], EnvironmentWrapper.DEBUG_CFLAGS + ' ' + environ['CFLAGS'])
   nose.tools.eq_(os.environ['CXXFLAGS'], os.environ['CFLAGS'])
@@ -263,11 +233,7 @@ def test_preserve_user():
 
   e.set()
 
-  if platform.system() == 'Darwin':
-    nose.tools.eq_(len(os.environ) - len(before), 3)
-  else:
-    # Linux
-    nose.tools.eq_(len(os.environ) - len(before), 1)
+  nose.tools.eq_(len(os.environ) - len(before), 1)
 
   assert os.environ['CFLAGS'].endswith('-BUILDOUT-TEST-STRING')
 

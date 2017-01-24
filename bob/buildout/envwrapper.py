@@ -23,19 +23,10 @@ class EnvironmentWrapper(object):
   settings from initialization.
   """
 
-  DEBUG_CFLAGS = '-O0 -g -DBOB_DEBUG'
+  # Note: CLang does not work well with BZ_DEBUG
+  # 24.01.2017: we only support gcc on both Linux and MacOSX
+  DEBUG_CFLAGS = '-O0 -g -DBOB_DEBUG -DBZ_DEBUG'
   RELEASE_CFLAGS = '-O3 -g0 -DNDEBUG -mtune=generic'
-  LDFLAGS = ''
-  MACOSX_DEPLOYMENT_TARGET = '10.9'
-
-  if platform.system() == 'Darwin':
-    DEBUG_CFLAGS += ' -pthread'
-    RELEASE_CFLAGS += ' -pthread'
-    LDFLAGS = '-lpthread'
-
-  # Note: CLang does not work well with BZ_DEBUG\n
-  if platform.system() != 'Darwin':
-    DEBUG_CFLAGS += ' -DBZ_DEBUG'
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 
@@ -112,17 +103,6 @@ class EnvironmentWrapper(object):
     if cflags is not None:
       _order_flags('CFLAGS', cflags)
       _order_flags('CXXFLAGS', cflags)
-      _order_flags('LDFLAGS', EnvironmentWrapper.LDFLAGS)
-
-      # sets the MacOSX deployment target, if the user has not yet set it on
-      # their environment
-      if platform.system() == 'Darwin':
-        if os.environ.get('MACOSX_DEPLOYMENT_TARGET'):
-          self.environ['MACOSX_DEPLOYMENT_TARGET'] = \
-              os.environ['MACOSX_DEPLOYMENT_TARGET']
-        else:
-          self.environ['MACOSX_DEPLOYMENT_TARGET'] = \
-              EnvironmentWrapper.MACOSX_DEPLOYMENT_TARGET
 
   def set(self):
     """Sets the current environment for variables needed for the setup of the

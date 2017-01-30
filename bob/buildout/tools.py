@@ -238,8 +238,10 @@ def get_pythonpath(working_set, buildout, prefixes):
 
   if hasattr(zc.buildout.easy_install, 'distribute_loc'):
     prepend_path(zc.buildout.easy_install.distribute_loc, paths)
-  else:
+  elif hasattr(zc.buildout.easy_install, 'setuptools_loc'):
     prepend_path(zc.buildout.easy_install.setuptools_loc, paths)
+  else:
+    prepend_path(zc.buildout.easy_install.setuptools_path, paths)
 
   return [k for k in working_set.entries \
       if os.path.realpath(k) not in site_paths(buildout, prefixes)]

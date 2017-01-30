@@ -58,10 +58,8 @@ def test_set_debug_true():
 
   assert 'CFLAGS' in os.environ
   assert os.environ['CFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) >= 0
-  assert os.environ['CFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) < 0
   assert 'CXXFLAGS' in os.environ
   assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) >= 0
-  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) < 0
 
   e.unset()
   for key in before:
@@ -83,16 +81,10 @@ def test_set_debug_false():
 
   e.set()
 
-  nose.tools.eq_(len(os.environ) - len(before), 2)
+  nose.tools.eq_(len(os.environ) - len(before), 0)
 
-  assert 'CFLAGS' in os.environ
-  assert 'CXXFLAGS' in os.environ
-  nose.tools.eq_(os.environ['CFLAGS'], e.environ['CFLAGS'])
-  assert os.environ['CFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) < 0
-  assert os.environ['CFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) >= 0
-  nose.tools.eq_(os.environ['CXXFLAGS'], e.environ['CXXFLAGS'])
-  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.DEBUG_CFLAGS) < 0
-  assert os.environ['CXXFLAGS'].find(EnvironmentWrapper.RELEASE_CFLAGS) >= 0
+  assert 'CFLAGS' not in os.environ
+  assert 'CXXFLAGS' not in os.environ
 
   e.unset()
   for key in before:

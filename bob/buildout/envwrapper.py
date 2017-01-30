@@ -23,10 +23,8 @@ class EnvironmentWrapper(object):
   settings from initialization.
   """
 
-  # Note: CLang does not work well with BZ_DEBUG
-  # 24.01.2017: we only support gcc on both Linux and MacOSX
+  # 30.01.2017: we only set debug flags, release flags are set by toolchain
   DEBUG_CFLAGS = '-O0 -g -DBOB_DEBUG -DBZ_DEBUG'
-  RELEASE_CFLAGS = '-O3 -g0 -DNDEBUG -mtune=generic'
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 
@@ -85,7 +83,6 @@ class EnvironmentWrapper(object):
     # reset the CFLAGS and CXXFLAGS depending on the user input
     cflags = None
     if self.debug is True: cflags = str(EnvironmentWrapper.DEBUG_CFLAGS)
-    elif self.debug is False: cflags = str(EnvironmentWrapper.RELEASE_CFLAGS)
     # else: pass
 
     def _order_flags(key, internal=None):

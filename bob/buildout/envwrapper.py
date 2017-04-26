@@ -65,6 +65,14 @@ class EnvironmentWrapper(object):
         if value:
           self.environ[key] = value.strip(sep)
 
+    def __prepend_to_environ(key, value, sep=' '):
+      if self.environ.get(key):
+        if value:
+          self.environ[key] = value.strip(sep) + sep + self.environ[key]
+      else:
+        if value:
+          self.environ[key] = value.strip(sep)
+
     # joins all paths, respecting potential environment variables set by the
     # user, with priority
     __remove_environ('BOB_PREFIX_PATH')
@@ -92,11 +100,10 @@ class EnvironmentWrapper(object):
         __remove_environ(key)
         __append_to_environ(key, internal)
         __append_to_environ(key, saved)
-      __append_to_environ(key, os.environ.get(key))
+      __prepend_to_environ(key, os.environ.get(key))
 
-    # for these environment variables, values set on the environment come last
-    # so they can override, values set on the buildout recipe or our internal
-    # settings
+    # for these environment variables, values set on the environment come first
+    # so we can override with our debug flag
     if cflags is not None:
       _order_flags('CFLAGS', cflags)
       _order_flags('CXXFLAGS', cflags)

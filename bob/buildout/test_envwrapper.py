@@ -227,7 +227,7 @@ def test_preserve_user():
 
   nose.tools.eq_(len(os.environ) - len(before), 1)
 
-  assert os.environ['CFLAGS'].endswith('-BUILDOUT-TEST-STRING')
+  assert os.environ['CFLAGS'].startswith('-BUILDOUT-TEST-STRING')
 
   e.unset()
   for key in before:

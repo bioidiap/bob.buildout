@@ -28,7 +28,7 @@ class EnvironmentWrapper(object):
 
   # Note: CLang does not work well with BZ_DEBUG
   if platform.system() != 'Darwin':
-    DEBUG_FLAGS += " -DBZ_DEBUG"
+    DEBUG_CFLAGS += " -DBZ_DEBUG"
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 

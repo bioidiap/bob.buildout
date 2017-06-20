@@ -24,7 +24,11 @@ class EnvironmentWrapper(object):
   """
 
   # 30.01.2017: we only set debug flags, release flags are set by toolchain
-  DEBUG_CFLAGS = '-O0 -g -DBOB_DEBUG -DBZ_DEBUG'
+  DEBUG_CFLAGS = '-O0 -g -DBOB_DEBUG'
+
+  # Note: CLang does not work well with BZ_DEBUG
+  if platform.system() != 'Darwin':
+    DEBUG_FLAGS += " -DBZ_DEBUG"
 
   def __init__(self, logger, debug=None, prefixes=None, environ=None):
 

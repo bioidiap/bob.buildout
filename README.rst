@@ -11,8 +11,6 @@
    :target: https://gitlab.idiap.ch/bob/bob.buildout
 .. image:: http://img.shields.io/pypi/v/bob.buildout.png
    :target: https://pypi.python.org/pypi/bob.buildout
-.. image:: http://img.shields.io/pypi/dm/bob.buildout.png
-   :target: https://pypi.python.org/pypi/bob.buildout
 
 
 ===================================

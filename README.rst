@@ -2,16 +2,14 @@
 .. Thu 30 Jan 08:46:53 2014 CET
 
 .. image:: http://img.shields.io/badge/docs-stable-yellow.png
-   :target: http://pythonhosted.org/bob.buildout/index.html
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.buildout/stable/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.png
-   :target: https://www.idiap.ch/software/bob/docs/latest/bob/bob.buildout/master/index.html
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.buildout/master/index.html
 .. image:: https://gitlab.idiap.ch/bob/bob.buildout/badges/master/build.svg
    :target: https://gitlab.idiap.ch/bob/bob.buildout/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.buildout
 .. image:: http://img.shields.io/pypi/v/bob.buildout.png
-   :target: https://pypi.python.org/pypi/bob.buildout
-.. image:: http://img.shields.io/pypi/dm/bob.buildout.png
    :target: https://pypi.python.org/pypi/bob.buildout
 
 

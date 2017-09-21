@@ -62,7 +62,7 @@ conda_intranet_linux_27:
     - ./channel_support.py ${UPLOAD_URL_BETA} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION} -u --log ./build_number.txt
     - export BOB_BUILD_NUMBER=`head -n 1 build_number.txt`
   script:
-    - conda-build --skip-existing conda
+    - conda-build --python=${PYTHON_VERSION} --skip-existing conda
     - curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" --upload-file `conda-build --python=${PYTHON_VERSION} conda --output` "${UPLOAD_URL_BETA}-upload/${OS_SLUG}/"
     # delete old beta packages
     - for url in `tail -n +2 build_number.txt`; do curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" -X DELETE "${url/${UPLOAD_URL_BETA}/${UPLOAD_URL_BETA}-upload}"; done

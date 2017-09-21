@@ -8,7 +8,7 @@ package:
 build:
   number: {{ environ.get('BOB_BUILD_NUMBER') }}
   script:
-    - cd $RECIPE_DIR/../
+    - cd {{ environ.get('CI_PROJECT_DIR') }}/
     {% if environ.get('BUILD_EGG') %}
     - python setup.py sdist --formats=zip
     {% endif %}
@@ -41,7 +41,7 @@ test:
 
   commands:
     - nosetests -sv {{ name }}
-    - sphinx-build -W -b doctest $RECIPE_DIR/../doc sphinx
+    - sphinx-build -W -b doctest {{ environ.get('CI_PROJECT_DIR') }}/doc sphinx
 
   requires:
     - sphinx_rtd_theme

@@ -14,7 +14,6 @@ stages:
   stage: build
   before_script:
     - export PATH=/opt/miniconda/bin:$PATH
-    - git clean -ffdx
     - mkdir _ci
     - curl https://curl.haxx.se/ca/cacert.pem > _ci/cacert.pem
     - export CURL_CA_BUNDLE=`pwd`/_ci/cacert.pem

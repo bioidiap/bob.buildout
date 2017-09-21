@@ -9,9 +9,11 @@ build:
   number: {{ environ.get('BOB_BUILD_NUMBER') }}
   script:
     - cd $RECIPE_DIR/../
+    {% if environ.get('BUILD_EGG') %}
+    - python setup.py sdist --formats=zip
+    {% endif %}
     - python setup.py install --single-version-externally-managed --record record.txt
     - sphinx-build -W doc $PREFIX/docs/{{ name }}
-    - sphinx-build -W -b doctest doc sphinx
 
 requirements:
   build:
@@ -20,8 +22,6 @@ requirements:
     - zc.recipe.egg
     - six
     - toolchain {{ toolchain }}
-    - sphinx
-    - sphinx_rtd_theme
 
   run:
     - python
@@ -39,6 +39,10 @@ test:
 
   commands:
     - nosetests -sv {{ name }}
+    - sphinx-build -W -b doctest $RECIPE_DIR/../doc sphinx
+
+  requires:
+    - sphinx_rtd_theme
 
 about:
   home: https://www.idiap.ch/software/bob/

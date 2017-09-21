@@ -1,150 +1,122 @@
-# This build file heavily uses template features from YAML so it is generic
-# enough for any Bob project. Don't modify it unless you know what you're
-# doing.
+# This build file uses template features from YAML so it is generic enough for
+# any Bob project. Don't modify it unless you know what you're doing.
 
 
-# Definition of our build pipeline
+# Definition of our build pipeline order
 stages:
   - build
   - deploy
   - pypi
 
 
-# Template for (latest) documentation upload stage
-# Only one real job needs to do this
-.docs_template: &docs_job
-  stage: docs
-  environment: intranet
-  only:
-    - master
-  before_script:
-    - ./_ci/install.sh _ci #updates
-    - ./_ci/before_docs.sh
-  script:
-    - ./_ci/docs.sh
-  after_script:
-    - ./_ci/after_docs.sh
-
-# Template for the conda package creation stage
-.conda_template: &conda_job
+# Build targets
+.build_template: &build_job
   stage: build
-  variables: &conda_variables
-    UPLOAD_URL: "http://www.idiap.ch/public/conda"
-    UPLOAD_URL_BETA: "http://www.idiap.ch/private/conda"
-    CONDA_NPY: "111"
-    PYTHONUNBUFFERED: "1"
-    CONDA_ENVS_PATH: "conda-env"
-    CONDA_BLD_PATH: "conda-env"
-  image: continuumio/conda_builder_linux
+  before_script:
+    - git clean -ffdx
+    - mkdir _ci
+    - curl --silent "https://gitlab.idiap.ch/bob/bob.admin/raw/condapackage/gitlab/install.sh" > _ci/install.sh
+    - chmod 755 _ci/install.sh
+    - ./_ci/install.sh _ci #updates
+  script:
+    - ./_ci/build.sh
   cache:
-    key: "$CI_BUILD_NAME"
+    key: "$CI_JOB_NAME"
     paths:
       - conda-env/.pkgs/*.tar.bz2
       - conda-env/.pkgs/urls.txt
       - conda-env/src_cache
   artifacts:
+    expire_in: 1 week
     paths:
+      - _ci/
+      - dist/
       - conda-env/$OS_SLUG/
-    expire_in: 2 days
 
-conda_intranet_linux_27:
-  <<: *conda_job
-  before_script:
-    - export PATH=/opt/miniconda/bin:$PATH
-    - export BOB_PACKAGE_VERSION=`cat version.txt`
-    - hash -r
-    - conda install -n root --yes --quiet conda=4 conda-build=3
-    - conda config --set always_yes true
-    - conda config --set show_channel_urls true
-    - conda config --add channels defaults
-    - conda config --add channels ${UPLOAD_URL}
-    - conda config --add channels ${UPLOAD_URL_BETA}
-    - conda config --set ssl_verify false
-    - conda clean --lock
-    # - cp _ci/conda_build_config.yaml conda/conda_build_config.yaml
-    - cp conda_build_config.yaml conda/conda_build_config.yaml
-    - conda info
-    - ./channel_support.py ${UPLOAD_URL_BETA} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION} -u --log ./build_number.txt
-    - cat ./build_number.txt
-    - export BOB_BUILD_NUMBER=`head -n 1 build_number.txt`
-  script:
-     # -m conda/conda_build_config_override.yaml
-    - conda-build --python=${PYTHON_VERSION} --skip-existing conda
-    - curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" --upload-file `conda-build --python=${PYTHON_VERSION} conda --output` "${UPLOAD_URL_BETA/private/private-upload}/${OS_SLUG}/"
-    # delete old beta packages
-    - for url in `tail -n +2 build_number.txt`; do curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" -X DELETE "${url/private/private-upload}"; done
+
+build_linux_27:
+  <<: *build_job
   variables:
-    <<: *conda_variables
     PYTHON_VERSION: "2.7"
-    OS_SLUG: "linux-64"
   tags:
     - docker
-  environment: intranet
+
+build_linux_35:
+  <<: *build_job
+  variables:
+    PYTHON_VERSION: "3.5"
+  tags:
+    - docker
+
+build_linux_36:
+  <<: *build_job
+  variables:
+    PYTHON_VERSION: "3.6"
+    BUILD_EGG: "true"
+  tags:
+    - docker
+
+build_macosx_27:
+  <<: *build_job
+  variables:
+    PYTHON_VERSION: "2.7"
+  tags:
+    - conda-macosx
+
+build_macosx_35:
+  <<: *build_job
+  variables:
+    PYTHON_VERSION: "3.5"
+  tags:
+    - conda-macosx
+
+build_macosx_36:
+  <<: *build_job
+  variables:
+    PYTHON_VERSION: "3.6"
+  tags:
+    - conda-macosx
+
+
+# Deploy targets
+deploy_beta:
+  stage: deploy
+  environment: beta
   only:
     - master
-    - condapackage
-  except:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
-
-conda_internet_linux_27:
-  <<: *conda_job
-  before_script: &conda_before_script
-    - export PATH=/opt/miniconda/bin:$PATH
-    - export BOB_PACKAGE_VERSION=`cat version.txt`
-    - hash -r
-    - conda install -n root --yes --quiet conda=4 conda-build=3
-    - conda config --set always_yes true
-    - conda config --set show_channel_urls true
-    - conda config --add channels defaults
-    - conda config --add channels ${UPLOAD_URL}
-    - conda config --set ssl_verify false
-    - conda install --quiet --yes curl
-    - conda clean --lock
-    - cp conda_build_config.yaml $HOME/conda_build_config.yaml
-    - conda info
-    - ./channel_support.py ${UPLOAD_URL_BETA} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION} -u --log ./build_number.txt
-    - export BOB_BUILD_NUMBER=`head -n 1 build_number.txt`
+  before_script:
+    - ./_ci/install.sh _ci #updates
   script:
-    - conda-build --python=${PYTHON_VERSION} --skip-existing conda
-    - curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" --upload-file `conda-build --python=${PYTHON_VERSION} conda --output` "${UPLOAD_URL/public/public-upload}/${OS_SLUG}/"
-  variables:
-    <<: *conda_variables
-    PYTHON_VERSION: "2.7"
-    OS_SLUG: "linux-64"
+    - ./_ci/deploy_beta.sh
+  dependencies:
+    - build_linux_27
+    - build_linux_35
+    - build_linux_36
+    - build_macosx_27
+    - build_macosx_35
+    - build_macosx_36
   tags:
-    - docker
-  environment: internet
-  only:
-    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
-  except:
-    - branches
+    - deployer
 
-# conda_macosx_35:
-#   <<: *conda_job
-#   variables:
-#     <<: *conda_variables
-#     PYTHON_VERSION: "3.5"
-#     OS_SLUG: "osx-64"
-#   tags:
-#     - conda-macosx
 
-# Template for the deployment stage - re-installs from uploaded wheels
-# Needs to run on a single architecture only
-# Will deploy your package to PyPI and other required services
-# Only runs for tags
-.deploy_template: &deploy_job
-  stage: deploy
-  environment: internet
+pypi:
+  stage: pypi
+  environment: pypi
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   except:
     - branches
   before_script:
     - ./_ci/install.sh _ci #updates
-    - ./_ci/before_deploy.sh
   script:
-    - ./_ci/deploy.sh
-  after_script:
-    - ./_ci/after_deploy.sh
-
-
+    - ./_ci/pypi.sh
+  dependencies:
+    - build_linux_27
+    - build_linux_35
+    - build_linux_36
+    - build_macosx_27
+    - build_macosx_35
+    - build_macosx_36
+  tags:
+    - deployer

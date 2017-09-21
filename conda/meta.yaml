@@ -22,6 +22,8 @@ requirements:
     - zc.recipe.egg
     - six
     - toolchain {{ toolchain }}
+    - sphinx
+    - sphinx_rtd_theme
 
   run:
     - python

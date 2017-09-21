@@ -34,7 +34,9 @@ stages:
     paths:
       - _ci/
       - dist/
-      - conda-env/$OS_SLUG/
+      - conda-env/linux-64/*.tar.bz2
+      - conda-env/osx-64/*.tar.bz2
+      - conda-env/noarch/*.tar.bz2
 
 
 build_linux_27:
@@ -85,7 +87,7 @@ build_macosx_36:
 
 
 # Deploy targets
-deploy_beta:
+deploy:
   stage: deploy
   environment: beta
   only:
@@ -95,7 +97,7 @@ deploy_beta:
   before_script:
     - ./_ci/install.sh _ci condapackage
   script:
-    - ./_ci/deploy_beta.sh
+    - ./_ci/deploy.sh
   dependencies:
     - build_linux_27
     - build_linux_35

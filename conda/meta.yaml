@@ -12,7 +12,7 @@ build:
     {% if environ.get('BUILD_EGG') %}
     - python setup.py sdist --formats=zip
     {% endif %}
-    - python setup.py install --single-version-externally-managed --record record.txt
+    - pip install .
     - sphinx-build -W doc $PREFIX/docs/{{ name }}
 
 requirements:

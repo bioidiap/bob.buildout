@@ -13,6 +13,7 @@ stages:
 .build_template: &build_job
   stage: build
   before_script:
+    - export PATH=/opt/miniconda/bin:/usr/local/bin:$PATH
     - git clean -ffdx
     - mkdir _ci
     - curl --silent "https://gitlab.idiap.ch/bob/bob.admin/raw/condapackage/gitlab/install.sh" > _ci/install.sh

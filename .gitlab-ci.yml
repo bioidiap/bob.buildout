@@ -28,72 +28,66 @@ stages:
     paths:
       - conda-env/.pkgs/*.tar.bz2
       - conda-env/.pkgs/urls.txt
-      - conda-env/src_cache
+
+.build_linux_template: &linux_build_job
+  <<: *build_job
   artifacts:
     expire_in: 1 week
     paths:
       - _ci/
       - dist/
       - conda-env/linux-64/*.tar.bz2
+  tags:
+    - docker
+  image: continuumio/conda_builder_linux
+
+.build_macosx_template: &macosx_build_job
+  <<: *build_job
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - _ci/
+      - dist/
       - conda-env/osx-64/*.tar.bz2
-      - conda-env/noarch/*.tar.bz2
+  tags:
+    - conda-macosx
 
 
 build_linux_27:
-  <<: *build_job
+  <<: *linux_build_job
   variables:
     PYTHON_VERSION: "2.7"
-  tags:
-    - docker
-  image: continuumio/conda_builder_linux
 
 build_linux_35:
-  <<: *build_job
+  <<: *linux_build_job
   variables:
     PYTHON_VERSION: "3.5"
-  tags:
-    - docker
-  image: continuumio/conda_builder_linux
 
 build_linux_36:
-  <<: *build_job
+  <<: *linux_build_job
   variables:
     PYTHON_VERSION: "3.6"
     BUILD_EGG: "true"
-  tags:
-    - docker
-  image: continuumio/conda_builder_linux
 
 build_macosx_27:
-  <<: *build_job
+  <<: *macosx_build_job
   variables:
     PYTHON_VERSION: "2.7"
-  tags:
-    - conda-macosx
 
 build_macosx_35:
-  <<: *build_job
+  <<: *macosx_build_job
   variables:
     PYTHON_VERSION: "3.5"
-  tags:
-    - conda-macosx
 
 build_macosx_36:
-  <<: *build_job
+  <<: *macosx_build_job
   variables:
     PYTHON_VERSION: "3.6"
-  tags:
-    - conda-macosx
 
 
 # Deploy targets
-deploy:
+.deploy_template: &deploy_job
   stage: deploy
-  environment: beta
-  only:
-    - master
-    - condapackage
-    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   before_script:
     - ./_ci/install.sh _ci condapackage
   script:
@@ -107,6 +101,21 @@ deploy:
     - build_macosx_36
   tags:
     - deployer
+
+deploy_beta:
+  <<: *deploy_job
+  environment: beta
+  only:
+    - master
+    - condapackage
+
+deploy_stable:
+  <<: *deploy_job
+  environment: stable
+  only:
+    - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
+  except:
+    - branches
 
 
 pypi:

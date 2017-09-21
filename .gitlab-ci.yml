@@ -29,7 +29,7 @@ stages:
 .conda_template: &conda_job
   stage: conda
   variables: &conda_variables
-    UPLOAD_URL: "http://www.idiap.ch/software/bob/conda"
+    UPLOAD_URL: "http://www.idiap.ch/public/conda"
     UPLOAD_URL_BETA: "http://www.idiap.ch/private/conda"
     CONDA_NPY: "111"
     PYTHONUNBUFFERED: "1"
@@ -42,6 +42,10 @@ stages:
       - conda-env/.pkgs/*.tar.bz2
       - conda-env/.pkgs/urls.txt
       - conda-env/src_cache
+  artifacts:
+    paths:
+      - conda-env/$OS_SLUG/
+    expire_in: 2 days
 
 conda_intranet_linux_27:
   <<: *conda_job
@@ -60,12 +64,13 @@ conda_intranet_linux_27:
     - cp conda_build_config.yaml $HOME/conda_build_config.yaml
     - conda info
     - ./channel_support.py ${UPLOAD_URL_BETA} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION} -u --log ./build_number.txt
+    - cat ./build_number.txt
     - export BOB_BUILD_NUMBER=`head -n 1 build_number.txt`
   script:
     - conda-build --python=${PYTHON_VERSION} --skip-existing conda
-    - curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" --upload-file `conda-build --python=${PYTHON_VERSION} conda --output` "${UPLOAD_URL_BETA}-upload/${OS_SLUG}/"
+    - curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" --upload-file `conda-build --python=${PYTHON_VERSION} conda --output` "${UPLOAD_URL_BETA/private/private-upload}/${OS_SLUG}/"
     # delete old beta packages
-    - for url in `tail -n +2 build_number.txt`; do curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" -X DELETE "${url/${UPLOAD_URL_BETA}/${UPLOAD_URL_BETA}-upload}"; done
+    - for url in `tail -n +2 build_number.txt`; do curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" -X DELETE "${url/private/private-upload}"; done
   variables:
     <<: *conda_variables
     PYTHON_VERSION: "2.7"
@@ -99,7 +104,7 @@ conda_internet_linux_27:
     - export BOB_BUILD_NUMBER=`head -n 1 build_number.txt`
   script:
     - conda-build --python=${PYTHON_VERSION} --skip-existing conda
-    - curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" --upload-file `conda-build --python=${PYTHON_VERSION} conda --output` "${UPLOAD_URL}-upload/${OS_SLUG}/"
+    - curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" --upload-file `conda-build --python=${PYTHON_VERSION} conda --output` "${UPLOAD_URL/public/public-upload}/${OS_SLUG}/"
   variables:
     <<: *conda_variables
     PYTHON_VERSION: "2.7"

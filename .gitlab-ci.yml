@@ -5,9 +5,9 @@
 
 # Definition of our build pipeline
 stages:
-  - conda
-  - docs
+  - build
   - deploy
+  - pypi
 
 
 # Template for (latest) documentation upload stage
@@ -27,7 +27,7 @@ stages:
 
 # Template for the conda package creation stage
 .conda_template: &conda_job
-  stage: conda
+  stage: build
   variables: &conda_variables
     UPLOAD_URL: "http://www.idiap.ch/public/conda"
     UPLOAD_URL_BETA: "http://www.idiap.ch/private/conda"
@@ -53,7 +53,7 @@ conda_intranet_linux_27:
     - export PATH=/opt/miniconda/bin:$PATH
     - export BOB_PACKAGE_VERSION=`cat version.txt`
     - hash -r
-    - conda update -n root --yes --quiet conda conda-build
+    - conda install -n root --yes --quiet conda=4 conda-build=3
     - conda config --set always_yes true
     - conda config --set show_channel_urls true
     - conda config --add channels defaults
@@ -61,12 +61,14 @@ conda_intranet_linux_27:
     - conda config --add channels ${UPLOAD_URL_BETA}
     - conda config --set ssl_verify false
     - conda clean --lock
-    - cp conda_build_config.yaml $HOME/conda_build_config.yaml
+    # - cp _ci/conda_build_config.yaml conda/conda_build_config.yaml
+    - cp conda_build_config.yaml conda/conda_build_config.yaml
     - conda info
     - ./channel_support.py ${UPLOAD_URL_BETA} ${CI_PROJECT_NAME} ${BOB_PACKAGE_VERSION} ${PYTHON_VERSION} -u --log ./build_number.txt
     - cat ./build_number.txt
     - export BOB_BUILD_NUMBER=`head -n 1 build_number.txt`
   script:
+     # -m conda/conda_build_config_override.yaml
     - conda-build --python=${PYTHON_VERSION} --skip-existing conda
     - curl --location --silent --show-error --user "${DOCUSER}:${DOCPASS}" --upload-file `conda-build --python=${PYTHON_VERSION} conda --output` "${UPLOAD_URL_BETA/private/private-upload}/${OS_SLUG}/"
     # delete old beta packages
@@ -90,7 +92,7 @@ conda_internet_linux_27:
     - export PATH=/opt/miniconda/bin:$PATH
     - export BOB_PACKAGE_VERSION=`cat version.txt`
     - hash -r
-    - conda update -n root --yes --quiet conda conda-build
+    - conda install -n root --yes --quiet conda=4 conda-build=3
     - conda config --set always_yes true
     - conda config --set show_channel_urls true
     - conda config --add channels defaults

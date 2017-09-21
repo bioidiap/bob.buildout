@@ -11,6 +11,7 @@ build:
     - cd $RECIPE_DIR/../
     - python setup.py install --single-version-externally-managed --record record.txt
     - sphinx-build -W doc $PREFIX/docs/{{ name }}
+    - sphinx-build -W -b doctest doc sphinx
 
 requirements:
   build:

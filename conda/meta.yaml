@@ -1,0 +1,45 @@
+{% set name = 'bob.buildout' %}
+{% set version = environ.get('BOB_PACKAGE_VERSION') %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+build:
+  number: {{ environ.get('BOB_BUILD_NUMBER') }}
+  script:
+    - cd $RECIPE_DIR/../
+    - python setup.py install --single-version-externally-managed --record record.txt
+    - sphinx-build -W doc $PREFIX/docs/{{ name }}
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - zc.recipe.egg
+    - six
+    - toolchain {{ toolchain }}
+    - sphinx
+
+  run:
+    - python
+    - setuptools
+    - zc.recipe.egg
+    - six
+    - nose
+    - coverage
+    - sphinx
+
+test:
+
+  imports:
+    - {{ name }}
+
+  commands:
+    - nosetests -sv {{ name }}
+
+about:
+  home: https://www.idiap.ch/software/bob/
+  license: BSD 3-Clause
+  summary: A collection of zc.buildout recipes for Bob packages
+  license_family: BSD

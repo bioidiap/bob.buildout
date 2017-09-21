@@ -20,6 +20,7 @@ requirements:
     - six
     - toolchain {{ toolchain }}
     - sphinx
+    - sphinx_rtd_theme
 
   run:
     - python

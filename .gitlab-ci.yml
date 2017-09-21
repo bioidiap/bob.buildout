@@ -40,6 +40,7 @@ build_linux_27:
     PYTHON_VERSION: "2.7"
   tags:
     - docker
+  image: continuumio/conda_builder_linux
 
 build_linux_35:
   <<: *build_job
@@ -47,6 +48,7 @@ build_linux_35:
     PYTHON_VERSION: "3.5"
   tags:
     - docker
+  image: continuumio/conda_builder_linux
 
 build_linux_36:
   <<: *build_job
@@ -55,6 +57,7 @@ build_linux_36:
     BUILD_EGG: "true"
   tags:
     - docker
+  image: continuumio/conda_builder_linux
 
 build_macosx_27:
   <<: *build_job
@@ -84,6 +87,7 @@ deploy_beta:
   environment: beta
   only:
     - master
+    - condapackage
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
   before_script:
     - ./_ci/install.sh _ci #updates

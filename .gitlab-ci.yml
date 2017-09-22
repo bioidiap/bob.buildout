@@ -23,11 +23,6 @@ stages:
     - ./_ci/install.sh _ci condapackage
   script:
     - ./_ci/build.sh
-  cache:
-    key: "$CI_JOB_NAME"
-    paths:
-      - conda-env/.pkgs/*.tar.bz2
-      - conda-env/.pkgs/urls.txt
 
 .build_linux_template: &linux_build_job
   <<: *build_job
@@ -39,6 +34,11 @@ stages:
   tags:
     - docker
   image: continuumio/conda_builder_linux
+  cache:
+    key: "$CI_JOB_NAME"
+    paths:
+      - conda-env/.pkgs/*.tar.bz2
+      - conda-env/.pkgs/urls.txt
 
 .build_macosx_template: &macosx_build_job
   <<: *build_job
@@ -50,6 +50,7 @@ stages:
   tags:
     - conda-macosx
 
+
 build_linux_27:
   <<: *linux_build_job
   variables:
@@ -60,7 +61,6 @@ build_linux_35:
   variables:
     PYTHON_VERSION: "3.5"
 
-# Builds for Linux + Python 3.6 and Python egg sources
 build_linux_36:
   <<: *linux_build_job
   variables:
@@ -87,6 +87,7 @@ build_macosx_36:
   <<: *macosx_build_job
   variables:
     PYTHON_VERSION: "3.6"
+
 
 # Deploy targets
 .deploy_template: &deploy_job

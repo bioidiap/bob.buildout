@@ -4,7 +4,6 @@
 # global variables
 variables:
   CONDA_ENVS_PATH: "conda-env"
-  CONDA_BLD_PATH: "conda-env/conda-bld"
 
 
 # Definition of our build pipeline order
@@ -36,7 +35,7 @@ stages:
     expire_in: 1 week
     paths:
       - _ci/
-      - ${CONDA_BLD_PATH}/linux-64/*.tar.bz2
+      - ${CONDA_ENVS_PATH}/linux-64/*.tar.bz2
   tags:
     - docker
   image: continuumio/conda_builder_linux
@@ -62,7 +61,7 @@ stages:
     expire_in: 1 week
     paths:
       - _ci/
-      - ${CONDA_BLD_PATH}/osx-64/*.tar.bz2
+      - ${CONDA_ENVS_PATH}/osx-64/*.tar.bz2
   tags:
     - conda-macosx
   cache:
@@ -92,7 +91,7 @@ build_linux_36:
     paths:
       - _ci/
       - dist/
-      - ${CONDA_BLD_PATH}/linux-64/*.tar.bz2
+      - ${CONDA_ENVS_PATH}/linux-64/*.tar.bz2
 
 build_macosx_27:
   <<: *macosx_build_job

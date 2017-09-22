@@ -16,14 +16,8 @@ stages:
 # Build targets
 .build_template: &build_job
   stage: build
-  script:
-    - ./_ci/build.sh
-
-.build_linux_template: &linux_build_job
-  <<: *build_job
   before_script:
-    - export CONDA_FOLDER=/opt/miniconda
-    - export PATH=/opt/miniconda/bin:$PATH
+    - export PATH=${CONDA_FOLDER}:$PATH
     - mkdir _ci
     - curl https://curl.haxx.se/ca/cacert.pem > _ci/cacert.pem
     - export CURL_CA_BUNDLE=`pwd`/_ci/cacert.pem
@@ -31,6 +25,11 @@ stages:
     - curl "https://gitlab.idiap.ch/bob/bob.admin/raw/condapackage/gitlab/install.sh" > _ci/install.sh
     - chmod 755 _ci/install.sh
     - ./_ci/install.sh _ci condapackage
+  script:
+    - ./_ci/build.sh
+
+.build_linux_template: &linux_build_job
+  <<: *build_job
   artifacts:
     expire_in: 1 week
     paths:
@@ -39,6 +38,8 @@ stages:
   tags:
     - docker
   image: continuumio/conda_builder_linux
+  variables: &linux_variables
+    CONDA_FOLDER: "/opt/miniconda"
   cache:
     key: "$CI_JOB_NAME"
     paths:
@@ -47,16 +48,6 @@ stages:
 
 .build_macosx_template: &macosx_build_job
   <<: *build_job
-  before_script:
-    - export CONDA_FOLDER=$CI_PROJECT_DIR/${CONDA_ENVS_PATH}
-    - export PATH=$CI_PROJECT_DIR/${CONDA_ENVS_PATH}/bin:$PATH
-    - mkdir _ci
-    - curl https://curl.haxx.se/ca/cacert.pem > _ci/cacert.pem
-    - export CURL_CA_BUNDLE=`pwd`/_ci/cacert.pem
-    - export SSL_CERT_FILE=`pwd`/_ci/cacert.pem
-    - curl "https://gitlab.idiap.ch/bob/bob.admin/raw/condapackage/gitlab/install.sh" > _ci/install.sh
-    - chmod 755 _ci/install.sh
-    - ./_ci/install.sh _ci condapackage
   artifacts:
     expire_in: 1 week
     paths:
@@ -64,6 +55,8 @@ stages:
       - ${CONDA_ENVS_PATH}/osx-64/*.tar.bz2
   tags:
     - conda-macosx
+  variables: &macosx_variables
+    CONDA_FOLDER: "${CI_PROJECT_DIR}/${CONDA_ENVS_PATH}"
   cache:
     key: "$CI_JOB_NAME"
     paths:
@@ -74,16 +67,19 @@ stages:
 build_linux_27:
   <<: *linux_build_job
   variables:
+    <<: *linux_variables
     PYTHON_VERSION: "2.7"
 
 build_linux_35:
   <<: *linux_build_job
   variables:
+    <<: *linux_variables
     PYTHON_VERSION: "3.5"
 
 build_linux_36:
   <<: *linux_build_job
   variables:
+    <<: *linux_variables
     PYTHON_VERSION: "3.6"
     BUILD_EGG: "true"
   artifacts:
@@ -96,16 +92,19 @@ build_linux_36:
 build_macosx_27:
   <<: *macosx_build_job
   variables:
+    <<: *macosx_variables
     PYTHON_VERSION: "2.7"
 
 build_macosx_35:
   <<: *macosx_build_job
   variables:
+    <<: *macosx_variables
     PYTHON_VERSION: "3.5"
 
 build_macosx_36:
   <<: *macosx_build_job
   variables:
+    <<: *macosx_variables
     PYTHON_VERSION: "3.6"
 
 

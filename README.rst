@@ -5,8 +5,8 @@
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.buildout/stable/index.html
 .. image:: http://img.shields.io/badge/docs-latest-orange.png
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.buildout/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.buildout/badges/v2.1.4/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.buildout/commits/v2.1.4
+.. image:: https://gitlab.idiap.ch/bob/bob.buildout/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.buildout/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.buildout
 .. image:: http://img.shields.io/pypi/v/bob.buildout.png

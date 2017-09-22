@@ -4,6 +4,7 @@
 # global variables
 variables:
   CONDA_ENVS_PATH: "conda-env"
+  CONDA_BLD_PATH: "conda-env"
 
 
 # Definition of our build pipeline order

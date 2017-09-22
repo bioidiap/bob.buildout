@@ -35,7 +35,6 @@ stages:
     expire_in: 1 week
     paths:
       - _ci/
-      - dist/
       - conda-env/linux-64/*.tar.bz2
   tags:
     - docker
@@ -47,11 +46,9 @@ stages:
     expire_in: 1 week
     paths:
       - _ci/
-      - dist/
       - conda-env/osx-64/*.tar.bz2
   tags:
     - conda-macosx
-
 
 build_linux_27:
   <<: *linux_build_job
@@ -67,7 +64,6 @@ build_linux_36:
   <<: *linux_build_job
   variables:
     PYTHON_VERSION: "3.6"
-    BUILD_EGG: "true"
 
 build_macosx_27:
   <<: *macosx_build_job
@@ -79,10 +75,20 @@ build_macosx_35:
   variables:
     PYTHON_VERSION: "3.5"
 
+# Builds for OSX + Python 3.6 and Python egg sources
 build_macosx_36:
-  <<: *macosx_build_job
+  <<: *build_job
   variables:
     PYTHON_VERSION: "3.6"
+    BUILD_EGG: "true"
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - _ci/
+      - dist/
+      - conda-env/osx-64/*.tar.bz2
+  tags:
+    - conda-macosx
 
 
 # Deploy targets
@@ -130,11 +136,6 @@ pypi:
   script:
     - ./_ci/pypi.sh
   dependencies:
-    - build_linux_27
-    - build_linux_35
-    - build_linux_36
-    - build_macosx_27
-    - build_macosx_35
     - build_macosx_36
   tags:
     - deployer

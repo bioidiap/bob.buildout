@@ -26,12 +26,6 @@ extensions = [
     'sphinx.ext.viewcode',
     ]
 
-import sphinx
-if sphinx.__version__ >= "1.4.1":
-    extensions.append('sphinx.ext.imgmath')
-else:
-    extensions.append('sphinx.ext.pngmath')
-
 # Always includes todos
 todo_include_todos = True
 

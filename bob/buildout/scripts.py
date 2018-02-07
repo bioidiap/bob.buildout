@@ -14,7 +14,7 @@ import zc.buildout
 from . import tools
 from .script import Recipe as Script
 from .python import Recipe as PythonInterpreter
-from .gdbpy import Recipe as GdbPythonInterpreter
+from .dbpy import Recipe as DebuggerPythonInterpreter
 from .envwrapper import EnvironmentWrapper
 
 def version_is_lessthan(name, version):
@@ -228,7 +228,8 @@ class Recipe(object):
 
     self.python = PythonInterpreter(buildout, 'Python', options.copy())
     #self.ipython = IPythonInterpreter(buildout, 'IPython', options.copy())
-    self.gdbpy = GdbPythonInterpreter(buildout, 'GdbPython', options.copy())
+    self.dbpy = DebuggerPythonInterpreter(buildout, 'DebugPython',
+        options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.nose = NoseTests(buildout, 'Nose', options.copy())
     self.coverage = Coverage(buildout, 'Coverage', options.copy())
@@ -238,7 +239,7 @@ class Recipe(object):
     with self.envwrapper as ew:
       return \
           self.python.install_on_wrapped_env() + \
-          self.gdbpy.install_on_wrapped_env() + \
+          self.dbpy.install_on_wrapped_env() + \
           self.scripts.install_on_wrapped_env() + \
           self.nose.install_on_wrapped_env() + \
           self.coverage.install_on_wrapped_env() + \

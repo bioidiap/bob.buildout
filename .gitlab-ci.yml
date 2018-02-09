@@ -9,6 +9,7 @@ variables:
 # Definition of our build pipeline order
 stages:
   - build
+  - clean
   - deploy
   - pypi
 
@@ -23,7 +24,7 @@ stages:
     - ./_ci/install.sh _ci master #installs ci support scripts
     - ./_ci/before_build.sh
   script:
-    - ./_ci/build.sh
+    - "false"
   cache: &build_caches
     paths:
       - miniconda.sh
@@ -60,6 +61,13 @@ stages:
     key: "macosx-cache"
 
 
+.clean_template: &clean_job
+  stage: clean
+  script:
+    - "true"
+  when: always
+
+
 build_linux_27:
   <<: *linux_build_job
   variables:
@@ -80,16 +88,11 @@ build_linux_36:
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
 
 
-build_macosx_27:
-  <<: *macosx_build_job
-  variables:
-    PYTHON_VERSION: "2.7"
-
-
-build_macosx_36:
-  <<: *macosx_build_job
-  variables:
-    PYTHON_VERSION: "3.6"
+clean_linux_27:
+  <<: *clean_job
+  tags:
+    - docker
+  image: continuumio/conda-concourse-ci
 
 
 # Deploy targets
@@ -102,8 +105,6 @@ build_macosx_36:
   dependencies:
     - build_linux_27
     - build_linux_36
-    - build_macosx_27
-    - build_macosx_36
   tags:
     - deployer
 

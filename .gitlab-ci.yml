@@ -93,6 +93,8 @@ clean_linux_27:
   tags:
     - docker
   image: continuumio/conda-concourse-ci
+  dependencies:
+    - build_linux_27
 
 
 # Deploy targets

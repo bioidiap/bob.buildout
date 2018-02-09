@@ -18,6 +18,7 @@ stages:
 .build_template: &build_job
   stage: build
   before_script:
+    - "false"
     - mkdir _ci
     - curl --silent "https://gitlab.idiap.ch/bob/bob.admin/raw/master/gitlab/install.sh" > _ci/install.sh
     - chmod 755 _ci/install.sh

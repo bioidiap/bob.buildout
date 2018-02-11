@@ -18,7 +18,7 @@ stages:
   stage: build
   before_script:
     - mkdir _ci
-    - curl --silent "https://gitlab.idiap.ch/bob/bob.admin/raw/master/gitlab/install.sh" > _ci/install.sh
+    - curl --silent "https://gitlab.idiap.ch/bob/bob.admin/raw/clean/gitlab/install.sh" > _ci/install.sh
     - chmod 755 _ci/install.sh
     - ./_ci/install.sh _ci clean #installs ci support scripts
     - ./_ci/before_build.sh

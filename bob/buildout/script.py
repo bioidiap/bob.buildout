@@ -30,12 +30,17 @@ import sys
 sys.path[0:0] = [
   %%(path)s,
   ]
-if sys.version_info[:2] >= (3, 6): #see: http://bugs.python.org/issue30167
+
+#see: http://bugs.python.org/issue30167
+if sys.version_info[:2] >= (3, 6) and \
+    sys.modules['__main__'].__loader__ is not None:
   _hack = str(sys.modules['__main__'].__loader__.__module__)
   sys.modules['__main__'].__loader__.__module__ += '_'
 import site #initializes site properly
 site.main() #this is required for python>=3.4
-if sys.version_info[:2] >= (3, 6): #restore original value just in case...
+if sys.version_info[:2] >= (3, 6) and \
+    sys.modules['__main__'].__loader__ is not None:
+  #restores original value
   sys.modules['__main__'].__loader__.__module__ = _hack
 import pkg_resources #initializes virtualenvs properly
 %%(initialization)s

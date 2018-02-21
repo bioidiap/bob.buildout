@@ -4,6 +4,7 @@
 ..
 .. Copyright (C) 2011-2014 Idiap Research Institute, Martigny, Switzerland
 
+.. _bob.buildout:
 ====================
  Bob Buildout Rules
 ====================

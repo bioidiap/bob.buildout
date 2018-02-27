@@ -24,7 +24,6 @@ development of your own package, and which we normally ship with all
 
    [scripts]
    recipe = bob.buildout:scripts
-   dependent-scripts = true
 
 
 Replace ``<PACKAGE>`` by your package name and you should be ready to run the

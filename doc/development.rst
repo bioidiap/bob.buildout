@@ -47,9 +47,12 @@ first.cfg``:
    $ buildout -c first.cfg
 
 
-Slightly modify ``buildout.cfg`` from ``bob.extension`` to include a new line
-in the ``buildout.develop`` entry before ``.``, so the new buildout will also
-take the bootstrapped buildout into consideration. It should look like this:
+The previous command should not download anything from PyPI_ and will create a
+symbolic egg link in ``develop-eggs`` called ``bob.buildout.egg-link``. To make
+sure your ``first.cfg`` bootstrap procedure worked, check there. Now, slightly
+modify ``buildout.cfg`` from ``bob.extension`` to include a new line in the
+``buildout.develop`` entry before ``.``, so the new buildout will also take the
+bootstrapped buildout into consideration. It should look like this:
 
 
 .. code-block:: sh

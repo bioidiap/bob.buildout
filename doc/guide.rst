@@ -65,7 +65,7 @@ instructions:
    ...
    $ conda create -n dev A B C T U bob.buildout
    ...
-   $ source activate dev #ready to develop your package
+   $ conda activate dev #ready to develop your package
 
 
 **Optional** Use of not-yet-released conda packages
@@ -113,18 +113,18 @@ alongside the package you're developing:
 
 
 Once ``bob.admin`` is available alongside your package, make sure both
-``conda`` and ``conda-build`` are installed **and updated** on the root
+``conda`` and ``conda-build`` are installed **and updated** on the base
 environment of your conda_ installation. The automated script requires conda_
 version 4.4 or above and ``conda-build`` version 3 or above. It also requires
-the package ``pyyaml`` to be installed on the root of your conda installation.
+the package ``pyyaml`` to be installed on the base of your conda installation.
 Follow this recipe to get all up-to-date and ready:
 
 
 .. code-block:: sh
 
-   $ conda update -n root conda conda-build
+   $ conda update -n base conda conda-build
    ...
-   $ conda install -n root pyyaml
+   $ conda install -n base pyyaml
    ...
 
 
@@ -173,7 +173,7 @@ step is the easiest:
 .. code-block:: sh
 
    $ cd <PACKAGE> #if that is not the case
-   $ source activate dev
+   $ conda activate dev
    $ buildout
    ...
 

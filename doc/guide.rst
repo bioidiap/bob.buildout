@@ -142,6 +142,7 @@ environment you'd like to create:
 .. code-block:: sh
 
    $ cd <PACKAGE>
+   $ conda activate base
    $ ../bob.admin/conda/conda-bootstrap.py dev
    ...
 

@@ -99,7 +99,7 @@ alongside the package you're developing:
    $ cd ..
    $ ls
    <PACKAGE>
-   $ git checkout https://gitlab.idiap.ch/bob/bob.admin
+   $ git clone https://gitlab.idiap.ch/bob/bob.admin
    $ ls
    <PACKAGE>
    bob.admin

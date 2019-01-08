@@ -188,10 +188,10 @@ class Sphinx(Script):
       'sphinx-quickstart',
       ])
     self.options['entry-points'] = '\n'.join([
-      'sphinx-build=sphinx:main',
-      'sphinx-apidoc=sphinx.apidoc:main',
+      'sphinx-build=sphinx.cmd.build:main',
+      'sphinx-apidoc=sphinx.ext.apidoc:main',
       'sphinx-autogen=sphinx.ext.autosummary.generate:main',
-      'sphinx-quickstart=sphinx.quickstart:main',
+      'sphinx-quickstart=sphinx.cmd.quickstart:main',
       ])
     self.options['dependent-scripts'] = 'false'
 

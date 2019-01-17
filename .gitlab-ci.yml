@@ -17,7 +17,7 @@ stages:
 .build_template: &build_job
   stage: build
   before_script:
-    - [ -z "${CI_COMMIT_TAG}" ] && stability="beta" || stability="stable"
+    - test -z ${CI_COMMIT_TAG} && stability="beta" || stability="stable"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
     - python3 bootstrap.py "${stability}" myenv
   script:

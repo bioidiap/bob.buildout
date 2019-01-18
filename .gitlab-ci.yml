@@ -1,5 +1,5 @@
 # This build file uses template features from YAML so it is generic enough for
-# any Bob project. Don't modify it unless you know what you're doing.
+# any project. Don't modify it unless you know what you're doing.
 
 # Definition of global variables (all stages)
 variables:
@@ -17,9 +17,8 @@ stages:
 .build_template: &build_job
   stage: build
   before_script:
-    - test -z ${CI_COMMIT_TAG} && stability="beta" || stability="stable"
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py "${stability}" myenv
+    - python3 bootstrap.py channel myenv
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate myenv
@@ -39,7 +38,6 @@ stages:
   artifacts:
     expire_in: 1 week
     paths:
-      - _ci/
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
   cache:
     <<: *build_caches
@@ -53,7 +51,6 @@ stages:
   artifacts:
     expire_in: 1 week
     paths:
-      - _ci/
       - ${CONDA_ROOT}/conda-bld/osx-64/*.tar.bz2
   cache:
     <<: *build_caches
@@ -68,7 +65,6 @@ build_linux_36:
   artifacts:
     expire_in: 1 week
     paths:
-      - _ci/
       - dist/*.zip
       - sphinx
       - ${CONDA_ROOT}/conda-bld/linux-64/*.tar.bz2
@@ -83,6 +79,9 @@ build_macosx_36:
 # Deploy targets
 .deploy_template: &deploy_job
   stage: deploy
+  before_script:
+    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
+    - python3 bootstrap.py channel myenv
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate myenv
@@ -101,9 +100,6 @@ build_macosx_36:
 
 deploy_beta:
   <<: *deploy_job
-  before_script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py beta myenv
   environment: beta
   only:
     - master
@@ -111,9 +107,6 @@ deploy_beta:
 
 deploy_stable:
   <<: *deploy_job
-  before_script:
-    - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py stable myenv
   environment: stable
   only:
     - /^v\d+\.\d+\.\d+([abc]\d*)?$/  # PEP-440 compliant version (tags)
@@ -130,7 +123,7 @@ pypi:
     - branches
   before_script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py stable myenv
+    - python3 bootstrap.py channel myenv
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate myenv

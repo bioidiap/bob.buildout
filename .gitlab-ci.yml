@@ -18,7 +18,7 @@ stages:
   stage: build
   before_script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py channel myenv
+    - python3 bootstrap.py -vv channel bdt
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate myenv
@@ -62,6 +62,11 @@ build_linux_36:
   variables:
     PYTHON_VERSION: "3.6"
     BUILD_EGG: "true"
+  script:
+    - source ${CONDA_ROOT}/etc/profile.d/conda.sh
+    - conda activate myenv
+    - bdt ci build -vv
+    - bdt ci readme -vv dist/*.zip
   artifacts:
     expire_in: 1 week
     paths:
@@ -81,7 +86,7 @@ build_macosx_36:
   stage: deploy
   before_script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py channel myenv
+    - python3 bootstrap.py -vv channel bdt
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
     - conda activate myenv
@@ -123,11 +128,11 @@ pypi:
     - branches
   before_script:
     - curl --silent "${BOOTSTRAP}" --output "bootstrap.py"
-    - python3 bootstrap.py channel myenv
+    - python3 bootstrap.py -vv channel bdt
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate myenv
-    - bdt ci pypi -vv
+    - conda activate bdt
+    - bdt ci pypi -vv dist/*.zip
   dependencies:
     - build_linux_36
     - build_macosx_36

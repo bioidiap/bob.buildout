@@ -1,5 +1,4 @@
 {% set name = 'bob.buildout' %}
-{% set project_dir = environ.get('RECIPE_DIR') + '/..' %}
 
 package:
   name: {{ name }}
@@ -10,14 +9,13 @@ build:
   run_exports:
     - {{ pin_subpackage(name) }}
   script:
-    - cd {{ project_dir }}
+    - cd {{ environ.get('RECIPE_DIR') + '/..' }}
     {% if environ.get('BUILD_EGG') %}
     - python setup.py sdist --formats=zip
     {% endif %}
     - python setup.py install --single-version-externally-managed --record record.txt
     # installs the documentation source, readme and license to share/doc
     # so it is available during test time
-    - install -d ${PREFIX}/share/doc/{{ name }}
     - install -m 644 -D README.rst ${PREFIX}/share/doc/{{ name }}
     - install -m 644 -D LICENSE ${PREFIX}/share/doc/{{ name }}
     - find doc -type f -exec install -m 644 -D "{}" "${PREFIX}/share/doc/{{ name }}/{}" \;
@@ -42,7 +40,8 @@ test:
     - {{ name }}
   commands:
     - nosetests --with-coverage --cover-package={{ name }} -sv {{ name }}
-    - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc {{ project_dir }}/sphinx
+    - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
+    - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
     - sphinx-build -aEb doctest ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
     - conda inspect objects -p $PREFIX {{ name }}  # [osx]

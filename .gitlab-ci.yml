@@ -21,7 +21,7 @@ stages:
     - python3 bootstrap.py -vv channel bdt
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate myenv
+    - conda activate bdt
     - bdt ci build -vv
   cache: &build_caches
     paths:
@@ -64,7 +64,7 @@ build_linux_36:
     BUILD_EGG: "true"
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate myenv
+    - conda activate bdt
     - bdt ci build -vv
     - bdt ci readme -vv dist/*.zip
   artifacts:
@@ -89,7 +89,7 @@ build_macosx_36:
     - python3 bootstrap.py -vv channel bdt
   script:
     - source ${CONDA_ROOT}/etc/profile.d/conda.sh
-    - conda activate myenv
+    - conda activate bdt
     - bdt ci deploy -vv
   dependencies:
     - build_linux_36

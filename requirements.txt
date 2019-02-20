@@ -1,0 +1,4 @@
+setuptools
+zc.recipe.egg
+six
+

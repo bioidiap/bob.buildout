@@ -8,6 +8,10 @@ from setuptools import setup, find_packages
 # Define package version
 version = open("version.txt").read().rstrip()
 
+def load_requirements(f):
+  retval = [str(k.strip()) for k in open(f, 'rt')]
+  return [k for k in retval if k and k[0] not in ('#', '-')]
+
 setup(
     name='bob.buildout',
     version=version,
@@ -23,6 +27,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
+    install_requires=load_requirements('requirements.txt'),
 
     entry_points = {
       'zc.buildout': [
@@ -41,12 +46,6 @@ setup(
         'extension = bob.buildout.extension:extension',
         ],
       },
-
-    install_requires=[
-      'setuptools',
-      'zc.recipe.egg',
-      'six',
-      ],
 
     classifiers=[
       'Framework :: Bob',

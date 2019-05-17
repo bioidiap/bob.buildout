@@ -16,7 +16,7 @@ def cleanup():
   '''Removes weird variables from the user environment just for the tests'''
 
   remove = ['CFLAGS', 'CXXFLAGS', 'LDFLAGS', 'BOB_PREFIX_PATH',
-      'PKG_CONFIG_PATH', 'CMAKE_PREFIX_PATH', 'MACOSX_DEPLOYMENT_TARGET']
+      'PKG_CONFIG_PATH', 'CMAKE_PREFIX_PATH']
   for key in remove:
     if key in os.environ: del os.environ[key]
 

@@ -21,5 +21,5 @@
 .. _pypi: http://pypi.python.org
 .. _setuptools: https://setuptools.readthedocs.io
 .. _sphinx: http://sphinx.pocoo.org
+.. _bob development tools: https://www.idiap.ch/software/bob/develop
 .. _zc.buildout: http://pypi.python.org/pypi/zc.buildout/
-

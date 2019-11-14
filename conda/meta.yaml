@@ -55,4 +55,4 @@ about:
   summary: A collection of zc.buildout recipes for Bob packages
   license: BSD 3-Clause
   license_family: BSD
-  license_file: ../LICENSE
+  license_file: LICENSE

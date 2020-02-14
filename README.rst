@@ -1,14 +1,14 @@
 .. vim: set fileencoding=utf-8 :
 .. Tue 27 Feb 2018 09:06:28 CET
 
-.. image:: https://img.shields.io/badge/docs-v2.2.3-yellow.svg
-   :target: https://www.idiap.ch/software/bob/docs/bob/bob.buildout/v2.2.3/index.html
+.. image:: https://img.shields.io/badge/docs-stable-yellow.svg
+   :target: https://www.idiap.ch/software/bob/docs/bob/bob.buildout/stable/index.html
 .. image:: https://img.shields.io/badge/docs-latest-orange.svg
    :target: https://www.idiap.ch/software/bob/docs/bob/bob.buildout/master/index.html
-.. image:: https://gitlab.idiap.ch/bob/bob.buildout/badges/v2.2.3/build.svg
-   :target: https://gitlab.idiap.ch/bob/bob.buildout/commits/v2.2.3
-.. image:: https://gitlab.idiap.ch/bob/bob.buildout/badges/v2.2.3/coverage.svg
-   :target: https://gitlab.idiap.ch/bob/bob.buildout/commits/v2.2.3
+.. image:: https://gitlab.idiap.ch/bob/bob.buildout/badges/master/build.svg
+   :target: https://gitlab.idiap.ch/bob/bob.buildout/commits/master
+.. image:: https://gitlab.idiap.ch/bob/bob.buildout/badges/master/coverage.svg
+   :target: https://gitlab.idiap.ch/bob/bob.buildout/commits/master
 .. image:: https://img.shields.io/badge/gitlab-project-0000c0.svg
    :target: https://gitlab.idiap.ch/bob/bob.buildout
 .. image:: https://img.shields.io/pypi/v/bob.buildout.svg

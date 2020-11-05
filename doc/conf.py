@@ -231,7 +231,6 @@ autodoc_default_flags = [
 # For inter-documentation mapping:
 intersphinx_mapping = {
     'python':        ('https://docs.python.org/%d.%d/' % sys.version_info[:2], None),
-    'six':           ('https://six.readthedocs.io', None),
     'setuptools':    ('https://setuptools.readthedocs.io/en/latest/', None),
     'bob.extension': ('http://www.idiap.ch/software/bob/docs/bob/bob.extension/stable/', None),
     }

@@ -24,12 +24,10 @@ requirements:
     - python {{ python }}
     - setuptools {{ setuptools }}
     - zc.recipe.egg {{ zc_recipe_egg }}
-    - six {{ six }}
   run:
     - python
     - setuptools
     - zc.recipe.egg
-    - six
     - nose
     - coverage
     - sphinx

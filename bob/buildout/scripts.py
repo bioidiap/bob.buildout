@@ -7,7 +7,6 @@
 """
 
 import os
-import six
 import logging
 import pkg_resources
 import zc.buildout

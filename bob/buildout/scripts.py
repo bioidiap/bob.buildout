@@ -159,7 +159,7 @@ class PyTest(Script):
     self.options['dependent-scripts'] = 'false'
 
     eggs = tools.eggs(self.buildout['buildout'], self.options, self.name)
-    self.options['eggs'] = tools.add_eggs(eggs, ['pytest'])
+    self.options['eggs'] = tools.add_eggs(eggs, ['pytest', 'pytest-cov'])
 
     # initializes base class
     super(PyTest, self).__init__(self.buildout, self.name, self.options)

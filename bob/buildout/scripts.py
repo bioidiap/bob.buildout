@@ -139,6 +139,37 @@ class NoseTests(Script):
 
   update = install
 
+class PyTest(Script):
+  """Installs pytest infrastructure"""
+
+  def __init__(self, buildout, name, options):
+
+    self.name = name
+    self.buildout = buildout
+    self.options = options
+
+    if 'interpreter' in options: del options['interpreter']
+    if 'pytest-flags' in options:
+      # use 'options' instead of 'options' to force use
+      flags = tools.parse_list(options['pytest-flags'])
+      init_code = ['sys.argv.append(%r)' % k for k in flags]
+      options['initialization'] = '\n'.join(init_code)
+    self.options['entry-points'] = 'pytest=pytest:console_main'
+    self.options['scripts'] = 'pytest'
+    self.options['dependent-scripts'] = 'false'
+
+    eggs = tools.eggs(self.buildout['buildout'], self.options, self.name)
+    self.options['eggs'] = tools.add_eggs(eggs, ['pytest'])
+
+    # initializes base class
+    super(PyTest, self).__init__(self.buildout, self.name, self.options)
+
+  def install(self):
+
+    return super(PyTest, self).install()
+
+  update = install
+
 class Coverage(Script):
   """Installs Coverage infrastructure"""
 
@@ -231,6 +262,7 @@ class Recipe(object):
         options.copy())
     self.scripts = UserScripts(buildout, 'Scripts', options.copy())
     self.nose = NoseTests(buildout, 'Nose', options.copy())
+    self.pytest = PyTest(buildout, 'PyTest', options.copy())
     self.coverage = Coverage(buildout, 'Coverage', options.copy())
     self.sphinx = Sphinx(buildout, 'Sphinx', options.copy())
 
@@ -241,6 +273,7 @@ class Recipe(object):
           self.dbpy.install_on_wrapped_env() + \
           self.scripts.install_on_wrapped_env() + \
           self.nose.install_on_wrapped_env() + \
+          self.pytest.install_on_wrapped_env() + \
           self.coverage.install_on_wrapped_env() + \
           self.sphinx.install_on_wrapped_env()
 

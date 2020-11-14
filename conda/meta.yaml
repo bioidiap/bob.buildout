@@ -1,4 +1,5 @@
 {% set name = 'bob.buildout' %}
+{% set project_dir = environ.get('RECIPE_DIR') + '/..' %}
 
 package:
   name: {{ name }}
@@ -9,7 +10,7 @@ build:
   run_exports:
     - {{ pin_subpackage(name) }}
   script:
-    - cd {{ environ.get('RECIPE_DIR') + '/..' }}
+    - cd {{ project_dir }}
     {% if environ.get('BUILD_EGG') %}
     - python setup.py sdist --formats=zip
     {% endif %}
@@ -29,24 +30,24 @@ requirements:
     - setuptools
     - zc.recipe.egg
     - nose
+    - pytest
+    - pytest-cov
     - coverage
     - sphinx
+    - sphinx_rtd_theme
 
 test:
   imports:
     - {{ name }}
   commands:
-    - nosetests --with-coverage --cover-package={{ name }} -sv {{ name }}
+      # runs tests for package only, report only what is in the package
+      # creates html and xml reports and place them in specific directories
+      - pytest --verbose --cov {{ name }} --cov-report term-missing --cov-report html:{{ project_dir }}/sphinx/coverage --cov-report xml:{{ project_dir }}/coverage.xml --pyargs {{ name }}
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
     - sphinx-build -aEb doctest ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
     - conda inspect objects -p $PREFIX {{ name }}  # [osx]
-  requires:
-    - nose
-    - coverage
-    - sphinx
-    - sphinx_rtd_theme
 
 about:
   home: https://www.idiap.ch/software/bob/

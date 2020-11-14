@@ -40,12 +40,12 @@ test:
   imports:
     - {{ name }}
   commands:
-    # runs tests for package only, report only what is in the package
-    # creates html and xml reports and place them in specific directories
-    - pytest --verbose --cov {{ name }} --cov-report term-missing --cov-report html:{{ project_dir }}/sphinx/coverage --cov-report xml:{{ project_dir }}/coverage.xml --pyargs {{ name }}
     - sphinx-build -aEW ${PREFIX}/share/doc/{{ name }}/doc sphinx
     - if [ -n "${CI_PROJECT_DIR}" ]; then mv sphinx "${CI_PROJECT_DIR}/"; fi
     - sphinx-build -aEb doctest ${PREFIX}/share/doc/{{ name }}/doc sphinx
+    # runs tests for package only, report only what is in the package
+    # creates html and xml reports and place them in specific directories
+    - pytest --verbose --cov {{ name }} --cov-report term-missing --cov-report html:{{ project_dir }}/sphinx/coverage --cov-report xml:{{ project_dir }}/coverage.xml --pyargs {{ name }}
     - conda inspect linkages -p $PREFIX {{ name }}  # [not win]
     - conda inspect objects -p $PREFIX {{ name }}  # [osx]
 

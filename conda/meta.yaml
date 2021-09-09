@@ -25,16 +25,22 @@ requirements:
     - python {{ python }}
     - setuptools {{ setuptools }}
     - zc.recipe.egg {{ zc_recipe_egg }}
+    - nose {{ nose }}
+    - pytest {{ pytest }}
+    - pytest-cov {{ pytest_cov }}
+    - coverage {{ coverage }}
+    - sphinx {{ sphinx }}
+    - sphinx_rtd_theme {{ sphinx_rtd_theme }}
   run:
     - python
     - setuptools
-    - zc.recipe.egg
-    - nose
-    - pytest
-    - pytest-cov
-    - coverage
-    - sphinx
-    - sphinx_rtd_theme
+    - {{ pin_compatible('zc.recipe.egg') }}
+    - {{ pin_compatible('nose') }}
+    - {{ pin_compatible('pytest') }}
+    - {{ pin_compatible('pytest-cov') }}
+    - {{ pin_compatible('coverage') }}
+    - {{ pin_compatible('sphinx') }}
+    - {{ pin_compatible('sphinx_rtd_theme') }}
 
 test:
   imports:

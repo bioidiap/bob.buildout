@@ -50,10 +50,8 @@ build:
   stage: test
   before_script:
     - pip install tox
-    - pip install -e .
   cache:
     key: "test-py"
-  cache:
     paths:
       - ${PIP_CACHE_DIR}
 

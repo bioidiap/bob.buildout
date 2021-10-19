@@ -86,7 +86,7 @@ test_py310:
     - test_py310
     - build
   before_script:
-    - pip install git+https://gitlab.idiap.ch/bob/bob.devtools#egg=bob.devtools twine
+    - pip install git+https://gitlab.idiap.ch/bob/bob.devtools#egg=bob.devtools
   script:
     - bdt ci deploy -vv
 

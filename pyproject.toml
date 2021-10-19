@@ -1,3 +1,15 @@
 [build-system]
 requires = ["setuptools", "wheel", "bob.extension"]
 build-backend = "setuptools.build_meta"
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = py38,py39,py310
+
+[testenv]
+deps =
+    pytest-cov
+commands =
+    pytest --verbose --cov bob.buildout --cov-report term-missing --cov-report html:sphinx/coverage --cov-report xml:coverage.xml bob/buildout
+"""

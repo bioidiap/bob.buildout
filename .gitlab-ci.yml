@@ -25,11 +25,11 @@ build:
   before_script:
     - pip install twine pre-commit sphinx sphinx-rtd-theme
   script:
-    - [ -r ".pre-commit-config.yaml" ] && pre-commit run --all-files --show-diff-on-failure --verbose
+    - "[ -r .pre-commit-config.yaml ] && pre-commit run --all-files --show-diff-on-failure --verbose"
     - python setup.py sdist --formats=zip
     - twine check dist/*.zip
     - pip install -e .
-    - [ -e doc ] && sphinx-build doc sphinx
+    - "[ -e doc ] && sphinx-build doc sphinx"
   artifacts:
     paths:
       - dist/*.zip

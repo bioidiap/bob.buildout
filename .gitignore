@@ -20,3 +20,4 @@ src/
 record.txt
 .coverage
 coverage.xml
+.tox/
